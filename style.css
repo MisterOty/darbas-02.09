@@ -1,5 +1,3 @@
-
-
 @font-face {
     font-family: Main-Menu; 
     src: url('files/fonts/AscenderUni.ttf');
@@ -22,16 +20,37 @@ body{
 .title{
     margin: 5%;
     font-family: Main-Menu;
-    width: 25%;
+    width: 20%;
 }
 
 a{
     display: contents;
 }
 
+p{
+    margin: 0;
+    padding: 0;
+}
+
 .MMenu{
     color: white;
     width: 50%;
+}
+
+.newspaper{
+    background-image: url(files/images/menu/newspaper.png);
+    background-size: 100% 100%;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    opacity: 0%;
+    width: 100vw;
+    height: 100vh;
+    transition: opacity 2.5s;
+}
+
+.visible{
+    opacity: 100%;
 }
 
 .MMSelector{
@@ -60,9 +79,67 @@ a{
     align-content: center;
 }
 
-.nightShow *{
-    margin: 0;
+.office-back{
+    z-index: 0;
+    position: absolute;
+    background-image: url(files/images/office/office_back.png);
+    background-size: 200% 100%;
+    width: 100vw;
+    height: 100vh;
+}
+
+.office-front{
+    z-index: 5;
+    position: absolute;
+    background-image: url(files/images/office/office_front.png);
+    background-size: 200% 100%;
+    width: 100vw;
+    height: 100vh;
+}
+
+.move-divs{
+    z-index: 6;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.left, .right{
+    background: rgba(255, 0, 0, 0.01);
+    display: flex;
+    width: 20vw;
+    height: 100vh;
+}
+
+.timeText{
+    font-family: Main-Menu;
+    transition: transform 0.125s;
+}
+
+.timer{
+    position: fixed;
+    z-index: 7;
+    width: 5vmax;
+    margin: 1vmax 3vmax;
+    right: 0;
+}
+
+.character{
+    position: absolute;
+    z-index: 2;
+    background: url(files/images/characters/kara.png);
+    background-size: 100% 100%;
+    width: 25%;
+    height: 50%;
+    top: 35%;
+    left: 35%;
+}
+
+.timer h3{
     padding: 0;
+    margin: 0;
 }
 
 footer{
