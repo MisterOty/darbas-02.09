@@ -1,0 +1,79 @@
+
+
+@font-face {
+    font-family: Main-Menu; 
+    src: url('files/fonts/AscenderUni.ttf');
+}
+
+body{
+    /* background-image: url(files/images/background.png); */
+    background: black;
+    background-size: 100% 100%;
+    background-attachment: fixed;
+    overflow: hidden;
+    user-select: none;
+    color: white;
+    font-family: arial;
+    font-size: 1.5vmax;
+    margin: 0;
+    padding: 0;
+}
+
+.title{
+    margin: 5%;
+    font-family: Main-Menu;
+    width: 25%;
+}
+
+a{
+    display: contents;
+}
+
+.MMenu{
+    color: white;
+    width: 50%;
+}
+
+.MMSelector{
+    margin: 10%;
+    display: flex;
+    flex-direction: column;
+    display: inline-block;
+}
+
+.text{
+    transition: transform 0.125s, text-shadow 0.125s, font-weight 0.125s;
+}
+
+.text:hover{
+    cursor: pointer;
+    transform: scale(1.25);
+    text-shadow: 0 0 1vmax white;
+    font-weight: 1000;
+}
+
+.nightShow{
+    font-size: 3vmax;
+    width: 100vw;
+    height: 100vh;
+    text-align: center;
+    align-content: center;
+}
+
+.nightShow *{
+    margin: 0;
+    padding: 0;
+}
+
+footer{
+    display: flex;
+    position: absolute;
+    justify-content: space-between;
+    width: 100%;
+    bottom: 0;
+}
+
+footer p{
+    margin: 1%;
+    padding: 0;
+}
