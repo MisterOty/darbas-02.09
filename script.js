@@ -3,31 +3,40 @@
 let gameSpeed = 1
 
 let gameData = [{
-    night: 1
+    night: 1,
+    nightSix: false,
+    customNight: false
 }]
 
 let characters = [
     {
         name: "Kara",
-        mMImage: `files/images/characters/kara.png`,
+        mMImage: "files/images/characters/kara.png",
+        jumpScareSFX: "",
+        difficulty: 0,
+        path: 0,
+        pathFind: {
+            b3: "",
+            b1: "",
+            c1: "",
+            c2: "",
+            office: ""
+        }
     },
 ]
 
-let cameras = [{
-    b1: `files/images/camera/b1.png`,
-    b2: `files/images/camera/b2.png`,
-    b3: `files/images/camera/b3.png`,
-    c1: `files/images/camera/c1.png`,
-    c2: `files/images/camera/c2.png`,
-}]
+let cameras = ["b1", "b2", "b3", "c1", "c2"]
 
 let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
 
-let gameTime = 300;
+let gameTime = 0;
+let gameTimeSec = 0;
 
 let officePos = 0;
 
 let count = 0;
+
+let currentCam
 
 const body = document.querySelector('body')
 const tabName = document.querySelector('.tab-title')
@@ -36,9 +45,6 @@ const copyRight = document.querySelector('footer')
 const pauseDiv = document.querySelector('.pause-div')
 
 let cameraView = false
-
-let nightSixBut = false
-let customNightBut = false
 
 let officeView = false
 let pauseView = false
@@ -53,9 +59,11 @@ let camSEnable = false
 let timerInterval
 let moveInterval
 let camTimeOut
+let camEffect
 
 const clearMain = () => {
     gameTime = 0;
+    gameTimeSec = 0;
     body.style.background = `black`
     gamePlay.innerHTML = ``
     copyRight.innerHTML = ``
@@ -72,10 +80,10 @@ const newGame = (choose) => {
             document.querySelector('.newspaper').classList.add('visible')
         }, 0);
     }else{
+        gameData[0].night = 1
         newsPaperView = !newsPaperView
         doNightShow(gameData, tabName, copyRight, gamePlay)
     }
-    
     document.addEventListener('keydown', function(event) {
         if(event.key = 'String' && newsPaperView){
             newGame(1)
@@ -83,10 +91,25 @@ const newGame = (choose) => {
     })
 }
 
-const doTimer = (time) => {
+const doTimerHour = (time) => {
     let realTime = Math.floor(time / 60)
     if(Math.floor(time / 60) == 0){
         realTime = 12
+    }else{
+        realTime = `0${realTime}`
+    }
+    return realTime
+}
+
+const doTimerSec = (time) => {
+    let realTime;
+    if(time >= 60){
+        gameTimeSec = 0;
+        realTime = '00'
+    }else if(time <= 9) {
+        realTime = `0${time}`
+    }else{
+        realTime = time
     }
     return realTime
 }
@@ -101,8 +124,22 @@ const stopRT = (condition) => {
 }
 
 const changeCam = (cam) => {
-    document.querySelector('.screen').style.background = `url(${cam})`
-    document.querySelector('.screen').style.backgroundSize = `100% 100%`
+    clearTimeout(camEffect)
+    if(currentCam == undefined){
+        currentCam = cam
+        document.querySelector(`.${currentCam}`).classList.add("button-clicked")
+    }else{
+        let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+        audio.play()
+        document.querySelector(`.${currentCam}`).classList.remove("button-clicked")
+        currentCam = cam
+        document.querySelector(`.${currentCam}`).classList.add("button-clicked")
+    }
+    document.querySelector('.screen').style.background = `white`
+    camEffect = setTimeout(() => {
+        document.querySelector('.screen').style.background = `url(files/images/camera/${cam}.png)`
+        document.querySelector('.screen').style.backgroundSize = `100% 100%`
+    }, 50);
 }
 
 //CHANGE SCENE
@@ -119,7 +156,7 @@ const doMenu = () => {
             </div>
         </div>`
     copyRight.innerHTML = `
-        <p class="Version">Version 0.3</p>
+        <p class="Version">Version 0.4</p>
         <p class="Name">Oskaras Venzlauskas GJSM23</p>`
     tabName.innerHTML = `Five Night's at KITM`
 
@@ -160,7 +197,7 @@ const doOffice = () => {
     cameraMO = true
     gamePlay.innerHTML = `
         <div class="timer">
-            <h3 class="time">${doTimer(gameTime)}:00AM</h3>
+            <h3 class="time">${doTimerHour(gameTime)}:${doTimerSec(gameTimeSec)} AM</h3>
             <p class="night">Night ${gameData[0].night}</p>
         </div>
         <div class="office">
@@ -175,52 +212,28 @@ const doOffice = () => {
         <div class="cam-hover"></div>
         <div class="cam-screen">
             <div class="screen"></div>
+            <div class="screen-border"></div>
             <div class="static"></div>
-            <div class="map">
-                <div class="b1 button">
-                    <p>CAM</p>
-                    <p>B1</p>
-                </div>
-                <div class="b2 button">
-                    <p>CAM</p>
-                    <p>B2</p>
-                </div>
-                <div class="b3 button">
-                    <p>CAM</p>
-                    <p>B3</p>
-                </div>
-                <div class="c1 button">
-                    <p>CAM</p>
-                    <p>C1</p>
-                </div>
-                <div class="c2 button">
-                    <p>CAM</p>
-                    <p>C2</p>
-                </div>
-            </div>
+            <div class="map"></div>
         </div>`
+    
+    for(let i = 0; i < cameras.length; i++){
+        document.querySelector('.map').innerHTML += `
+                <div class="${cameras[i]} button">
+                    <p>CAM</p>
+                    <p>${cameras[i].toUpperCase()}</p>
+                </div>`
+    }
 
     enableCamHover()
     doRTimer()
+    changeCam(cameras[0]);
 
-    document.querySelector('.b1').addEventListener("click", event => {
-        changeCam(cameras[0].b1)
-    });
-
-    document.querySelector('.b2').addEventListener("click", event => {
-        changeCam(cameras[0].b2)
-    });
-
-    document.querySelector('.b3').addEventListener("click", event => {
-        changeCam(cameras[0].b3)
-    });
-
-    document.querySelector('.c1').addEventListener("click", event => {
-        changeCam(cameras[0].c1)
-    });
-
-    document.querySelector('.c2').addEventListener("click", event => {
-        changeCam(cameras[0].c2)
+    document.querySelectorAll('.button').forEach(btn => {
+        btn.addEventListener("click", event => {
+            const camClass = event.currentTarget.classList[0]
+            changeCam(camClass);
+        });
     });
 
     document.querySelector('.left').addEventListener("mouseenter", event => {
@@ -247,11 +260,12 @@ const doRTimer = () => {
         if(gameTime >= 360){
             stopRT("win")
         }else{
-            document.querySelector('.time').innerHTML = `${doTimer(gameTime)}:00AM`
-            tabName.innerHTML = `${doTimer(gameTime)}:00 AM`
+            document.querySelector('.time').innerHTML = `${doTimerHour(gameTime)}:${doTimerSec(gameTimeSec)} AM`
+            tabName.innerHTML = `${doTimerHour(gameTime)}:${doTimerSec(gameTimeSec)} AM`
             gameTime++
+            gameTimeSec++
         }
-    }, 1000);
+    }, 1000 * gameSpeed);
 }
 
 const doPause = (type) => {
@@ -355,9 +369,12 @@ const changePosRight = () => {
 }
 
 const enableCams = () => {
+    let audio = new Audio("files/sounds/sfx/cam.mp3")
+    audio.play()
     if(camTabOpen && cameraMO){
         clearTimeout(camTimeOut);
         document.querySelector('.camera').style.top = `100%`
+        document.querySelector('.camera').style.transform = `scale(0.9)`
         camSEnable = false
         enableCamScreen()
     }else{
@@ -366,6 +383,7 @@ const enableCams = () => {
             enableCamScreen()
         }, 250);
         document.querySelector('.camera').style.top = `0%`
+        document.querySelector('.camera').style.transform = `scale(1.11)`
     }
 }
 
@@ -403,7 +421,7 @@ const konamiFunc = (word, event) => {
 }
 
 doMenu(gamePlay, copyRight)
-doOffice()
+// doOffice()
 
 document.addEventListener('keydown', function(event) {
     if(event.key == 'Escape' && officeView){

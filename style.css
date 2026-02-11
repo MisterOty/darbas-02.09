@@ -84,6 +84,11 @@ p{
     align-content: center;
 }
 
+.nightShow h1{
+    margin: 0;
+    padding: 0;
+}
+
 .office-back{
     z-index: 0;
     position: absolute;
@@ -112,7 +117,6 @@ p{
 }
 
 .left, .right{
-    background: rgba(255, 0, 0, 0.01);
     display: flex;
     width: 20vw;
     height: 100vh;
@@ -124,11 +128,13 @@ p{
 }
 
 .timer{
+    font-family: LCD-Solid;
+    text-align: right;
     position: fixed;
     z-index: 16;
-    width: 5vmax;
-    margin: 1vmax 3vmax;
-    right: 0;
+    width: 10vmax;
+    top: 2.5%;
+    right: 2.5%;
 }
 
 .character{
@@ -144,8 +150,9 @@ p{
 
 .camera{
     position: absolute;
-    transition: 0.25s top;
+    transition: 0.25s top, 0.25s transform;
     top: 100%;
+    transform: scale(0.9);
     z-index: 13;
     background: url(files/images/office/camera.png);
     background-size: 100% 100%;
@@ -169,6 +176,16 @@ p{
     height: 100%;
 }
 
+.screen-border{
+    position: absolute;
+    top: 0%;
+    box-sizing: border-box;
+    border: 0.25vmax solid white;
+    width: 100%;
+    height: 100%;
+    transform: scale(0.97)
+}
+
 .static{
     background: url(files/images/camera/static.gif);
     background-size: 100% 100%;
@@ -183,11 +200,11 @@ p{
 .map{
     background: url(files/images/camera/radar.png);
     background-size: 100% 100%;
-    width: 35vmax;
-    height: 35vmax;
+    width: 30vmax;
+    height: 30vmax;
     position: absolute;
-    right: 0;
-    bottom: 0;
+    right: 2%;
+    bottom: 3%;
     z-index: 16;
 }
 
@@ -200,11 +217,11 @@ p{
     align-content: center;
     width: 3vmax;
     height: 2vmax;
-    border: 0.25vmax solid white;
+    border: 0.2vmax solid white;
 }
 
 .button-clicked{
-    background: lime;
+    background: rgb(150 168 8);
 }
 
 .button:hover{
@@ -238,13 +255,14 @@ p{
 
 .cam-hover{
     position: absolute;
-    left: 25%;
+    left: 32%;
     bottom: 2.5%;
     z-index: 15;
     background: url(files/images/office/arrow.png);
     background-size: 100% 100%;
-    width: 50%;
-    height: 5vh;
+    width: 35vmax;
+    height: 3vmax;
+    filter: opacity(0.75)
 }
 
 .pause{
