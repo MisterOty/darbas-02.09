@@ -3,9 +3,9 @@
 let gameSpeed = 1
 
 let gameData = [{
-    night: 1,
+    night: 5,
     nightSix: false,
-    customNight: false
+    customNight: false,
 }]
 
 let characters = [
@@ -15,6 +15,12 @@ let characters = [
         jumpScareSFX: "",
         difficulty: 0,
         path: 0,
+        cameraPos: {
+            b3: [35, 0, 35, 0],
+            b1: [35, 0, 35, 0],
+            c1: [35, 25, 35, 0],
+            c2: [35, 25, 35, 0]
+        },
         pathFind: {
             b3: "",
             b1: "",
@@ -27,16 +33,21 @@ let characters = [
 
 let cameras = ["b1", "b2", "b3", "c1", "c2"]
 
-let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
+let konamiCode = ["ArrowUp",
+    //  "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"
+    ]
 
 let gameTime = 0;
 let gameTimeSec = 0;
 
+let power = 1000;
+let powerUsage = 1;
+
 let officePos = 0;
 
-let count = 0;
+let secretCount = 0;
 
-let currentCam
+let currentNight = 0;
 
 const body = document.querySelector('body')
 const tabName = document.querySelector('.tab-title')
@@ -55,20 +66,27 @@ let mouseOver = false
 let cameraMO = false
 let camTabOpen = false
 let camSEnable = false
+let lButEnable = false
 
 let timerInterval
 let moveInterval
+let powerInterval
 let camTimeOut
 let camEffect
+let currentCam
 
 const clearMain = () => {
     gameTime = 0;
     gameTimeSec = 0;
+    power = 1000;
+    powerUsage = 1;
     body.style.background = `black`
     gamePlay.innerHTML = ``
     copyRight.innerHTML = ``
     clearInterval(timerInterval)
+    clearInterval(powerInterval)
     cameraMO = false
+    currentCam = undefined
 }
 
 const newGame = (choose) => {
@@ -116,6 +134,7 @@ const doTimerSec = (time) => {
 
 const stopRT = (condition) => {
     clearInterval(timerInterval)
+    clearInterval(powerInterval)
     if(condition == "win"){
         do6am(tabName, gamePlay, gameData)
     }else if(condition == "lose"){
@@ -146,6 +165,7 @@ const changeCam = (cam) => {
 
 const doMenu = () => {
     officeView = false
+    currentNight = 0
     clearMain()
     gamePlay.innerHTML = `
         <div class="MMenu">
@@ -160,32 +180,56 @@ const doMenu = () => {
         <p class="Name">Oskaras Venzlauskas GJSM23</p>`
     tabName.innerHTML = `Five Night's at KITM`
 
-    if(gameData[0].night >= 7){
+    if(gameData[0].nightSix){
         document.querySelector('.MMSelector').innerHTML += `
-        <p class="6N text">6th Night</p>
+        <p class="night-six text">6th Night</p>`
+
+        document.querySelector('.night-six').addEventListener('click', function () {
+            doNightShow("night-6")
+        });
+    }
+
+    if(gameData[0].customNight){
+        document.querySelector('.MMSelector').innerHTML += `
         <p class="CN text">Custom Night</p>`
-    }else if(gameData[0].night >= 6){
-        document.querySelector('.MMSelector').innerHTML += `
-        <p class="6N text">6th Night</p>`
+
+        document.querySelector('.CN').addEventListener('click', function () {
+            doNightShow("custom-night")
+        });
     }
 
     document.querySelector('.NG').addEventListener('click', function () {
-    newGame(0)
+        newGame(0)
     });
 
     document.querySelector('.CTN').addEventListener('click', function () {
-        doNightShow(gameData, tabName, copyRight, gamePlay)
+        doNightShow("continue")
     });
+
+    document.querySelectorAll('.text').forEach(btn => {
+        btn.addEventListener("mouseover", function () {
+            let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+            audio.play()
+        });
+    });
+
 }
 
-const doNightShow = () => {
+const doNightShow = (type) => {
     clearMain()
+    if(type == "night-6"){
+        currentNight = 6
+    }else if(type == "custom-night"){
+        currentNight = 7
+    }else{
+        currentNight = gameData[0].night
+    }
     gamePlay.innerHTML = `
         <div class="nightShow">
-            <h1>Night ${gameData[0].night}</h1>
+            <h1>Night ${currentNight}</h1>
             <p>12:00 AM</p>
         </div>`
-    tabName.innerHTML = `Night ${gameData[0].night}`
+    tabName.innerHTML = `Night ${currentNight}`
     setTimeout(() => {
         doOffice()
     }, 2500);
@@ -198,10 +242,22 @@ const doOffice = () => {
     gamePlay.innerHTML = `
         <div class="timer">
             <h3 class="time">${doTimerHour(gameTime)}:${doTimerSec(gameTimeSec)} AM</h3>
-            <p class="night">Night ${gameData[0].night}</p>
+            <p class="night">Night ${currentNight}</p>
+        </div>
+        <div class="power">
+            <div class="power-text">
+                <p>Power left:</p>
+                <p class="power-number">${Math.floor(power / 10)}%</p>
+            </div>
+            <div class="power-usage">
+                <p>Usage:</p>
+                <div class="usage"></div>
+            </div>
         </div>
         <div class="office">
-            <div class="office-back"></div>
+            <div class="office-back">
+                <div class="character-office"></div>
+            </div>
             <div class="office-front"></div>
         </div>
         <div class="move-divs">
@@ -211,7 +267,9 @@ const doOffice = () => {
         <div class="camera"></div>
         <div class="cam-hover"></div>
         <div class="cam-screen">
-            <div class="screen"></div>
+            <div class="screen">
+                <div class="character"></div>
+            </div>
             <div class="screen-border"></div>
             <div class="static"></div>
             <div class="map"></div>
@@ -224,10 +282,12 @@ const doOffice = () => {
                     <p>${cameras[i].toUpperCase()}</p>
                 </div>`
     }
+    document.querySelector('.office-back').style.filter = `brightness(${0.1})`
 
     enableCamHover()
     doRTimer()
     changeCam(cameras[0]);
+    doPowerCount()
 
     document.querySelectorAll('.button').forEach(btn => {
         btn.addEventListener("click", event => {
@@ -291,6 +351,7 @@ const doPause = (type) => {
         pauseDiv.innerHTML = ``
     }else{
         doRTimer()
+        doPowerCount()
         pauseDiv.innerHTML = ``
     }
 }
@@ -299,14 +360,12 @@ const do6am = () => {
     clearMain()
     let audio = new Audio("files/sounds/sfx/6am.mp3")
     audio.play()
+    officeView = false
     gamePlay.innerHTML = `
         <div class="nightShow visible">
             <p class="timeText">5:59 AM</p>
         </div>`
     tabName.innerHTML = `5:59 AM`
-    if(gameData[0].night <= 7){
-        gameData[0].night++
-    }
     setTimeout(() => {
         document.querySelector('.timeText').innerHTML = ``
     }, 900);
@@ -327,8 +386,19 @@ const do6am = () => {
         document.querySelector('.timeText').style.transform = `scale(3)`
     }, 6300);
     setTimeout(() => {
+        if(currentNight == 7){
+            //Do ending PINK SLIP
+        }else if(currentNight == 6){
+            gameData[0].customNight = true
+            //Do ending BONUS 20
+        }else if(currentNight == 5){
+            gameData[0].nightSix = true
+            //Do ending PAYCHECK
+        }else if(currentNight > 5){
+            gameData[0].night++
+        }
         doMenu()
-    }, 8500);
+    }, 10000);
 }
 
 const doGameOver = () => {
@@ -353,19 +423,31 @@ const doGameOver = () => {
 const changePosLeft = () => {
     if(!mouseOver) return
     officePos--
-    officePos = Math.min(100, Math.max(0, officePos));
-    document.querySelector('.office-front').style.backgroundPosition = `${officePos}%`
-    document.querySelector('.office-back').style.backgroundPosition = `${officePos * 0.75}%`
+    changePos()
     requestAnimationFrame(changePosLeft)
 }
 
 const changePosRight = () => {
     if(!mouseOver) return
     officePos++
+    changePos()
+    requestAnimationFrame(changePosRight)
+}
+
+const changePos = () => {
+    if(officePos <= 0){
+        document.querySelector('.cam-hover').style.display = `block`
+    }else{
+        document.querySelector('.cam-hover').style.display = `none`
+    }
+    // if(officePos >= 100){
+    //     document.querySelector('.cam-hover').style.display = `block`
+    // }else{
+    //     document.querySelector('.cam-hover').style.display = `none`
+    // }
     officePos = Math.min(100, Math.max(0, officePos));
     document.querySelector('.office-front').style.backgroundPosition = `${officePos}%`
     document.querySelector('.office-back').style.backgroundPosition = `${officePos * 0.75}%`
-    requestAnimationFrame(changePosRight)
 }
 
 const enableCams = () => {
@@ -409,23 +491,69 @@ const enableCamHover = () => {
     });
 }
 
-const konamiFunc = (word, event) => {
-    if(event == word[count] && count == word.length - 1){
-        do6am()
-        count = 0
-    }else if(event == word[count] && count <= word.length - 1){
-        count++
-    }else if(event !== word[count]){
-        count = 0
+const doFlash = () => {
+    if(document.querySelector('.office-back').style.filter == `brightness(${0.1})`){
+        document.querySelector('.office-back').style.filter = `brightness(${1})`
+        doPower("+")
+    }else{
+        document.querySelector('.office-back').style.filter = `brightness(${0.1})`
+        doPower()
     }
 }
 
-doMenu(gamePlay, copyRight)
+const konamiFunc = (word, event) => {
+    if(officeView){
+        if(event == word[secretCount] && secretCount == word.length - 1){
+            do6am()
+            secretCount = 0
+        }else if(event == word[secretCount] && secretCount <= word.length - 1){
+            secretCount++
+        }else if(event !== word[secretCount]){
+            secretCount = 0
+        }
+    }
+}
+
+const doPowerCount = () => {
+    powerInterval = setInterval(() => {
+        if(gameTime >= 360){
+            stopRT("win")
+            return
+        }else{
+            document.querySelector('.power-number').innerHTML = `${Math.floor(power / 10)}%`
+            console.log(power, powerUsage)
+            power--
+        }
+    }, 1000 / powerUsage);
+    doPowerBar()
+}
+
+const doPowerBar = () => {
+    document.querySelector('.usage').innerHTML = ``
+    for(let i = 0; i < powerUsage; i++){
+        document.querySelector('.usage').innerHTML += `<div></div>`
+    }
+}
+
+const doPower = (type) => {
+    clearInterval(powerInterval)
+    if(type == "+"){
+        powerUsage++
+    }else{
+        powerUsage--
+    }
+    doPowerCount()
+}
+
+doMenu()
 // doOffice()
 
 document.addEventListener('keydown', function(event) {
     if(event.key == 'Escape' && officeView){
         doPause()
+    }
+    if(event.key == 'Control' && officeView && !camSEnable){
+        doFlash()
     }
     if(event.key == 'Delete'){
         doGameOver()

@@ -11,3 +11,7 @@ Make power
 Make door
 Make jumpscares
 ---------Make gameover
+
+bugs:
+
+night 6 wont be playable after beating it

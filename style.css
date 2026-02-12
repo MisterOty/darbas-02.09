@@ -144,6 +144,15 @@ p{
     background-size: 100% 100%;
     width: 25%;
     height: 50%;
+}
+
+.character-office{
+    position: absolute;
+    z-index: 2;
+    background: url(files/images/characters/kara.png);
+    background-size: 100% 100%;
+    width: 25%;
+    height: 50%;
     top: 35%;
     left: 35%;
 }
@@ -200,8 +209,8 @@ p{
 .map{
     background: url(files/images/camera/radar.png);
     background-size: 100% 100%;
-    width: 30vmax;
-    height: 30vmax;
+    width: 30%;
+    height: 40%;
     position: absolute;
     right: 2%;
     bottom: 3%;
@@ -260,8 +269,8 @@ p{
     z-index: 15;
     background: url(files/images/office/arrow.png);
     background-size: 100% 100%;
-    width: 35vmax;
-    height: 3vmax;
+    width: 35%;
+    height: 5%;
     filter: opacity(0.75)
 }
 
@@ -295,6 +304,48 @@ p{
 .timer h3{
     padding: 0;
     margin: 0;
+}
+
+.power{
+    position: absolute;
+    z-index: 20;
+    padding: 2%;
+    bottom: 0;
+}
+
+.power p{
+    display: contents;
+}
+
+.power-usage{
+    display: flex;
+    gap: 5%;
+}
+
+.usage{
+    display: flex;
+    gap: 0.1vmax;
+}
+
+.usage div{
+    width: 1.25vmax;
+    height: 2vmax;
+}
+
+.usage div:nth-child(1){
+    background: rgb(0, 255, 0);
+}
+
+.usage div:nth-child(2){
+    background: rgb(105, 255, 0);
+}
+
+.usage div:nth-child(3){
+    background: rgb(255, 255, 0);
+}
+
+.usage div:nth-child(4){
+    background: rgb(255, 0, 0);
 }
 
 footer{
