@@ -140,7 +140,7 @@ p{
 .character{
     position: absolute;
     z-index: 2;
-    background: url(files/images/characters/kara.png);
+    background: url(files/images/characters/justas.png);
     background-size: 100% 100%;
     width: 25%;
     height: 50%;
@@ -149,7 +149,7 @@ p{
 .character-office{
     position: absolute;
     z-index: 2;
-    background: url(files/images/characters/kara.png);
+    background: url(files/images/characters/justas.png);
     background-size: 100% 100%;
     width: 25%;
     height: 50%;
