@@ -3,51 +3,110 @@
 let gameSpeed = 1
 
 let gameData = [{
-    night: 5,
-    nightSix: false,
-    customNight: false,
+    night: 7,
+    nightSix: true,
+    extraMenu: true,
 }]
 
 let characters = [
     {
-        name: "Kara",
-        mMImage: "files/images/characters/kara.png",
+        name: "Justas",
+        mMImage: "files/images/characters/justas.png",
+        icon: [35, 0, 0, 0],
         jumpScareSFX: "",
         difficulty: 0,
         path: 0,
         cameraPos: {
-            b3: [35, 0, 35, 0],
+            r04: [35, 0, 35, 0],
             b1: [35, 0, 25, 0],
-            c1: [35, 25, 35, 0],
-            c2: [35, 25, 35, 0]
+            a1: [35, 25, 35, 0],
+            a2: [35, 25, 35, 0],
+            office: [100, 0, 0, 0]
         },
         pathFind: {
-            b3: "",
+            r04: "",
             b1: "",
-            c1: "",
-            c2: "",
+            a1: "",
+            a2: "",
+            office: ""
+        }
+    },
+    {
+        name: "Kara",
+        mMImage: "files/images/characters/kara.png",
+        icon: [35, 0, 0, 0],
+        jumpScareSFX: "",
+        difficulty: 0,
+        path: 0,
+        cameraPos: {
+            r01: [35, 0, 35, 0],
+            r02: [35, 0, 25, 0],
+            r03: [35, 25, 35, 0],
+            office: [0, 100, 0, 0]
+        },
+        pathFind: {
+            r01: "",
+            r02: "",
+            r03: "",
             office: ""
         }
     },
 ]
 
-let cameras = ["b1", "b2", "b3", "c1", "c2"]
+let cameras = ["a1", "a2", "b1", "b2", "r01", "r02", "r03", "r04", "r05", "r06"]
 
 let konamiCode = ["ArrowUp",
     //  "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"
     ]
 
-let gameTime = 0;
-let gameTimeSec = 0;
+let extraOp = [{
+    name: "Characters",
+    class: "CHR",
+},
+{
+    name: "Scenes",
+    class: "SCN",
+},
+{
+    name: "Custom Night",
+    class: "CTN",
+},
+{
+    name: "Cheats",
+    class: "CHT",
+},
+{
+    name: "Exit",
+    class: "EXT",
+}]
 
-let power = 1000;
-let powerUsage = 1;
+let cheats = [{
+    text: "Faster Nights",
+    class: "fstngt",
+    enable: false
+},
+{
+    text: "Unlimited Power",
+    class: "unltpw",
+    enable: false
+}]
 
-let officePos = 0;
+let pictures = []
 
-let secretCount = 0;
+let characterPic = []
 
-let currentNight = 0;
+let scenePic = [
+        "files/images/office/office_front.png",
+        "files/images/camera/radar.png",
+]
+
+for(let i = 0;i < characters.length; i++){
+    characterPic.push(characters[i].mMImage)
+}
+
+for(let i = 0;i < cameras.length; i++){
+    scenePic.push(`files/images/camera/${cameras[i]}.png`)
+}
 
 const body = document.querySelector('body')
 const tabName = document.querySelector('.tab-title')
@@ -55,13 +114,21 @@ const gamePlay = document.querySelector('main')
 const copyRight = document.querySelector('footer')
 const pauseDiv = document.querySelector('.pause-div')
 
-let cameraView = false
+let gameTime = 0;
+let gameTimeSec = 0;
+let power = 1000;
+let powerUsage = 1;
+let officePos = 50;
+let currentNight = 0;
+let secretCount = 0;
+let picCount = 0;
 
+let version = 0.5
+
+let cameraView = false
 let officeView = false
 let pauseView = false
-
 let newsPaperView = false
-
 let mouseOver = false
 let cameraMO = false
 let camTabOpen = false
@@ -74,10 +141,12 @@ let powerInterval
 let camTimeOut
 let camEffect
 let currentCam
+let extraText
 
 const clearMain = () => {
     gameTime = 0;
     gameTimeSec = 0;
+    gameTime = 1;
     power = 1000;
     powerUsage = 1;
     body.style.background = `black`
@@ -86,6 +155,7 @@ const clearMain = () => {
     clearInterval(timerInterval)
     clearInterval(powerInterval)
     cameraMO = false
+    officeView = false
     currentCam = undefined
 }
 
@@ -154,7 +224,7 @@ const changeCam = (cam) => {
         currentCam = cam
         document.querySelector(`.${currentCam}`).classList.add("button-clicked")
     }
-    document.querySelector('.screen').style.background = `white`
+    document.querySelector('.screen').style.background = `url(files/images/camera/changecam.gif`
     camEffect = setTimeout(() => {
         document.querySelector('.screen').style.background = `url(files/images/camera/${cam}.png)`
         document.querySelector('.screen').style.backgroundSize = `100% 100%`
@@ -176,25 +246,30 @@ const doMenu = () => {
             </div>
         </div>`
     copyRight.innerHTML = `
-        <p class="Version">Version 0.4</p>
+        <p class="Version">Version ${version}</p>
         <p class="Name">Oskaras Venzlauskas GJSM23</p>`
     tabName.innerHTML = `Five Night's at KITM`
 
-    if(gameData[0].nightSix){
+    if(gameData[0].extraMenu){
+        document.querySelector('.MMSelector').innerHTML += `
+        <p class="night-six text">6th Night</p>`
+
+        document.querySelector('.MMSelector').innerHTML += `
+        <p class="EXT text">Extra </p>`
+
+        document.querySelector('.night-six').addEventListener('click', function () {
+            doNightShow("night-6")
+        });
+
+        document.querySelector('.EXT').addEventListener('click', function () {
+            doExtra()
+        });
+    }else if(gameData[0].nightSix){
         document.querySelector('.MMSelector').innerHTML += `
         <p class="night-six text">6th Night</p>`
 
         document.querySelector('.night-six').addEventListener('click', function () {
             doNightShow("night-6")
-        });
-    }
-
-    if(gameData[0].customNight){
-        document.querySelector('.MMSelector').innerHTML += `
-        <p class="CN text">Custom Night</p>`
-
-        document.querySelector('.CN').addEventListener('click', function () {
-            doNightShow("custom-night")
         });
     }
 
@@ -223,6 +298,7 @@ const doNightShow = (type) => {
         currentNight = 7
     }else{
         currentNight = gameData[0].night
+        currentNight = Math.min(currentNight, 5)
     }
     gamePlay.innerHTML = `
         <div class="nightShow">
@@ -237,6 +313,12 @@ const doNightShow = (type) => {
 
 const doOffice = () => {
     clearMain()
+    if(cheats[0].enable){
+        gameSpeed = 0.5
+    }
+    if(cheats[1].enable){
+        power = 999999;
+    }
     officeView = true
     cameraMO = true
     gamePlay.innerHTML = `
@@ -256,7 +338,7 @@ const doOffice = () => {
         </div>
         <div class="office">
             <div class="office-back">
-                <div class="character-office"></div>
+                <div class="character-office character-left"></div>
             </div>
             <div class="office-front"></div>
         </div>
@@ -286,6 +368,7 @@ const doOffice = () => {
 
     enableCamHover()
     doRTimer()
+    changePos()
     changeCam(cameras[0]);
     doPowerCount()
 
@@ -360,7 +443,6 @@ const do6am = () => {
     clearMain()
     let audio = new Audio("files/sounds/sfx/6am.mp3")
     audio.play()
-    officeView = false
     gamePlay.innerHTML = `
         <div class="nightShow visible">
             <p class="timeText">5:59 AM</p>
@@ -389,12 +471,12 @@ const do6am = () => {
         if(currentNight == 7){
             //Do ending PINK SLIP
         }else if(currentNight == 6){
-            gameData[0].customNight = true
+            gameData[0].extraMenu = true
             //Do ending BONUS 20
         }else if(currentNight == 5){
             gameData[0].nightSix = true
             //Do ending PAYCHECK
-        }else if(currentNight > 5){
+        }else if(currentNight <= 5){
             gameData[0].night++
         }
         doMenu()
@@ -409,10 +491,12 @@ const doGameOver = () => {
         <div class="nightShow visible">
             <p class="timeText">Game Over</p>
         </div>`
+    tabName.innerHTML = `Game Over`
     setTimeout(() => {
-        gamePlay.innerHTML = ``
-        body.style.backgroundColor = `red`
-    }, 10000);
+        clearMain()
+        gamePlay.innerHTML = `<div class="gameOver"></div>`
+        tabName.innerHTML = `GAME OVER`
+    }, 2000);
     setTimeout(() => {
         doMenu()
     }, 15000);
@@ -435,19 +519,14 @@ const changePosRight = () => {
 }
 
 const changePos = () => {
-    if(officePos <= 0){
+    if(officePos >= 30 && 70 >= officePos){
         document.querySelector('.cam-hover').style.display = `block`
     }else{
         document.querySelector('.cam-hover').style.display = `none`
     }
-    // if(officePos >= 100){
-    //     document.querySelector('.cam-hover').style.display = `block`
-    // }else{
-    //     document.querySelector('.cam-hover').style.display = `none`
-    // }
     officePos = Math.min(100, Math.max(0, officePos));
     document.querySelector('.office-front').style.backgroundPosition = `${officePos}%`
-    document.querySelector('.office-back').style.backgroundPosition = `${officePos * 0.75}%`
+    document.querySelector('.office-back').style.backgroundPosition = `${officePos}%`
 }
 
 const enableCams = () => {
@@ -472,6 +551,7 @@ const enableCams = () => {
 const enableCamScreen = () => {
     if(camSEnable){
         document.querySelector('.cam-screen').style.display = `block`
+        changeCam(currentCam)
     }else{
         document.querySelector('.cam-screen').style.display = `none`
     }
@@ -521,7 +601,6 @@ const doPowerCount = () => {
             return
         }else{
             document.querySelector('.power-number').innerHTML = `${Math.floor(power / 10)}%`
-            console.log(power, powerUsage)
             power--
         }
     }, 1000 / powerUsage);
@@ -545,17 +624,135 @@ const doPower = (type) => {
     doPowerCount()
 }
 
+const doExtra = () => {
+    gamePlay.innerHTML = `
+        <div class="navbar">
+            <div class="nav-text">
+                <div class="nav-selector"></div>
+            </div>
+        <div class="scene-show"></div>`
+
+    for(let i = 0; i < extraOp.length; i++){
+        document.querySelector('.nav-selector').innerHTML += `<p class="${extraOp[i].class} text">${extraOp[i].name}</p>`
+    }
+
+    doEXTOpt(characterPic, "Characters")
+    changeEXTPic("early", pictures)
+
+    document.querySelector('.CHR').addEventListener("click", function () {
+        doEXTOpt(characterPic, this.textContent)
+        changeEXTPic("early", pictures)
+    });
+
+    document.querySelector('.SCN').addEventListener("click", function () {
+        doEXTOpt(scenePic, this.textContent)
+        changeEXTPic("early", pictures)
+    });
+
+    document.querySelector('.CTN').addEventListener("click", function () {
+        doEXTOpt(scenePic, this.textContent)
+        changeCTN()
+    });
+
+    document.querySelector('.CHT').addEventListener("click", function () {
+        doEXTOpt(scenePic, this.textContent)
+        changeCHT()
+    });
+
+
+    document.querySelector('.EXT').addEventListener("click", function () {
+        doMenu()
+    });
+}
+
+const doEXTOpt = (type, name) => {
+    picCount = 0
+    pictures = type
+    for(let i = 0; i < extraOp.length; i++){
+        if(name == extraOp[i].name){
+            extraText = extraOp[i].name
+            tabName.innerHTML = extraOp[i].name
+        }
+    }
+}
+
+const changeEXTPic = (type, pic) => {
+    if(type == "early"){
+        document.querySelector(".scene-show").innerHTML = `
+            <div class="extra-title"><p>${extraText}</p></div>
+            <div class="arrow-left arrow">&lt;&lt;</div>
+            <div class="arrow-right arrow">>></div>
+            <div class="scene-num"></div>
+            <div class="scene-container"></div>`
+        
+        document.querySelector('.arrow-left').addEventListener("click", function () {
+            changeEXTPic("left", pictures)
+        });
+
+        document.querySelector('.arrow-right').addEventListener("click", function () {
+            changeEXTPic("right", pictures)
+        });
+    }else if(type == "left"){
+        picCount--
+    }else if(type == "right"){
+        picCount++
+    }
+    if(picCount == -1){
+        picCount = pic.length - 1
+    }else if(picCount == pic.length){
+        picCount = 0
+    }
+    document.querySelector(".scene-container").innerHTML = `<a target="_blank" href="${pic[picCount]}"><div class="scene"></div></a>`
+    document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pic.length}`
+    document.querySelector(".scene").style.background = `url(${pic[picCount]})`
+    document.querySelector(".scene").style.backgroundSize = `100% 100%`
+}
+
+const changeCTN = () => {
+    document.querySelector(".scene-show").innerHTML = ``
+}
+
+const changeCHT = () => {
+    document.querySelector(".scene-show").innerHTML = `
+        <div class="extra-title"><p>${extraText}</p></div>
+        <div class="cheats"></div>`
+
+    for(let i = 0;i < cheats.length; i++){
+        document.querySelector('.cheats').innerHTML += `
+                <div class="row">
+                    <div class="${cheats[i].class} switch"></div><p class="cheat-text">${cheats[i].text}</p>
+                </div>`
+        if(cheats[i].enable){
+            document.querySelector(`.${cheats[i].class}`).classList.add('enabled')
+        }
+    }
+
+    document.querySelector('.fstngt').addEventListener("click", function () {
+        changeCHTEnable("fstngt", 0)
+    });
+
+    document.querySelector('.unltpw').addEventListener("click", function () {
+        changeCHTEnable("unltpw", 1)
+    });
+}
+
+const changeCHTEnable = (cl, num) => {
+    document.querySelector(`.${cl}`).classList.toggle('enabled')
+    cheats[num].enable = !cheats[num].enable
+}
+
 doMenu()
 // doOffice()
+// doExtra()
 
 document.addEventListener('keydown', function(event) {
     if(event.key == 'Escape' && officeView){
         doPause()
     }
-    if(event.key == 'Control' && officeView && !camSEnable){
+    if(event.key == 'Control' && officeView && !camSEnable && !pauseView){
         doFlash()
     }
-    if(event.key == 'Delete'){
+    if(event.key == 'Delete' && officeView && !pauseView){
         doGameOver()
     }
     konamiFunc(konamiCode, event.key)

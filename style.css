@@ -8,6 +8,11 @@
     src: url('files/fonts/LCDSolid.ttf');
 }
 
+@font-face {
+    font-family: OCR-A; 
+    src: url('files/fonts/OCR-A.ttf');
+}
+
 body{
     /* background-image: url(files/images/background.png); */
     background: black;
@@ -52,6 +57,15 @@ p{
     width: 100vw;
     height: 100vh;
     transition: opacity 2.5s;
+}
+
+.gameOver{
+    position: absolute;
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    background-image: url(files/images/menu/gameover.png);
+    background-size: 25% 25%;
 }
 
 .visible{
@@ -147,14 +161,25 @@ p{
 }
 
 .character-office{
+    opacity: 50;
     position: absolute;
     z-index: 2;
-    background: url(files/images/characters/justas.png);
+    background: url(files/images/characters/kara.png);
     background-size: 100% 100%;
     width: 25%;
     height: 50%;
     top: 35%;
     left: 35%;
+}
+
+.character-left{
+    top: 50%;
+    left: 5.5%;
+}
+
+.character-left{
+    top: 50%;
+    right: 5.5%;
 }
 
 .camera{
@@ -164,6 +189,7 @@ p{
     transform: scale(0.9);
     z-index: 13;
     background: url(files/images/office/camera.png);
+    filter: saturate(0);
     background-size: 100% 100%;
     width: 100%;
     height: 100vh;
@@ -209,8 +235,8 @@ p{
 .map{
     background: url(files/images/camera/radar.png);
     background-size: 100% 100%;
-    width: 30%;
-    height: 40%;
+    width: 30vmax;
+    height: 30vmax;
     position: absolute;
     right: 2%;
     bottom: 3%;
@@ -237,29 +263,54 @@ p{
     cursor: pointer;
 }
 
+.a1{
+    left: 40%;
+    top: 40%;
+}
+
+.a2{
+    left: 45%;
+    top: 50%;
+}
+
 .b1{
-    left: 28%;
-    top: 13%;
+    left: 47%;
+    top: 7%;
 }
 
 .b2{
-    left: 15%;
-    top: 13%;
+    left: 17%;
+    top: 5%;
 }
 
-.b3{
-    left: 38%;
-    top: 4%;
+.r01{
+    left: 70%;
+    top: 50%;
 }
 
-.c1{
-    left: 30%;
+.r02{
+    left: 67%;
     top: 35%;
 }
 
-.c2{
-    left: 35%;
-    top: 45%;
+.r03{
+    left: 73%;
+    top: 80%;
+}
+
+.r04{
+    left: 71%;
+    top: 23%;
+}
+
+.r05{
+    left: 43%;
+    top: 17%;
+}
+
+.r06{
+    left: 21%;
+    top: 48%;
 }
 
 .cam-hover{
@@ -271,7 +322,8 @@ p{
     background-size: 100% 100%;
     width: 35%;
     height: 5%;
-    filter: opacity(0.75)
+    opacity: 100%;
+    filter: opacity(0.5) saturate(0);
 }
 
 .pause{
@@ -359,4 +411,107 @@ footer{
 footer p{
     margin: 1%;
     padding: 0;
+}
+
+.navbar{
+    width: 100vw;
+    height: 100vh;
+    align-content: center;
+}
+
+.nav-text{
+    position: absolute;
+    align-content: center;
+    top: 0%;
+    width: 30%;
+    height: 100%;
+    color: white;
+}
+
+.nav-selector{
+    margin: 15%;
+    display: flex;
+    flex-direction: column;
+    display: inline-block;
+}
+
+.scene-show{
+    align-items: center;
+    position: absolute;
+    left: 30%;
+    top: 0%;
+    width: 70vw;
+    height: 100%;
+}
+
+.scene-num{
+    position: absolute;
+    top: 0%;
+    margin: 1%;
+}
+
+.arrow{
+    width: auto;
+    height: 3vmax;
+    padding: 1%;
+    background: gray;
+    position: absolute;
+    text-align: center;
+    align-content: center;
+    border-radius: 1vmax;
+    margin: 2%;
+    z-index: 1;
+    top: 15%;
+}
+
+.arrow:hover{
+    cursor: pointer;
+}
+
+.arrow-left{
+    left: 0%;
+}
+
+.arrow-right{
+    right: 0%;
+}
+
+.scene{
+    width: 80%;
+    height: 90%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+}
+
+.switch{
+    background: linear-gradient(270deg,rgba(255, 0, 0, 1) 0%, rgba(255, 0, 0, 1) 49%, rgba(0, 0, 0, 1) 50%, rgba(255, 125, 0, 1) 51%, rgba(255, 125, 0, 1) 100%);
+    margin-right: 5%;
+    width: 3.5vmax;
+    height: 2vmax;
+}
+
+.switch:hover{
+    cursor: pointer;
+}
+
+.enabled{
+    filter: hue-rotate(90deg)
+}
+
+.cheats{
+    width: 40%;
+    flex-direction: column;
+}
+
+.row{
+    display: flex;
+    margin: 10%;
+}
+
+.extra-title{
+    position: absolute;
+    font-size: 200%;
+    left: 35%;
 }
