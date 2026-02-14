@@ -515,3 +515,20 @@ footer p{
     font-size: 200%;
     left: 35%;
 }
+
+.playButton{
+    width: 100vw;
+    height: 100vh;
+    text-align: center;
+    align-content: center;
+}
+
+.playButton a{
+    transition: font-size 0.125s;
+    font-size: 300%;
+}
+
+.playButton a:hover{
+    cursor: pointer;
+    font-size: 500%;
+}

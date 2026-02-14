@@ -123,7 +123,7 @@ let currentNight = 0;
 let secretCount = 0;
 let picCount = 0;
 
-let version = 0.5
+let version = 0.51
 
 let cameraView = false
 let officeView = false
@@ -741,7 +741,7 @@ const changeCHTEnable = (cl, num) => {
     cheats[num].enable = !cheats[num].enable
 }
 
-doMenu()
+// doMenu()
 // doOffice()
 // doExtra()
 
