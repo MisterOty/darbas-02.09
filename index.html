@@ -2,52 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="files/images/icon.png" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
-    <title>Counter-Christmas 2</title>
+    <link rel="shortcut icon" href="files/images/icon.png" type="image/x-icon">
+    <title class="tab-title">Play</title>
 </head>
 <body>
-    <audio class="cursor-noise"><source src="files/audio/show cursor.mp3" type="audio/mpeg"></audio>
-    <div class="hl3-easter-egg invisible waypoint"></div>
     <main>
-        <div class="ending"></div>
-        <div class="hint"></div>
-        <div class="speed-control">
-            <div class="speed-counter">
-                <p>SLOW</p>
-                <div class="progress"></div>
-                <p>FAST</p>
-            </div>
-            <p class="speed-number"></p>
-            <p>Game Speed</p>
-        </div>
-        <div class="count"></div>
-        <div class="encounter">
-            <div class="character-grid">
-                <div class="character-1-image"></div>
-                <div class="character-2-image"></div>
-            </div>
-            <div class="dialog-box">
-                <div class="character"></div>
-                <div class="seperator"></div>
-                <div class="text"></div>
-            </div>
-            <div class="place-name"></div>
-        </div>
-        <div class="map">
-            <div class="ct-spawn hoverable">CT</div>
-            <div class="t-spawn hoverable">T</div>
-            <div class="mid invisible">Mid</div>
-            <div class="palace invisible">Palace</div>
-            <div class="kitchen invisible">Kitchen</div>
-            <div class="short invisible">Short</div>
-            <div class="apartment invisible">Aps</div>
-            <div class="bombsite-a invisible">A</div>
-            <div class="bombsite-b invisible">B</div>
-        </div>
+        <div class="playButton"><a onclick="doMenu()">&gt;Play&lt;</a></div>
     </main>
+    <div class="pause-div"></div>
+    <footer></footer>
     <script src="script.js"></script>
 </body>
 </html>

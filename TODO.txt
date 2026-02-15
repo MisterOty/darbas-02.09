@@ -3,8 +3,8 @@ Make office
 ---------Make cameras
 ---------Make camera screen
 Make animatronics
-Make 6 nights difficulty
-Make custom night
+---------Make 6 nights difficulty
+---------Make custom night
 Make polish to game
 ---------Make Different cams
 Make power
