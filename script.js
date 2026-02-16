@@ -231,7 +231,6 @@ const pauseDiv = document.querySelector('.pause-div')
 let endingMusic = new Audio("files/sounds/background/music.mp3")
 
 let gameTime = 0;
-let gameTimeSec = 0;
 let power = 1000;
 let powerUsage = 1;
 let officePos = 50;
@@ -239,7 +238,7 @@ let currentNight = 0;
 let secretCount = 0;
 let picCount = 0;
 
-let version = 0.81
+let version = 0.82
 
 let cameraView = false
 let officeView = false
@@ -281,7 +280,6 @@ const clearMain = () => {
     copyRight.innerHTML = ``
     gameTime = 0;
     gameTimeSec = 0;
-    gameTime = 1;
     power = 1000;
     powerUsage = 1;
     if(jumpSFX != undefined){
@@ -493,11 +491,12 @@ const doOffice = () => {
     for(let i = 0; i < characters.length; i++){
         console.log(characters[i].name, ":", characters[i].difficulty[`night${currentNight}`])
     }
+    gameTime = 350;
     officeView = true
     cameraMO = true
     gamePlay.innerHTML = `
         <div class="timer">
-            <h3 class="time">${doTimerHour(gameTime)}:${doTimerSec(gameTimeSec)} AM</h3>
+            <h3 class="time">${doTimerHour(gameTime)}:${doTimerSec(Math.floor(((gameTime * 6) % 360) / 6))} AM</h3>
             <p class="night">Night ${currentNight}</p>
         </div>
         <div class="power">
@@ -581,7 +580,11 @@ const doOffice = () => {
 const doPause = (type) => {
     pauseView = !pauseView
     if(pauseView){
-        backgroundSFX(themes[0].offAmbience, "pause")
+        if(twentyMode){
+            backgroundSFX(themes[0].off20Ambience, "pause")
+        }else{
+            backgroundSFX(themes[0].offAmbience, "pause")
+        }
         pauseDiv.innerHTML += `
             <div class="pause">
                 <h1>Paused</h1>
@@ -604,7 +607,11 @@ const doPause = (type) => {
         doRTimer()
         doPowerCount()
         pauseDiv.innerHTML = ``
-        backgroundSFX(themes[0].offAmbience, "play")
+        if(twentyMode){
+            backgroundSFX(themes[0].off20Ambience, "play")
+        }else{
+            backgroundSFX(themes[0].offAmbience, "play")
+        }
     }
 }
 
@@ -859,10 +866,7 @@ const doTimerHour = (time) => {
 
 const doTimerSec = (time) => {
     let realTime;
-    if(time >= 60){
-        gameTimeSec = 0;
-        realTime = '00'
-    }else if(time <= 9) {
+    if(time <= 9) {
         realTime = `0${time}`
     }else{
         realTime = time
@@ -882,13 +886,12 @@ const stopRT = (condition) => {
 
 const doRTimer = () => { 
     timerInterval = setInterval(() => {
+        gameTime++
         if(gameTime >= 360){
             stopRT("win")
         }else{
-            document.querySelector('.time').innerHTML = `${doTimerHour(gameTime)}:${doTimerSec(gameTimeSec)} AM`
-            tabName.innerHTML = `${doTimerHour(gameTime)}:${doTimerSec(gameTimeSec)} AM`
-            gameTime++
-            gameTimeSec++
+            document.querySelector('.time').innerHTML = `${doTimerHour(gameTime)}:${doTimerSec(Math.floor(((gameTime * 6) % 360) / 6))} AM`
+            tabName.innerHTML = `${doTimerHour(gameTime)}:${doTimerSec(Math.floor(((gameTime * 6) % 360) / 6))} AM`
         }
     }, 1000 * gameSpeed);
 }
@@ -1070,7 +1073,7 @@ const changeCTN = () => {
         document.querySelector(`.${characters[i].name}-img`).style.background = `url(${characters[i].mMImage})`
         document.querySelector(`.${characters[i].name}-img`).style.backgroundPosition = `center top`
         document.querySelector(`.${characters[i].name}-img`).style.backgroundPosition = `center top`
-        changeCTNValue(characters[i])
+        changeCTNValue(characters[i], "early")
     }
     document.querySelector(".bottom-bar").innerHTML += `
         <div class="cn-begin"><p>Begin</p></div>`
@@ -1137,8 +1140,8 @@ const changeCTN = () => {
     });
 }
 
-const changeCTNValue = (data) => {
-    if(data.difficulty.night7 > Math.min(Math.max(data.difficulty.night7, 0), 20) || data.difficulty.night7 < Math.min(Math.max(data.difficulty.night7, 0), 20)){}else{
+const changeCTNValue = (data, type) => {
+    if(data.difficulty.night7 > Math.min(Math.max(data.difficulty.night7, 0), 20) || data.difficulty.night7 < Math.min(Math.max(data.difficulty.night7, 0), 20)){}else if(type == "early"){}else{
         let audio = new Audio("files/sounds/sfx/cam_change.mp3")
         audio.play()
     }
