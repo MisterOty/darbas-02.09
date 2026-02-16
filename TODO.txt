@@ -12,6 +12,11 @@ Make door
 Make jumpscares
 ---------Make gameover
 
-bugs:
+Make animatronics do foxy behavior
+make animatronics go from cams to office
+Make animatronics move
+Make animatronics taunt player after moving
+Make doors and lights buttons
+Make doors work from tablet on side or top
 
-night 6 wont be playable after beating it
+Make animatronic look through window before attacking

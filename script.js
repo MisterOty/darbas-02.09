@@ -14,6 +14,9 @@ let gameData = [{
     },
     {
         star: false,
+    },
+    {
+        star: false,
     }]
 }]
 
@@ -22,6 +25,9 @@ gameData = [{
     nightSix: true,
     extraMenu: true,
     stars: [{
+        star: true,
+    },
+    {
         star: true,
     },
     {
@@ -38,7 +44,7 @@ let characters = [
         mMImage: "files/images/characters/justas.png",
         icon: [35, 0, 0, 0],
         tauntSFX: ["", ""],
-        jumpScareSFX: "",
+        jumpScareSFX: "files/sounds/jumpscare/generic.mp3",
         path: 0,
         cameraPos: {
             r04: [35, 0, 35, 0],
@@ -191,7 +197,8 @@ let extras = [{
 let themes = [{
     mMTheme: new Audio("files/sounds/background/theme.mp3"),
     extTheme: new Audio("files/sounds/background/extras.mp3"),
-    offAmbience: new Audio("files/sounds/background/officeAmbience.mp3")
+    offAmbience: new Audio("files/sounds/background/officeAmbience.mp3"),
+    off20Ambience: new Audio("files/sounds/background/office20mode.mp3")
 }]
 
 let pictures = []
@@ -221,6 +228,8 @@ const gamePlay = document.querySelector('main')
 const copyRight = document.querySelector('footer')
 const pauseDiv = document.querySelector('.pause-div')
 
+let endingMusic = new Audio("files/sounds/background/music.mp3")
+
 let gameTime = 0;
 let gameTimeSec = 0;
 let power = 1000;
@@ -230,7 +239,7 @@ let currentNight = 0;
 let secretCount = 0;
 let picCount = 0;
 
-let version = 0.7
+let version = 0.8
 
 let cameraView = false
 let officeView = false
@@ -241,48 +250,60 @@ let cameraMO = false
 let camTabOpen = false
 let camSEnable = false
 let lButEnable = false
+let viewEnding = false
+let twentyMode = false
 
 let timerInterval
 let moveInterval
 let powerInterval
 let mMImgInterval
 let mMImgTimeout
+let jumpScareTimeout
 let camTimeOut
 let camEffect
 let currentCam
 let extraText
+let jumpSFX
 
 const clearMain = () => {
+    clearInterval(timerInterval)
+    clearInterval(powerInterval)
+    clearInterval(mMImgInterval)
+    clearTimeout(mMImgTimeout)
+    clearTimeout(jumpScareTimeout)
+    backgroundSFX(themes[0].mMTheme, "stop")
+    backgroundSFX(themes[0].extTheme, "stop")
+    backgroundSFX(themes[0].offAmbience, "stop")
+    backgroundSFX(themes[0].off20Ambience, "stop")
+    body.style.background = `black`
+    gamePlay.style.background = `black`
+    gamePlay.innerHTML = ``
+    copyRight.innerHTML = ``
     gameTime = 0;
     gameTimeSec = 0;
     gameTime = 1;
     power = 1000;
     powerUsage = 1;
-    body.style.background = `black`
-    gamePlay.innerHTML = ``
-    copyRight.innerHTML = ``
-    clearInterval(timerInterval)
-    clearInterval(powerInterval)
-    clearInterval(mMImgInterval)
-    clearTimeout(mMImgTimeout)
+    if(jumpSFX != undefined){
+        jumpSFX.pause()
+        jumpSFX.currentTime = 0;
+    }
     cameraMO = false
     officeView = false
     currentCam = undefined
-    backgroundSFX(themes[0].mMTheme, "stop")
-    backgroundSFX(themes[0].extTheme, "stop")
-    backgroundSFX(themes[0].offAmbience, "stop")
+    jumpSFX = undefined
 }
 
 const backgroundSFX = (sound, type) => {;
-    if(type == "play"){
-        sound.loop = true;
-        sound.play()
-    }else if(type == "pause"){
-        sound.pause();
-    }else if(type == "stop"){
-        sound.pause();
-        sound.currentTime = 0;
-    }
+    // if(type == "play"){
+    //     sound.loop = true;
+    //     sound.play()
+    // }else if(type == "pause"){
+    //     sound.pause();
+    // }else if(type == "stop"){
+    //     sound.pause();
+    //     sound.currentTime = 0;
+    // }
 }
 
 //CHANGE SCENE
@@ -309,6 +330,7 @@ const newGame = (choose) => {
 
 const doMenu = () => {
     officeView = false
+    twentyMode = false
     currentNight = 0
     clearMain()
     gamePlay.innerHTML = `
@@ -334,6 +356,7 @@ const doMenu = () => {
 
     body.style.background = `url(files/images/camera/static.gif)`
     body.style.backgroundSize = `100% 100%`
+    gamePlay.style.background = ``
     gamePlay.style.backdropFilter = `brightness(0.5)`
 
     // let chrImgRight = 0
@@ -441,6 +464,24 @@ const doNightShow = (type) => {
     }, 2500);
 }
 
+const doTwentyCheck = () => {
+    let twentyModeCheck = 0
+    let cheatCheck = 0
+    for(let i = 0; i < characters.length; i++){
+        if(characters[i].difficulty[`night${currentNight}`] >= 20){
+            twentyModeCheck++
+        }
+    }
+    for(let i = 0; i < extras[0].cheats.length; i++){
+        if(!extras[0].cheats[i].enable){
+            cheatCheck++
+        }
+    }
+    if(twentyModeCheck == characters.length && cheatCheck == extras[0].cheats.length){
+        twentyMode = true
+    }
+}
+
 const doOffice = () => {
     clearMain()
     if(extras[0].cheats[0].enable){
@@ -499,12 +540,17 @@ const doOffice = () => {
     }
     document.querySelector('.office-back').style.filter = `brightness(${0.1})`
 
+    doTwentyCheck()
     enableCamHover()
     doRTimer()
     changePos()
     changeCam(cameras[0]);
     doPowerCount()
-    backgroundSFX(themes[0].offAmbience, "play")
+    if(twentyMode){
+        backgroundSFX(themes[0].off20Ambience, "play")
+    }else{
+        backgroundSFX(themes[0].offAmbience, "play")
+    }
 
     document.querySelectorAll('.button').forEach(btn => {
         btn.addEventListener("click", event => {
@@ -591,21 +637,21 @@ const do6am = () => {
         document.querySelector('.timeText').style.transform = `scale(3)`
     }, 6300);
     setTimeout(() => {
-        if(currentNight == 7){
-            gameData[0].stars[2].star = true
-            doEnding(3)
+        if(currentNight == 7 && twentyMode){
+            let ending = 4
+            doEnding(ending)
+        }else if(currentNight == 7){
+            let ending = 3
+            doEnding(ending)
         }else if(currentNight == 6){
-            gameData[0].extraMenu = true
-            gameData[0].stars[1].star = true
-            doEnding(2)
+            let ending = 2
+            doEnding(ending)
         }else if(currentNight == 5){
-            gameData[0].nightSix = true
-            gameData[0].stars[0].star = true
-            doEnding(1)
+            let ending = 1
+            doEnding(ending)
         }else if(currentNight <= 5){
             gameData[0].night++
             doMenu()
-
         }
     }, 10000);
 }
@@ -630,16 +676,25 @@ const doGameOver = () => {
 }
 
 const doEnding = (type) => {
-    clearMain()
-    let audio = new Audio("files/sounds/sfx/music.mp3")
-    audio.play()
-    gamePlay.innerHTML = `<div class="ending"></div>`
-    document.querySelector('.ending').style.background = `url(files/images/menu/ending/ending0${type}.png)`
-    document.querySelector('.ending').style.backgroundSize = `100% 100%`
-    tabName.innerHTML = `The End`
-    setTimeout(() => {
+    viewEnding = !viewEnding
+    if(type == "skip"){
+        endingMusic.pause()
+        endingMusic.currentTime = 0
         doMenu()
-    }, 60000);
+    }else{
+        clearMain()
+        for(let i = 0; i < type; i++){
+            gameData[0].stars[i].star = true
+        }
+        endingMusic.play()
+        gamePlay.innerHTML = `<div class="ending"></div>`
+        document.querySelector('.ending').style.background = `url(files/images/menu/ending/ending0${type}.png)`
+        document.querySelector('.ending').style.backgroundSize = `100% 100%`
+        tabName.innerHTML = `The End`
+        endingMusic.addEventListener("ended", () => {
+            doMenu()
+        });
+    }
 }
 
 //OFFICE FUNCTIONS
@@ -669,6 +724,52 @@ const changePos = () => {
     officePos = Math.min(100, Math.max(0, officePos));
     document.querySelector('.office-front').style.backgroundPosition = `${officePos}%`
     document.querySelector('.office-back').style.backgroundPosition = `${officePos}%`
+}
+
+const doJumpscare = (char) => {
+    let time = 50
+    jumpSFX = new Audio(`${char.jumpScareSFX}`)
+    if(camSEnable){
+        enableCams()
+        camTabOpen = !camTabOpen
+        cameraMO = !cameraMO
+        document.querySelector('.cam-hover').style.opacity = `0%`
+    }
+    officeView = false
+    gamePlay.innerHTML += `<div class="jumpscare"></div>`
+    let option = Math.floor(Math.random() * 2)
+    let div = document.querySelector('.jumpscare')
+    div.style.background = `url(${char.mMImage})`
+    div.style.backgroundRepeat = `no-repeat`
+    div.style.backgroundSize = `50% 50%`
+    div.style.backgroundPosition = `50% 200%`
+    jumpScareTimeout = setTimeout(() => {
+        jumpSFX.play()
+        div.style.width = `200%`
+        div.style.height = `200%`
+        div.style.transition = `background-position 0.125s, background-size 0.125s, rotate 0.125s`
+        div.style.backgroundPosition = `0% 0%`
+    }, 1 * time);
+    for(let i = 2; i < 20; i++){
+        option = 1 - option
+        if(option == 1){
+            jumpScareTimeout = setTimeout(() => {
+                div.style.rotate = `15deg`
+                div.style.backgroundSize = `75% 75%`
+                gamePlay.style.filter = `contrast(5) brightness(5) invert(1)`
+            }, i * time);
+        }else{
+            jumpScareTimeout = setTimeout(() => {
+                div.style.rotate = `-15deg`
+                div.style.backgroundSize = `50% 50%`
+                gamePlay.style.filter = `contrast(1) brightness(0.2) invert(0)`
+            }, i * time);
+        }
+    }
+    jumpScareTimeout = setTimeout(() => {
+        gamePlay.style.filter = `contrast(1) brightness(1) invert(0)`
+        doGameOver()
+    }, 20 * time);
 }
 
 //--CAMERA
@@ -779,7 +880,7 @@ const stopRT = (condition) => {
     }else{}
 }
 
-const doRTimer = () => {
+const doRTimer = () => { 
     timerInterval = setInterval(() => {
         if(gameTime >= 360){
             stopRT("win")
@@ -796,13 +897,8 @@ const doRTimer = () => {
 
 const doPowerCount = () => {
     powerInterval = setInterval(() => {
-        if(gameTime >= 360){
-            stopRT("win")
-            return
-        }else{
-            document.querySelector('.power-number').innerHTML = `${Math.floor(power / 10)}%`
-            power--
-        }
+        document.querySelector('.power-number').innerHTML = `${Math.floor(power / 10)}%`
+        power--
     }, 1000 / powerUsage);
     doPowerBar()
 }
@@ -838,6 +934,9 @@ const doExtra = () => {
     for(let i = 0; i < extras[0].extraOp.length; i++){
         document.querySelector('.nav-selector').innerHTML += `<p class="${extras[0].extraOp[i].class} text">${extras[0].extraOp[i].name}</p>`
     }
+
+    gamePlay.style.background = `url(files/images/camera/static.gif)`
+    gamePlay.style.backgroundSize = `100% 100%`
 
     doEXTOpt(characterPic, "Characters")
     changeEXTPic("early", pictures)
@@ -890,11 +989,15 @@ const doEXTOpt = (type, name) => {
 const changeEXTPic = (type, pic) => {
     if(type == "early"){
         document.querySelector(".scene-show").innerHTML = `
-            <div class="extra-title"><p>${extraText}</p></div>
-            <div class="arrow-left arrow">&lt;&lt;</div>
-            <div class="arrow-right arrow">>></div>
-            <div class="scene-num"></div>
-            <div class="scene-container"></div>`
+            <div class="top-bar">
+                <div class="scene-num"></div>
+                <div class="extra-title"><p>${extraText}</p></div>
+            </div>
+            <div class="bottom-bar">
+                <div class="arrow-left arrow">&lt;&lt;</div>
+                <div class="arrow-right arrow">>></div>
+                <div class="scene-container"></div>
+            </div>`
         
         document.querySelector('.arrow-left').addEventListener("click", function () {
             changeEXTPic("left", pictures)
@@ -918,15 +1021,36 @@ const changeEXTPic = (type, pic) => {
         picCount = 0
     }
     document.querySelector(".scene-container").innerHTML = `<a target="_blank" href="${pic[picCount]}"><div class="scene"></div></a>`
-    document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pic.length}`
+    if(extraText == "Characters"){
+        document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pic.length} - ${characters[picCount].name}`
+    }else{
+        let splitTitle = pic[picCount].split("/")
+        let splitName = splitTitle[splitTitle.length - 1]
+        splitName = splitName.split(".")
+        let name = splitName[0]
+        document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pic.length} - ${name}`
+    }
     document.querySelector(".scene").style.background = `url(${pic[picCount]})`
-    document.querySelector(".scene").style.backgroundSize = `100% 100%`
+    document.querySelector(".scene").style.backgroundSize = `contain`
+    document.querySelector(".scene").style.backgroundPosition = `center`
+    document.querySelector(".scene").style.backgroundRepeat = `no-repeat`
 }
 
 const changeCTN = () => {
     document.querySelector(".scene-show").innerHTML = `
-            <div class="extra-title"><p>${extraText}</p></div>
-            <div class="characters"></div>`
+            <div class="top-bar">
+                <div class="cn-modes">
+                    <p class="cn-add set-0">Set 0 to all</p>
+                    <p class="cn-add add-1">Add 1 to all</p>
+                    <p class="cn-add add-5">Add 5 to all</p>
+                    <p class="cn-add add-10">Add 10 to all</p>
+                    <p class="cn-add set-20">Set 20 to all</p>
+                </div>
+                <div class="extra-title"><p>${extraText}</p></div>
+            </div>
+            <div class="bottom-bar">
+                <div class="characters"></div>
+            </div>`
     for(let i = 0;i < characters.length; i++){
         document.querySelector(".characters").innerHTML += `
                 <div class="cn-character">
@@ -943,8 +1067,9 @@ const changeCTN = () => {
         document.querySelector(`.${characters[i].name}-dif-text`).style.color = `hsl(0, 100%, ${100 / (characters[i].difficulty.night7 * 0.1)}%`
         document.querySelector(`.${characters[i].name}-img`).style.background = `url(${characters[i].mMImage})`
         document.querySelector(`.${characters[i].name}-img`).style.backgroundPosition = `center top`
+        document.querySelector(`.${characters[i].name}-img`).style.backgroundPosition = `center top`
     }
-    document.querySelector(".characters").innerHTML += `
+    document.querySelector(".bottom-bar").innerHTML += `
         <div class="cn-begin"><p>Begin</p></div>`
     
     characters.forEach(char => {
@@ -957,6 +1082,42 @@ const changeCTN = () => {
             changeCTNValue(char)
         });
     });
+
+    
+    document.querySelector(".set-0").addEventListener("click", () => {
+        for(let i = 0; i < characters.length; i++){
+            characters[i].difficulty.night7 = 0
+            changeCTNValue(characters[i])
+        }
+    });
+
+    document.querySelector(".add-1").addEventListener("click", () => {
+        for(let i = 0; i < characters.length; i++){
+            characters[i].difficulty.night7 += 1
+            changeCTNValue(characters[i])
+        }
+    });
+
+    document.querySelector(".add-5").addEventListener("click", () => {
+        for(let i = 0; i < characters.length; i++){
+            characters[i].difficulty.night7 += 5
+            changeCTNValue(characters[i])
+        }
+    });
+
+    document.querySelector(".add-10").addEventListener("click", () => {
+        for(let i = 0; i < characters.length; i++){
+            characters[i].difficulty.night7 += 10
+            changeCTNValue(characters[i])
+        }
+    });
+
+    document.querySelector(".set-20").addEventListener("click", () => {
+        for(let i = 0; i < characters.length; i++){
+            characters[i].difficulty.night7 = 20
+            changeCTNValue(characters[i])
+        }
+    });
     
     document.querySelector(".cn-begin").addEventListener("click", () => {
         doNightShow("custom-night")
@@ -964,27 +1125,53 @@ const changeCTN = () => {
 }
 
 const changeCTNValue = (data) => {
-    let audio = new Audio("files/sounds/sfx/cam_change.mp3")
-    audio.play()
+    if(data.difficulty.night7 > Math.min(Math.max(data.difficulty.night7, 0), 20) || data.difficulty.night7 < Math.min(Math.max(data.difficulty.night7, 0), 20)){}else{
+        let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+        audio.play()
+    }
     data.difficulty.night7 = Math.min(Math.max(data.difficulty.night7, 0), 20)
     document.querySelector(`.${data.name}-dif-text`).innerHTML = `${data.difficulty.night7}`
-    document.querySelector(`.${data.name}-dif-text`).style.color = `hsl(0, 100%, ${100 / (data.difficulty.night7 * 0.1)}%`
+    if(data.difficulty.night7 == 0){
+        document.querySelector(`.${data.name}-dif-text`).style.color = `hsl(0, 0%, 100%)`
+    }else{
+        document.querySelector(`.${data.name}-dif-text`).style.color = `hsl(0, 100%, ${100 / (data.difficulty.night7 * 0.1)}%`
+    }
+    if(data.difficulty.night7 >= 10){
+        document.querySelector(`.${data.name}-img`).style.filter = `grayscale(${(data.difficulty.night7 - 10) * 10}%) contrast(${1 + (data.difficulty.night7 - 10) / 5})`
+    }else{
+        document.querySelector(`.${data.name}-img`).style.filter = `grayscale(0%) contrast(1)`
+    }
 }
+
+//CHEATS
 
 const changeCHT = () => {
     document.querySelector(".scene-show").innerHTML = `
-        <div class="extra-title"><p>${extraText}</p></div>
-        <div class="cheats"></div>`
+            <div class="top-bar">
+                <div class="cn-modes">
+                    <p class="cn-add tgl-cheats">Toggle all Cheats</p>
+                </div>
+                <div class="extra-title"><p>${extraText}</p></div>
+            </div>
+            <div class="bottom-bar">
+                <div class="cheats"></div>
+            </div>`
 
     for(let i = 0;i < extras[0].cheats.length; i++){
         document.querySelector('.cheats').innerHTML += `
-                <div class="row">
-                    <div class="${extras[0].cheats[i].class} switch"></div><p class="cheat-text">${extras[0].cheats[i].text}</p>
+                <div class="row ${extras[0].cheats[i].class} row-hover">
+                    <div class="switch"></div><p class="cheat-text">${extras[0].cheats[i].text}</p>
                 </div>`
         if(extras[0].cheats[i].enable){
             document.querySelector(`.${extras[0].cheats[i].class}`).classList.add('enabled')
         }
     }
+
+    document.querySelector('.tgl-cheats').addEventListener("click", function () {
+        for(let i = 0; i < extras[0].cheats.length; i++){
+            changeCHTEnable(extras[0].cheats[i].class, i)
+        }
+    });
 
     document.querySelector('.fstngt').addEventListener("click", function () {
         changeCHTEnable("fstngt", 0)
@@ -1002,10 +1189,8 @@ const changeCHTEnable = (cl, num) => {
     extras[0].cheats[num].enable = !extras[0].cheats[num].enable
 }
 
-//CHEATS
-
 const konamiFunc = (word, event) => {
-    if(officeView){
+    if(officeView && !twentyMode){
         if(event == word[secretCount] && secretCount == word.length - 1){
             do6am()
             secretCount = 0
@@ -1018,17 +1203,22 @@ const konamiFunc = (word, event) => {
 }
 
 doMenu()
+// doNightShow()
 // doOffice()
+// doExtra()
 
 document.addEventListener('keydown', function(event) {
     if(event.key == 'Escape' && officeView){
         doPause()
     }
+    if(event.key == 'Enter' && viewEnding){
+        doEnding("skip")
+    }
     if(event.key == 'Control' && officeView && !camSEnable && !pauseView){
         doFlash()
     }
     if(event.key == 'Delete' && officeView && !pauseView){
-        doGameOver()
+        doJumpscare(characters[0])
     }
     konamiFunc(konamiCode, event.key)
 })

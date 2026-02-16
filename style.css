@@ -14,6 +14,7 @@
 }
 
 body{
+    background: black;
     overflow: hidden;
     user-select: none;
     color: white;
@@ -39,11 +40,6 @@ a{
 p{
     margin: 0;
     padding: 0;
-}
-
-.MMenu{
-    color: white;
-    width: 100%;
 }
 
 main{
@@ -272,7 +268,7 @@ main{
     font-family: LCD-Solid;
     font-size: 1vmax;
     position: absolute;
-    background: gray;
+    background: rgba(128, 128, 128, 0.5);
     text-align: left;
     align-content: center;
     width: 3vmax;
@@ -344,7 +340,7 @@ main{
     width: 35%;
     height: 5%;
     opacity: 100%;
-    filter: opacity(0.5) saturate(0);
+    filter: opacity(0.5) saturate(0) brightness(5);
 }
 
 .pause{
@@ -434,14 +430,16 @@ footer p{
 .navbar{
     width: 100vw;
     height: 100vh;
+    display: flex;
     align-content: center;
 }
 
 .nav-text{
-    position: absolute;
+    backdrop-filter: brightness(0.1) blur(0.5vmax);
+    position: relative;
     align-content: center;
     top: 0%;
-    width: 30%;
+    width: 20%;
     height: 100%;
     color: white;
 }
@@ -453,26 +451,127 @@ footer p{
     display: inline-block;
 }
 
-.scene-show{
+.top-bar{
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    width: 100%;
+    height: auto;
+}
+
+.bottom-bar{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    position: absolute;
-    left: 30%;
     top: 0%;
-    width: 70vw;
+    width: 100%;
     height: 100%;
 }
 
 .scene-num{
-    position: absolute;
-    top: 0%;
     margin: 1%;
+}
+
+.cn-modes{
+    display: flex;
+    gap: 5%;
+}
+
+.cn-add{
+    text-wrap-mode: nowrap;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    background: rgba(128, 128, 128, 0.5);
+    border-radius: 0.5vmax;
+    margin: 1%;
+    padding: 1%;
+}
+
+.cn-begin{
+    justify-content: center;
+    align-items: center;
+    padding: 2%;
+    background: rgba(128, 128, 128, 0.5);
+    border-radius: 1vmax;
+    margin: 1%;
+    text-align: center;
+}
+
+.characters{
+    display: flex;
+}
+
+.cn-character{
+    padding: 1%;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    width: 15vmax;
+    height: 25vmax;
+    background: rgba(0, 0, 0, 0.5);
+    margin: 1%;
+    border-radius: 2vmax;
+}
+
+.character-img{
+    width: 90%;
+    height: 90%;
+    background: red;
+    border-radius: 1vmax;
+}
+
+.cn-arrows{
+    display: flex;
+    justify-content: center;
+}
+
+.chr-arrow{
+    padding: 10%;
+    background: rgba(128, 128, 128, 0.5);
+    border-radius: 1vmax;
+    margin: 5%;
+}
+
+.dif-text{
+    font-size: 150%;
+}
+
+
+.extra-title{
+    font-size: 200%;
+}
+
+.scene-container{
+    width: 80%;
+    height: 90%;
+}
+
+.scene-show{
+    backdrop-filter: brightness(0.25) blur(0.25vmax);
+    align-items: center;
+    position: relative;
+    top: 0%;
+    width: 80%;
+    height: 100%;
+}
+
+.scene{
+    width: 80%;
+    height: 90%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
 }
 
 .arrow{
     width: auto;
     height: 3vmax;
     padding: 1%;
-    background: gray;
+    background: rgba(128, 128, 128, 0.5);
     position: absolute;
     text-align: center;
     align-content: center;
@@ -490,17 +589,17 @@ footer p{
     right: 0%;
 }
 
-.scene{
-    width: 80%;
-    height: 90%;
+.jumpscare{
     position: absolute;
-    transform: translate(-50%, -50%);
-    top: 50%;
-    left: 50%;
+    top: 0%;
+    z-index: 12;
+    width: 100vw;
+    height: 100vh;
 }
 
 .switch{
-    background: linear-gradient(270deg,rgba(255, 0, 0, 1) 0%, rgba(255, 0, 0, 1) 49%, rgba(0, 0, 0, 1) 50%, rgba(255, 125, 0, 1) 51%, rgba(255, 125, 0, 1) 100%);
+    background: linear-gradient(270deg,rgba(255, 0, 0, 1) 0%, rgba(155, 0, 0, 1) 40%, rgba(255, 0, 0, 1) 49%, rgba(155, 0, 0, 1) 50%, rgba(255, 125, 0, 1) 51%, rgba(155, 65, 0, 1) 60%, rgba(255, 125, 0, 1) 100%);
+    border-radius: 0.25vmax;
     margin-right: 5%;
     width: 3.5vmax;
     height: 2vmax;
@@ -511,25 +610,24 @@ footer p{
 }
 
 .cheats{
-    width: 40%;
-    flex-direction: column;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 .row{
     display: flex;
-    margin: 10%;
-}
-
-.extra-title{
-    z-index: 2;
-    position: absolute;
-    font-size: 200%;
-    left: 35%;
+    flex-direction: row;
+    width: 25%;
+    margin: 1%;
 }
 
 .playButton{
     width: 100vw;
     height: 100vh;
+    font-family: Main-Menu;
     text-align: center;
     align-content: center;
 }
@@ -559,56 +657,6 @@ footer p{
     height: 5vmax;
 }
 
-.characters{
-    display: flex;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
-}
-
-.cn-character{
-    padding: 1%;
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
-    width: 15vmax;
-    height: 20vmax;
-}
-
-.character-img{
-    width: 90%;
-    height: 90%;
-    background: red;
-    border-radius: 1vmax;
-}
-
-.cn-arrows{
-    display: flex;
-    justify-content: center;
-}
-
-.chr-arrow{
-    padding: 10%;
-    background: gray;
-    border-radius: 1vmax;
-    margin: 5%;
-}
-
-.cn-begin{
-    position: absolute;
-    bottom: 15%;
-    padding: 2%;
-    background: gray;
-    border-radius: 1vmax;
-    margin: 1%;
-}
-
-.dif-text{
-    font-size: 150%;
-}
-
 .ending{
     position: absolute;
     top: 0%;
@@ -616,6 +664,6 @@ footer p{
     height: 100%;
 }
 
-.button:hover, .pause p:hover, .arrow:hover, .switch:hover, .chr-arrow:hover, .playButton a:hover, .cn-begin:hover{
+.button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover{
     cursor: pointer;
 }
