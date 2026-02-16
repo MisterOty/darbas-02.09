@@ -239,7 +239,7 @@ let currentNight = 0;
 let secretCount = 0;
 let picCount = 0;
 
-let version = 0.8
+let version = 0.81
 
 let cameraView = false
 let officeView = false
@@ -295,15 +295,15 @@ const clearMain = () => {
 }
 
 const backgroundSFX = (sound, type) => {;
-    // if(type == "play"){
-    //     sound.loop = true;
-    //     sound.play()
-    // }else if(type == "pause"){
-    //     sound.pause();
-    // }else if(type == "stop"){
-    //     sound.pause();
-    //     sound.currentTime = 0;
-    // }
+    if(type == "play"){
+        sound.loop = true;
+        sound.play()
+    }else if(type == "pause"){
+        sound.pause();
+    }else if(type == "stop"){
+        sound.pause();
+        sound.currentTime = 0;
+    }
 }
 
 //CHANGE SCENE
@@ -394,33 +394,33 @@ const doMenu = () => {
         document.querySelector('.MMSelector').innerHTML += `
         <p class="EXT text">Extra </p>`
 
-        document.querySelector('.night-six').addEventListener('click', function () {
+        document.querySelector('.night-six').addEventListener('click', () => {
             doNightShow("night-6")
         });
 
-        document.querySelector('.EXT').addEventListener('click', function () {
+        document.querySelector('.EXT').addEventListener('click', () => {
             doExtra()
         });
     }else if(gameData[0].nightSix){
         document.querySelector('.MMSelector').innerHTML += `
         <p class="night-six text">6th Night</p>`
 
-        document.querySelector('.night-six').addEventListener('click', function () {
+        document.querySelector('.night-six').addEventListener('click', () => {
             doNightShow("night-6")
         });
     }
 
 
-    document.querySelector('.NG').addEventListener('click', function () {
+    document.querySelector('.NG').addEventListener('click', () => {
         newGame(0)
     });
 
-    document.querySelector('.CTN').addEventListener('click', function () {
+    document.querySelector('.CTN').addEventListener('click', () => {
         doNightShow("continue")
     });
 
     document.querySelectorAll('.text').forEach(btn => {
-        btn.addEventListener("mouseover", function () {
+        btn.addEventListener("mouseover", () => {
             let audio = new Audio("files/sounds/sfx/cam_change.mp3")
             audio.play()
         });
@@ -590,11 +590,11 @@ const doPause = (type) => {
             </div>`
         stopRT("Pause")
 
-        document.querySelector('.cont').addEventListener("click", function () {
+        document.querySelector('.cont').addEventListener("click", () => {
             doPause()
         });
 
-        document.querySelector('.exit').addEventListener("click", function () {
+        document.querySelector('.exit').addEventListener("click", () => {
             doMenu()
             doPause("menu")
         });
@@ -670,9 +670,9 @@ const doGameOver = () => {
         gamePlay.innerHTML = `<div class="gameOver"></div>`
         tabName.innerHTML = `GAME OVER`
     }, 2000);
-    setTimeout(() => {
+    audio.addEventListener("ended", () => {
         doMenu()
-    }, 15000);
+    });
 }
 
 const doEnding = (type) => {
@@ -932,6 +932,7 @@ const doExtra = () => {
         <div class="scene-show"></div>`
 
     for(let i = 0; i < extras[0].extraOp.length; i++){
+        console.log(extras[0].extraOp[i].class, extras[0].extraOp[i].name)
         document.querySelector('.nav-selector').innerHTML += `<p class="${extras[0].extraOp[i].class} text">${extras[0].extraOp[i].name}</p>`
     }
 
@@ -943,34 +944,34 @@ const doExtra = () => {
     backgroundSFX(themes[0].extTheme, "play")
 
     document.querySelectorAll('.text').forEach(btn => {
-        btn.addEventListener("mouseover", function () {
+        btn.addEventListener("mouseover", () => {
             let audio = new Audio("files/sounds/sfx/cam_change.mp3")
             audio.play()
         });
     });
 
-    document.querySelector('.CHR').addEventListener("click", function () {
-        doEXTOpt(characterPic, this.textContent)
+    document.querySelector('.CHR').addEventListener("click", (event) => {
+        doEXTOpt(characterPic, event.currentTarget.textContent)
         changeEXTPic("early", pictures)
     });
 
-    document.querySelector('.SCN').addEventListener("click", function () {
-        doEXTOpt(scenePic, this.textContent)
+    document.querySelector('.SCN').addEventListener("click", (event) => {
+        doEXTOpt(scenePic, event.currentTarget.textContent)
         changeEXTPic("early", pictures)
     });
 
-    document.querySelector('.CTN').addEventListener("click", function () {
-        doEXTOpt(scenePic, this.textContent)
+    document.querySelector('.CTN').addEventListener("click", (event) => {
+        doEXTOpt(scenePic, event.currentTarget.textContent)
         changeCTN()
     });
 
-    document.querySelector('.CHT').addEventListener("click", function () {
-        doEXTOpt(scenePic, this.textContent)
+    document.querySelector('.CHT').addEventListener("click", (event) => {
+        doEXTOpt(scenePic, event.currentTarget.textContent)
         changeCHT()
     });
 
 
-    document.querySelector('.EXT').addEventListener("click", function () {
+    document.querySelector('.EXT').addEventListener("click", () => {
         doMenu()
     });
 }
@@ -981,6 +982,7 @@ const doEXTOpt = (type, name) => {
     for(let i = 0; i < extras[0].extraOp.length; i++){
         if(name == extras[0].extraOp[i].name){
             extraText = extras[0].extraOp[i].name
+            console.log(extraText)
             tabName.innerHTML = extras[0].extraOp[i].name
         }
     }
@@ -999,11 +1001,11 @@ const changeEXTPic = (type, pic) => {
                 <div class="scene-container"></div>
             </div>`
         
-        document.querySelector('.arrow-left').addEventListener("click", function () {
+        document.querySelector('.arrow-left').addEventListener("click", () => {
             changeEXTPic("left", pictures)
         });
 
-        document.querySelector('.arrow-right').addEventListener("click", function () {
+        document.querySelector('.arrow-right').addEventListener("click", () => {
             changeEXTPic("right", pictures)
         });
     }else{
@@ -1068,6 +1070,7 @@ const changeCTN = () => {
         document.querySelector(`.${characters[i].name}-img`).style.background = `url(${characters[i].mMImage})`
         document.querySelector(`.${characters[i].name}-img`).style.backgroundPosition = `center top`
         document.querySelector(`.${characters[i].name}-img`).style.backgroundPosition = `center top`
+        changeCTNValue(characters[i])
     }
     document.querySelector(".bottom-bar").innerHTML += `
         <div class="cn-begin"><p>Begin</p></div>`
@@ -1120,7 +1123,17 @@ const changeCTN = () => {
     });
     
     document.querySelector(".cn-begin").addEventListener("click", () => {
-        doNightShow("custom-night")
+        let easterEgg = [2, 0, 6, 7]
+        if(
+            characters[0].difficulty.night7 == easterEgg[0] &&
+            characters[1].difficulty.night7 == easterEgg[1] &&
+            characters[2].difficulty.night7 == easterEgg[2] &&
+            characters[3].difficulty.night7 == easterEgg[3]
+        ){
+            window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", '_blank').focus();
+        }else{
+            doNightShow("custom-night")
+        }
     });
 }
 
@@ -1167,17 +1180,17 @@ const changeCHT = () => {
         }
     }
 
-    document.querySelector('.tgl-cheats').addEventListener("click", function () {
+    document.querySelector('.tgl-cheats').addEventListener("click", () => {
         for(let i = 0; i < extras[0].cheats.length; i++){
             changeCHTEnable(extras[0].cheats[i].class, i)
         }
     });
 
-    document.querySelector('.fstngt').addEventListener("click", function () {
+    document.querySelector('.fstngt').addEventListener("click", () => {
         changeCHTEnable("fstngt", 0)
     });
 
-    document.querySelector('.unltpw').addEventListener("click", function () {
+    document.querySelector('.unltpw').addEventListener("click", () => {
         changeCHTEnable("unltpw", 1)
     });
 }
@@ -1202,7 +1215,7 @@ const konamiFunc = (word, event) => {
     }
 }
 
-doMenu()
+// doMenu()
 // doNightShow()
 // doOffice()
 // doExtra()

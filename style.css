@@ -644,6 +644,7 @@ footer p{
 .stars{
     margin: 2%;
     display: flex;
+    flex-direction: row-reverse;
     position: absolute;
     top: 0%;
     right: 0%;
@@ -652,9 +653,14 @@ footer p{
 .stars *{
     z-index: 1;
     background: url(files/images/menu/star.png);
+    filter: brightness(0) invert(1);
     background-size: 100% 100%;
     width: 5vmax;
     height: 5vmax;
+}
+
+.stars *:nth-child(4){
+    animation: starShine 1s infinite
 }
 
 .ending{
@@ -666,4 +672,16 @@ footer p{
 
 .button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover{
     cursor: pointer;
+}
+
+@keyframes starShine {
+    0%{
+        filter: drop-shadow(0 0 1rem rgb(255, 200, 0));
+    }
+    50%{
+        filter: drop-shadow(0 0 2rem rgb(255, 255, 125));
+    }
+    100%{
+        filter: drop-shadow(0 0 1rem rgb(255, 200, 0));
+    }
 }
