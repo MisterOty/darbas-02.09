@@ -42,24 +42,35 @@ let characters = [
     {
         name: "Speedy",
         mMImage: "files/images/characters/justas.png",
-        icon: [35, 0, 0, 0],
         tauntSFX: ["", ""],
         jumpScareSFX: "files/sounds/jumpscare/generic.mp3",
         path: 0,
-        cameraPos: {
-            r04: [35, 0, 35, 0],
-            b1: [35, 0, 25, 0],
-            a1: [35, 25, 35, 0],
-            a2: [35, 25, 35, 0],
-            office: [100, 0, 0, 0]
-        },
-        pathFind: {
-            r04: "",
-            b1: "",
-            a1: "",
-            a2: "",
-            office: ""
-        },
+        pathFind: [{
+            r04: {
+                image: "files/images/characters/justas.png",
+                pos: [50, 0]
+            },
+            b1: {
+                image: "files/images/characters/justas.png",
+                pos: [50, 0]
+            },
+            a1: {
+                image: "files/images/characters/justas.png",
+                pos: [50, 0]
+            },
+            a2: {
+                image: "files/images/characters/justas.png",
+                pos: [50, 0]
+            },
+            office: {
+                image: "files/images/characters/justas.png",
+                pos: "center"
+            },
+            innerOffice: {
+                image: "files/images/characters/justas.png",
+                pos: "left"
+            }
+        }],
         difficulty: {
             night1: 2,
             night2: 4,
@@ -73,22 +84,31 @@ let characters = [
     {
         name: "Bonepart",
         mMImage: "files/images/characters/kajus.png",
-        icon: [35, 0, 0, 0],
         tauntSFX: ["", ""],
-        jumpScareSFX: "",
+        jumpScareSFX: "files/sounds/jumpscare/generic.mp3",
         path: 0,
-        cameraPos: {
-            r01: [35, 0, 35, 0],
-            r02: [35, 0, 25, 0],
-            r03: [35, 25, 35, 0],
-            office: [0, 100, 0, 0]
-        },
-        pathFind: {
-            r01: "",
-            r02: "",
-            r03: "",
-            office: ""
-        },
+        pathFind: [{
+            r01: {
+                image: "files/images/characters/kajus.png",
+                pos: [25, 5]
+            },
+            r02: {
+                image: "files/images/characters/kajus.png",
+                pos: [50, 30]
+            },
+            r03: {
+                image: "files/images/characters/kajus.png",
+                pos: [25, 20]
+            },
+            office: {
+                image: "files/images/characters/kajus.png",
+                pos: "center"
+            },
+            innerOffice: {
+                image: "files/images/characters/kajus.png",
+                pos: "right"
+            }
+        }],
         difficulty: {
             night1: 2,
             night2: 5,
@@ -99,64 +119,76 @@ let characters = [
             night7: 0,
         }
     },
-    {
-        name: "Halali",
-        mMImage: "files/images/characters/antanas.png",
-        icon: [35, 0, 0, 0],
-        tauntSFX: ["", ""],
-        jumpScareSFX: "",
-        path: 0,
-        cameraPos: {
-            r01: [35, 0, 35, 0],
-            r02: [35, 0, 25, 0],
-            r03: [35, 25, 35, 0],
-            office: [0, 100, 0, 0]
-        },
-        pathFind: {
-            r01: "",
-            r02: "",
-            r03: "",
-            office: ""
-        },
-        difficulty: {
-            night1: 2,
-            night2: 5,
-            night3: 8,
-            night4: 9,
-            night5: 13,
-            night6: 16,
-            night7: 0,
-        }
-    },
-    {
-        name: "Kara",
-        mMImage: "files/images/characters/kara.png",
-        icon: [35, 0, 0, 0],
-        tauntSFX: ["", ""],
-        jumpScareSFX: "",
-        path: 0,
-        cameraPos: {
-            r01: [35, 0, 35, 0],
-            r02: [35, 0, 25, 0],
-            r03: [35, 25, 35, 0],
-            office: [0, 100, 0, 0]
-        },
-        pathFind: {
-            r01: "",
-            r02: "",
-            r03: "",
-            office: ""
-        },
-        difficulty: {
-            night1: 2,
-            night2: 5,
-            night3: 8,
-            night4: 9,
-            night5: 13,
-            night6: 16,
-            night7: 0,
-        }
-    }
+    // {
+    //     name: "Halali",
+    //     mMImage: "files/images/characters/antanas.png",
+    //     tauntSFX: ["", ""],
+    //     jumpScareSFX: "files/sounds/jumpscare/generic.mp3",
+    //     path: 0,
+    //     pathFind: [{
+    //         r05: {
+    //             image: "files/images/characters/antanas.png",
+    //             pos: [25, 5]
+    //         },
+    //         b1: {
+    //             image: "files/images/characters/antanas.png",
+    //             pos: [0, 30]
+    //         },
+    //         b2: {
+    //             image: "files/images/characters/antanas.png",
+    //             pos: [25, 20]
+    //         },
+    //         r06: {
+    //             image: "files/images/characters/antanas.png",
+    //             pos: [60, 50]
+    //         },
+    //         officeRight: {
+    //             image: "files/images/characters/kajus.png",
+    //             pos: [100, 0]
+    //         },
+    //         office: []
+    //     }],
+    //     difficulty: {
+    //         night1: 2,
+    //         night2: 5,
+    //         night3: 8,
+    //         night4: 9,
+    //         night5: 13,
+    //         night6: 16,
+    //         night7: 0,
+    //     }
+    // },
+    // {
+    //     name: "Kara",
+    //     mMImage: "files/images/characters/kara.png",
+    //     tauntSFX: ["", ""],
+    //     jumpScareSFX: "files/sounds/jumpscare/generic.mp3",
+    //     path: 0,
+    //     pathFind: [{
+    //         r04: {
+    //             image: "files/images/characters/kara.png",
+    //             pos: [25, 20]
+    //         },
+    //         r03: {
+    //             image: "files/images/characters/kara.png",
+    //             pos: [50, 25]
+    //         },
+    //         officeRight: {
+    //             image: "files/images/characters/kara.png",
+    //             pos: [0, 50]
+    //         },
+    //         office: []
+    //     }],
+    //     difficulty: {
+    //         night1: 2,
+    //         night2: 5,
+    //         night3: 8,
+    //         night4: 9,
+    //         night5: 13,
+    //         night6: 16,
+    //         night7: 0,
+    //     }
+    // }
 ]
 
 let cameras = ["a1", "a2", "b1", "b2", "r01", "r02", "r03", "r04", "r05", "r06"]
@@ -238,7 +270,7 @@ let currentNight = 0;
 let secretCount = 0;
 let picCount = 0;
 
-let version = 0.82
+let version = 0.83
 
 let cameraView = false
 let officeView = false
@@ -252,6 +284,12 @@ let lButEnable = false
 let viewEnding = false
 let twentyMode = false
 
+let leftDoorClose = false
+let rightDoorClose = false
+
+let officeLight = false
+let officeLightDelay = false
+
 let timerInterval
 let moveInterval
 let powerInterval
@@ -264,8 +302,7 @@ let currentCam
 let extraText
 let jumpSFX
 
-const clearMain = () => {
-    clearInterval(timerInterval)
+const clearMain = () => {  clearInterval(timerInterval)
     clearInterval(powerInterval)
     clearInterval(mMImgInterval)
     clearTimeout(mMImgTimeout)
@@ -279,7 +316,6 @@ const clearMain = () => {
     gamePlay.innerHTML = ``
     copyRight.innerHTML = ``
     gameTime = 0;
-    gameTimeSec = 0;
     power = 1000;
     powerUsage = 1;
     if(jumpSFX != undefined){
@@ -356,33 +392,7 @@ const doMenu = () => {
     body.style.backgroundSize = `100% 100%`
     gamePlay.style.background = ``
     gamePlay.style.backdropFilter = `brightness(0.5)`
-
-    // let chrImgRight = 0
-    // let chrImgTop = 8 * characters.length
-    // let zIndex = characters.length
-
-    // for(let i = 0;i < characters.length; i++){
-    //     document.querySelector(".MMenuCharacter").innerHTML += `
-    //         <div class="${characters[i].name}-img MMenuChr-img"></div>
-    //     `
-    //     document.querySelector(`.${characters[i].name}-img`).style.background = `url(${characters[i].mMImage})`
-    //     document.querySelector(`.${characters[i].name}-img`).style.backgroundSize = `100% 100%`
-    //     document.querySelector(`.${characters[i].name}-img`).style.backgroundPosition = `center top`
-    //     document.querySelector(`.${characters[i].name}-img`).style.top = `${chrImgTop}%`
-    //     document.querySelector(`.${characters[i].name}-img`).style.right = `${chrImgRight}%`
-    //     document.querySelector(`.${characters[i].name}-img`).style.zIndex = `${zIndex}`
-    //     chrImgRight += 15
-    //     chrImgTop -= 5
-    //     zIndex -= 1
-    // }
-
-    let rngChar = Math.floor(Math.random() * characters.length)
-    doMenuImg(characters[rngChar])
-
-    mMImgInterval = setInterval(() => {
-        doRandom()
-    }, 500);
-
+    doMenuImg()
     backgroundSFX(themes[0].mMTheme, "play")
 
     if(gameData[0].extraMenu){
@@ -425,20 +435,24 @@ const doMenu = () => {
     });
 }
 
-const doRandom = () => {
-    let rngTime = 10 * Math.floor(Math.random() * 100 + 1)
-    let rngChar = Math.floor(Math.random() * characters.length)
-    mMImgTimeout = setTimeout(() => {
-        doMenuImg(characters[rngChar])
-    }, rngTime)
-}
-
-const doMenuImg = (char) => {
-    document.querySelector(".MMenuCharacter").innerHTML = `
-        <div class="${char.name}-img MMenuChr-img"></div>`
-    let character = document.querySelector(`.${char.name}-img`)
-    character.style.background = `url(${char.mMImage})`
-    character.style.backgroundSize = `100% 100%`
+const doMenuImg = () => {
+    let chrImgRight = 0
+    let chrImgBottom = 0
+    let zIndex = characters.length
+    for(let i = 0;i < characters.length; i++){
+        let character = `char${i}-img`
+        document.querySelector(".MMenuCharacter").innerHTML += `<div class="${character} MMenuChr-img"></div>`
+        document.querySelector(`.${character}`).style.background = `url(${characters[i].mMImage})`
+        document.querySelector(`.${character}`).style.backgroundSize = `100% 100%`
+        document.querySelector(`.${character}`).style.backgroundPosition = `center top`
+        document.querySelector(`.${character}`).style.filter = `brightness(${1 / (characters.length / zIndex)})`
+        document.querySelector(`.${character}`).style.bottom = `${chrImgBottom}%`
+        document.querySelector(`.${character}`).style.right = `${chrImgRight}%`
+        document.querySelector(`.${character}`).style.zIndex = `${zIndex}`
+        chrImgRight += 20 / zIndex
+        chrImgBottom += 5 / zIndex
+        zIndex -= 1
+    }
 }
 
 const doNightShow = (type) => {
@@ -482,6 +496,10 @@ const doTwentyCheck = () => {
 
 const doOffice = () => {
     clearMain()
+    if(currentNight == 0){
+        currentNight = gameData[0].night
+        currentNight = Math.min(currentNight, 5)
+    }
     if(extras[0].cheats[0].enable){
         gameSpeed = 0.5
     }
@@ -491,7 +509,6 @@ const doOffice = () => {
     for(let i = 0; i < characters.length; i++){
         console.log(characters[i].name, ":", characters[i].difficulty[`night${currentNight}`])
     }
-    gameTime = 350;
     officeView = true
     cameraMO = true
     gamePlay.innerHTML = `
@@ -511,7 +528,21 @@ const doOffice = () => {
         </div>
         <div class="office">
             <div class="office-back">
-                <div class="character-office character-left"></div>
+                <div class="character-office"></div>
+            </div>
+            <div class="doors">
+                <div class="door-left"></div>
+                <div class="door-right"></div>
+            </div>
+            <div class="door-buttons">
+                <div class="door-button door-button-left">
+                    <p>Door</p>
+                    <div class="door-button-light door-light-left"></div>
+                </div>
+                <div class="door-button door-button-right">
+                    <p>Door</p>
+                    <div class="door-button-light door-light-right"></div>
+                </div>
             </div>
             <div class="office-front"></div>
         </div>
@@ -523,10 +554,11 @@ const doOffice = () => {
         <div class="cam-hover"></div>
         <div class="cam-screen">
             <div class="screen">
-                <div class="character"></div>
+                <div class="character-contain"></div>
             </div>
             <div class="screen-border"></div>
             <div class="static"></div>
+            <div class="cam-change"></div>
             <div class="map"></div>
         </div>`
     
@@ -537,7 +569,9 @@ const doOffice = () => {
                     <p>${cameras[i].toUpperCase()}</p>
                 </div>`
     }
-    document.querySelector('.office-back').style.filter = `brightness(${0.1})`
+    doFlash("officeMoveLight")
+    doDoorClose(leftDoorClose, "door-left", "door-light-left")
+    doDoorClose(rightDoorClose, "door-right", "door-light-right")
 
     doTwentyCheck()
     enableCamHover()
@@ -556,6 +590,17 @@ const doOffice = () => {
             const camClass = event.currentTarget.classList[0]
             changeCam(camClass);
         });
+    });
+
+    document.querySelector('.door-button-left').addEventListener("click", () => {
+        leftDoorClose = !leftDoorClose
+        doDoorClose(leftDoorClose, "door-left", "door-light-left")
+    });
+
+
+    document.querySelector('.door-button-right').addEventListener("click", () => {
+        rightDoorClose = !rightDoorClose
+        doDoorClose(rightDoorClose, "door-right", "door-light-right")
     });
 
     document.querySelector('.left').addEventListener("mouseenter", event => {
@@ -706,8 +751,6 @@ const doEnding = (type) => {
 
 //OFFICE FUNCTIONS
 
-//--OFFICE
-
 const changePosLeft = () => {
     if(!mouseOver) return
     officePos--
@@ -731,6 +774,29 @@ const changePos = () => {
     officePos = Math.min(100, Math.max(0, officePos));
     document.querySelector('.office-front').style.backgroundPosition = `${officePos}%`
     document.querySelector('.office-back').style.backgroundPosition = `${officePos}%`
+    for(let i = 0; i < characters.length; i++){
+        animOffice(i)
+    }
+    doorPos()
+}
+
+const doorPos = () => {
+    document.querySelector(`.door-left`).style.left = `${officePos * -1 + 5}%`
+    document.querySelector(`.door-right`).style.left = `${officePos * -1 + 170}%`
+    document.querySelector(`.door-button-left`).style.left = `${officePos * -1 + 33}%`
+    document.querySelector(`.door-button-right`).style.left = `${officePos * -1 + 161}%`
+}
+
+const doDoorClose = (type, door, button) => {
+    if(type){
+        doPower("+")
+        document.querySelector(`.${door}`).style.bottom = `0%`
+        document.querySelector(`.${button}`).style.filter = `hue-rotate(90deg)`
+    }else{
+        doPower()
+        document.querySelector(`.${door}`).style.bottom = `80%`
+        document.querySelector(`.${button}`).style.filter = ``
+    }
 }
 
 const doJumpscare = (char) => {
@@ -784,12 +850,13 @@ const doJumpscare = (char) => {
 const enableCams = () => {
     let audio = new Audio("files/sounds/sfx/cam.mp3")
     audio.play()
+    clearTimeout(camTimeOut);
     if(camTabOpen && cameraMO){
-        clearTimeout(camTimeOut);
         document.querySelector('.camera').style.top = `100%`
         document.querySelector('.camera').style.transform = `scale(0.9)`
         camSEnable = false
         enableCamScreen()
+        doPower()
     }else{
         camTimeOut = setTimeout(() => {
             camSEnable = true
@@ -797,6 +864,7 @@ const enableCams = () => {
         }, 250);
         document.querySelector('.camera').style.top = `0%`
         document.querySelector('.camera').style.transform = `scale(1.11)`
+        doPower("+")
     }
 }
 
@@ -829,26 +897,144 @@ const changeCam = (cam) => {
         currentCam = cam
         document.querySelector(`.${currentCam}`).classList.add("button-clicked")
     }else{
-        let audio = new Audio("files/sounds/sfx/cam_change.mp3")
-        audio.play()
+        if(camTabOpen){
+            let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+            audio.play()
+        }
         document.querySelector(`.${currentCam}`).classList.remove("button-clicked")
         currentCam = cam
         document.querySelector(`.${currentCam}`).classList.add("button-clicked")
     }
-    document.querySelector('.screen').style.background = `url(files/images/camera/changecam.gif`
+    document.querySelector('.cam-change').style.display = `block`
     camEffect = setTimeout(() => {
+        document.querySelector('.cam-change').style.display = `none`
         document.querySelector('.screen').style.background = `url(files/images/camera/${cam}.png)`
         document.querySelector('.screen').style.backgroundSize = `100% 100%`
+        for(let i = 0; i < characters.length; i++){
+            animCamera(i)
+        }
     }, 50);
 }
 
-const doFlash = () => {
-    if(document.querySelector('.office-back').style.filter == `brightness(${0.1})`){
-        document.querySelector('.office-back').style.filter = `brightness(${1})`
-        doPower("+")
+const doFlash = (type) => {
+    if(type == "officeMove"){
+        document.querySelector('.office-back').style.filter = `brightness(0)`
+    }else if(type == "officeMoveLight"){
+        document.querySelector('.office-back').style.filter = `brightness(0)`
     }else{
-        document.querySelector('.office-back').style.filter = `brightness(${0.1})`
-        doPower()
+        officeLight = !officeLight
+        if(officeLight){
+            document.querySelector('.office-back').style.filter = `brightness(0.75)`
+            doPower("+")
+        }else{
+            document.querySelector('.office-back').style.filter = `brightness(0)`
+            doPower()
+        }
+    }
+}
+
+//ANIMATRONICS MOVE
+
+// const showAnimatronic = (cam) => {
+//     document.querySelector('.character-contain').innerHTML = ``
+//     for(let i = 0; i < characters.length; i++){
+//         if(characters[i].path >= Object.keys(characters[i].pathFind[0]).length){
+//             characters[i].path = 0
+//         }
+//         if(Object.keys(characters[i].pathFind[0])[characters[i].path] == cam){
+//             document.querySelector('.character-contain').innerHTML += `<div class="${characters[i].name}-character character"></div>`
+//             document.querySelector(`.${characters[i].name}-character`).style.background = `url(${characters[i].pathFind[0][cam].image})`
+//             document.querySelector(`.${characters[i].name}-character`).style.backgroundSize = `100% 100%`
+//             document.querySelector(`.${characters[i].name}-character`).style.left = `${characters[i].pathFind[0][cam].pos[0]}%`
+//             document.querySelector(`.${characters[i].name}-character`).style.top = `${characters[i].pathFind[0][cam].pos[1]}%`
+//         }else if(Object.keys(characters[i].pathFind[0])[characters[i].path] == `office`){
+//             console.log("In office")
+//         }else if(Object.keys(characters[i].pathFind[0])[characters[i].path] == `innerOffice`){
+//             console.log("Do jumpscare")
+//         }
+//     }
+// }
+
+const doAnimPath = (num) => {
+    if(characters[num].path + 1 >= Object.keys(characters[num].pathFind[0]).length){
+        if(Object.values(characters[num].pathFind[0])[characters[num].path].pos == "left" && !leftDoorClose){
+            console.log("Left Jumpscare")
+            doJumpscare(characters[num])
+        }else if(Object.values(characters[num].pathFind[0])[characters[num].path].pos == "right" && !rightDoorClose){
+            console.log("Right Jumpscare")
+            doJumpscare(characters[num])
+        }else{
+            characters[num].path = 0
+            animOffice(num, "first")
+            console.log(document.querySelector(`.${characters[num].name}-office`))
+            document.querySelector(`.${characters[num].name}-office`).remove()
+        }
+    }else{
+        characters[num].path++
+    }
+    let checkArray = !Array.isArray(Object.values(characters[num].pathFind[0])[characters[num].path].pos)
+    if(characters[num].path >= Object.keys(characters[num].pathFind[0]).length - 2){
+        if(checkArray){
+            changeCam(currentCam)
+            animCamera(num)
+            animOffice(num, "first")
+        }
+    }else{
+        if(Object.keys(characters[num].pathFind[0])[characters[num].path] == currentCam || Object.keys(characters[num].pathFind[0])[characters[num].path - 1] == currentCam){
+            changeCam(currentCam)
+        }
+        animCamera(num)
+    }
+}
+
+const animCamera = (num) => {
+    document.querySelector('.character-contain').innerHTML = ``
+    if(Object.keys(characters[num].pathFind[0])[characters[num].path] == currentCam){
+        document.querySelector('.character-contain').innerHTML += `<div class="${characters[num].name}-character character"></div>`
+        document.querySelector(`.${characters[num].name}-character`).style.background = `url(${characters[num].pathFind[0][currentCam].image})`
+        document.querySelector(`.${characters[num].name}-character`).style.backgroundSize = `100% 100%`
+        document.querySelector(`.${characters[num].name}-character`).style.left = `${characters[num].pathFind[0][currentCam].pos[0]}%`
+        document.querySelector(`.${characters[num].name}-character`).style.top = `${characters[num].pathFind[0][currentCam].pos[1]}%`
+    }
+}
+
+const animOffice = (num, type) => {
+    if(type == "first"){
+            if(officeLight){
+                officeLight = false
+                doPower()
+            }
+            officeLightDelay = true
+            doFlash("officeMove")
+            setTimeout(() =>{
+                officeLightDelay = false
+                doFlash("officeMoveLight")
+            }, 250)
+            // document.querySelector(`.${characters[num].name}-office`).style.transition = `left 0.25s, top 0.25s`
+            // setTimeout(() =>{
+            //     document.querySelector(`.${characters[num].name}-office`).style.transition = `left 0s, top 0s`
+            // }, 250)
+    }
+    if(characters[num].path >= Object.keys(characters[num].pathFind[0]).length - 2 && characters[num].path != 0){
+        console.log(characters[num].name, characters[num].path)
+        let place = Object.keys(characters[num].pathFind[0])[characters[num].path]
+        let checkArray = !Array.isArray(Object.values(characters[num].pathFind[0])[characters[num].path].pos)
+        if(checkArray && type == "first" && document.querySelector(`.${characters[num].name}-office`) == null){
+            document.querySelector(`.character-office`).innerHTML += `<div class="${characters[num].name}-office anim-office"></div>`
+            document.querySelector(`.${characters[num].name}-office`).style.background = `url(${characters[num].pathFind[0][place].image})`
+            document.querySelector(`.${characters[num].name}-office`).style.backgroundSize = `100% 100%`
+            // document.querySelector(`.${characters[num].name}-office`).style.transition = `left 0s, top 0s`
+        }
+        if(characters[num].pathFind[0][place].pos == "center"){
+            document.querySelector(`.${characters[num].name}-office`).style.left = `${officePos * -1 + 87}%`
+            document.querySelector(`.${characters[num].name}-office`).style.top = `25%`
+        }else if(characters[num].pathFind[0][place].pos == "left"){
+            document.querySelector(`.${characters[num].name}-office`).style.left = `${officePos * -1 + 5}%`
+            document.querySelector(`.${characters[num].name}-office`).style.top = `50%`
+        }else if(characters[num].pathFind[0][place].pos == "right"){
+            document.querySelector(`.${characters[num].name}-office`).style.left = `${officePos * -1 + 170}%`
+            document.querySelector(`.${characters[num].name}-office`).style.top = `50%`
+        }
     }
 }
 
@@ -884,7 +1070,7 @@ const stopRT = (condition) => {
     }else{}
 }
 
-const doRTimer = () => { 
+const doRTimer = () => {
     timerInterval = setInterval(() => {
         gameTime++
         if(gameTime >= 360){
@@ -920,6 +1106,7 @@ const doPower = (type) => {
     }else{
         powerUsage--
     }
+    powerUsage = Math.min(5, Math.max(1, powerUsage));
     doPowerCount()
 }
 
@@ -1230,11 +1417,14 @@ document.addEventListener('keydown', function(event) {
     if(event.key == 'Enter' && viewEnding){
         doEnding("skip")
     }
-    if(event.key == 'Control' && officeView && !camSEnable && !pauseView){
+    if(event.key == 'Control' && officeView && !camSEnable && !pauseView && !officeLightDelay){
         doFlash()
     }
     if(event.key == 'Delete' && officeView && !pauseView){
-        doJumpscare(characters[0])
+        // doJumpscare(characters[0])
+        for(let i = 0; i < characters.length; i++){
+            doAnimPath(i)
+        }
     }
     konamiFunc(konamiCode, event.key)
 })

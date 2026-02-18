@@ -1,22 +1,23 @@
 ---------Make main menu
-Make office
+---------Make office
 ---------Make cameras
 ---------Make camera screen
 Make animatronics
 ---------Make 6 nights difficulty
 ---------Make custom night
-Make polish to game
 ---------Make Different cams
-Make power
-Make door
-Make jumpscares
+---------Make power
+---------Make door
+---------Make jumpscares
 ---------Make gameover
-
 Make animatronics do foxy behavior
-make animatronics go from cams to office
+Make animatronics go from cams to office
 Make animatronics move
 Make animatronics taunt player after moving
 Make doors and lights buttons
-Make doors work from tablet on side or top
+---------Make doors work from tablet on side or top
+---------Make animatronic look through window before attacking
+Make sounds for everything
 
-Make animatronic look through window before attacking
+
+Make polish to game

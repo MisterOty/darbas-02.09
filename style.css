@@ -52,7 +52,6 @@ main{
 .MMenuCharacter{
     width: 70%;
     height: 100%;
-    display: flex;
     position: absolute;
     right: 0%;
     top: 0%;
@@ -60,7 +59,6 @@ main{
 }
 
 .MMenuChr-img{
-    filter: opacity(0.5);
     width: 70%;
     height: 80%;
     position: absolute;
@@ -143,18 +141,26 @@ main{
 }
 
 .move-divs{
-    z-index: 6;
+    z-index: 10;
     position: fixed;
     top: 0;
     width: 100%;
     display: flex;
-    justify-content: space-between;
 }
 
 .left, .right{
-    display: flex;
     width: 20vw;
     height: 100vh;
+}
+
+.left{
+    position: absolute;
+    left: 0%;
+}
+
+.right{
+    position: absolute;
+    right: 0%;
 }
 
 .timeText{
@@ -172,35 +178,29 @@ main{
     right: 2.5%;
 }
 
+.character-contain{
+    position: relative;
+    z-index: 12;
+    width: 100%;
+    height: 100%;
+}
+
 .character{
     position: absolute;
-    z-index: 2;
-    background: url(files/images/characters/justas.png);
-    background-size: 100% 100%;
     width: 25%;
     height: 50%;
 }
 
 .character-office{
-    opacity: 50;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.anim-office{
     position: absolute;
-    z-index: 2;
-    background: url(files/images/characters/kara.png);
-    background-size: 100% 100%;
     width: 25%;
     height: 50%;
-    top: 35%;
-    left: 35%;
-}
-
-.character-left{
-    top: 50%;
-    left: 5.5%;
-}
-
-.character-left{
-    top: 50%;
-    right: 5.5%;
 }
 
 .camera{
@@ -251,6 +251,17 @@ main{
     position: absolute;
     top: 0;
     z-index: 15;
+}
+
+.cam-change{
+    background: url(files/images/camera/changecam.gif);
+    background-size: 100% 100%;
+    opacity: 100%;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    z-index: 16;
 }
 
 .map{
@@ -346,7 +357,7 @@ main{
 .pause{
     align-items: center;
     text-align: center;
-    z-index: 16;
+    z-index: 20;
     position: absolute;
     background: rgba(0, 0, 0, 0.75);
     background-size: 100% 100%;
@@ -376,6 +387,7 @@ main{
     z-index: 20;
     padding: 2%;
     bottom: 0;
+    z-index: 19;
 }
 
 .power p{
@@ -393,7 +405,7 @@ main{
 }
 
 .usage div{
-    width: 1.25vmax;
+    width: 1vmax;
     height: 2vmax;
 }
 
@@ -411,6 +423,10 @@ main{
 
 .usage div:nth-child(4){
     background: rgb(255, 0, 0);
+}
+
+.usage div:nth-child(5){
+    background: rgb(100, 0, 0);
 }
 
 footer{
@@ -539,6 +555,31 @@ footer p{
     font-size: 150%;
 }
 
+.door-button{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 1vmax;
+    border-radius: 1vmax;
+    width: auto;
+    height: auto;
+    position: absolute;
+    background: gray;
+    z-index: 100;
+    bottom: 35%;
+}
+
+.door-button-light{
+    width: 5vw;
+    height: 5vw;
+    border-radius: 2vmax;
+    background: rgb(155, 0, 0);
+    transition: 0.25s filter;
+}
+
+.door-button-left, .door-button-right{
+    z-index: 10;
+}
 
 .extra-title{
     font-size: 200%;
@@ -595,6 +636,16 @@ footer p{
     z-index: 12;
     width: 100vw;
     height: 100vh;
+}
+
+.doors *{
+    position: absolute;
+    transition: 0.5s bottom;
+    width: 25%;
+    height: 80%;
+    background: url(files/images/office/door.png);
+    background-size: 100% 100%;
+    z-index: 4;
 }
 
 .switch{
@@ -670,7 +721,7 @@ footer p{
     height: 100%;
 }
 
-.button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover{
+.button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .door-button-left:hover, .door-button-right:hover{
     cursor: pointer;
 }
 
