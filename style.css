@@ -652,7 +652,7 @@ footer p{
     position: absolute;
     transition: 0.5s bottom;
     width: 25%;
-    height: 80%;
+    height: 65%;
     background: url(files/images/office/door.png);
     background-size: 100% 100%;
     z-index: 4;
@@ -731,7 +731,7 @@ footer p{
     height: 100%;
 }
 
-.button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .door-button-left:hover, .door-button-right:hover{
+.button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .character-img:hover, .door-button-left:hover, .door-button-right:hover{
     cursor: pointer;
 }
 

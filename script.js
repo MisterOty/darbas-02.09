@@ -28,11 +28,11 @@ let characters = [
         pathFind: [{
             r04: {
                 image: "files/images/characters/justas.png",
-                pos: [50, 0]
+                pos: [50, 50]
             },
             b1: {
                 image: "files/images/characters/justas.png",
-                pos: [50, 0]
+                pos: [50, 30]
             },
             a1: {
                 image: "files/images/characters/justas.png",
@@ -64,13 +64,13 @@ let characters = [
     {
         name: "Bonepart",
         mMImage: "files/images/characters/kajus.png",
-        tauntSFX: ["files/sounds/sfx/characters/kajus/taunt01.mp3"],
+        tauntSFX: ["files/sounds/sfx/characters/kajus/taunt01.mp3", "files/sounds/sfx/characters/kajus/taunt02.mp3"],
         jumpScareSFX: "files/sounds/sfx/characters/kajus/jumpscare.mp3",
         path: 0,
         pathFind: [{
             r01: {
                 image: "files/images/characters/kajus.png",
-                pos: [25, 5]
+                pos: [30, 25]
             },
             r02: {
                 image: "files/images/characters/kajus.png",
@@ -90,9 +90,9 @@ let characters = [
             }
         }],
         difficulty: {
-            night1: 1,
-            night2: 5,
-            night3: 8,
+            night1: 0,
+            night2: 2,
+            night3: 5,
             night4: 9,
             night5: 13,
             night6: 16,
@@ -102,17 +102,17 @@ let characters = [
     {
         name: "BusinessMan",
         mMImage: "files/images/characters/saulius.png",
-        tauntSFX: ["files/sounds/sfx/characters/saulius/taunt01.mp3"],
+        tauntSFX: ["files/sounds/sfx/characters/saulius/taunt01.mp3", "files/sounds/sfx/characters/saulius/taunt02.mp3"],
         jumpScareSFX: "files/sounds/sfx/characters/saulius/jumpscare.mp3",
         path: 0,
         pathFind: [{
             r05: {
                 image: "files/images/characters/saulius.png",
-                pos: [25, 5]
+                pos: [50, 25]
             },
             b1: {
                 image: "files/images/characters/saulius.png",
-                pos: [0, 30]
+                pos: [10, 35]
             },
             b2: {
                 image: "files/images/characters/saulius.png",
@@ -120,7 +120,7 @@ let characters = [
             },
             r06: {
                 image: "files/images/characters/saulius.png",
-                pos: [60, 50]
+                pos: [30, 40]
             },
             innerOffice: {
                 image: "files/images/characters/saulius.png",
@@ -128,8 +128,8 @@ let characters = [
             }
         }],
         difficulty: {
-            night1: 1,
-            night2: 4,
+            night1: 0,
+            night2: 0,
             night3: 5,
             night4: 7,
             night5: 10,
@@ -146,7 +146,7 @@ let characters = [
         pathFind: [{
             r04: {
                 image: "files/images/characters/giedrius.png",
-                pos: [25, 20]
+                pos: [25, 50]
             },
             r03: {
                 image: "files/images/characters/giedrius.png",
@@ -162,9 +162,9 @@ let characters = [
             }
         }],
         difficulty: {
-            night1: 1,
-            night2: 4,
-            night3: 6,
+            night1: 0,
+            night2: 0,
+            night3: 4,
             night4: 7,
             night5: 10,
             night6: 13,
@@ -231,24 +231,6 @@ for(let i = 0;i < cameras.length; i++){
 
 let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
 
-gameData = [{
-    night: 7,
-    nightSix: true,
-    extraMenu: true,
-    stars: [{
-        star: true,
-    },
-    {
-        star: true,
-    },
-    {
-        star: true,
-    },
-    {
-        star: true,
-    }]
-}]
-
 const body = document.querySelector('body')
 const tabName = document.querySelector('.tab-title')
 const gamePlay = document.querySelector('main')
@@ -268,7 +250,6 @@ let officePos = 50;
 let currentNight = 0;
 let secretCount = 0;
 let picCount = 0;
-let version = 0.9
 
 let movementInterval = []
 let movementTimeout = []
@@ -316,10 +297,6 @@ const clearMain = () => {
     gamePlay.style.backdropFilter = ``
     gamePlay.innerHTML = ``
     copyRight.innerHTML = ``
-    gameTime = 0;
-    gameSpeed = 1;
-    power = 1000;
-    powerUsage = 1;
     if(jumpSFX != undefined){
         jumpSFX.pause()
         jumpSFX.currentTime = 0;
@@ -331,6 +308,11 @@ const clearMain = () => {
         powerOutageSFX.currentTime = 0;
         powerOutage = false
     }
+    gameSpeed = 1
+    gameTime = 0
+    power = 1000
+    powerUsage = 1
+    officePos = 50
     leftDoorClose = false
     rightDoorClose = false
     cameraMO = false
@@ -389,7 +371,6 @@ const doMenu = () => {
             </div>
         </div>`
     copyRight.innerHTML = `
-        <p class="Version">Version ${version}</p>
         <p class="Name">Oskaras Venzlauskas GJSM23</p>`
     tabName.innerHTML = `Five Night's at KITM`
 
@@ -573,11 +554,6 @@ const doOffice = () => {
         power = Infinity;
         document.querySelector('.power-number').innerHTML = `∞%`
     }
-    if(twentyMode){
-        backgroundSFX(themes[0].off20Ambience, "play")
-    }else{
-        backgroundSFX(themes[0].offAmbience, "play")
-    }
     document.querySelector('.calender-day').style.background = `url(files/images/office/calender/0${currentNight}.png)`
     document.querySelector('.calender-day').style.backgroundSize = `200% 100%`
     for(let i = 0; i < characters.length; i++){
@@ -591,6 +567,12 @@ const doOffice = () => {
     doRTimer()
     changePos()
     changeCam(cameras[0]);
+
+    if(twentyMode){
+        backgroundSFX(themes[0].off20Ambience, "play")
+    }else{
+        backgroundSFX(themes[0].offAmbience, "play")
+    }
 
     officeView = true
     cameraMO = true
@@ -651,6 +633,9 @@ const doPause = (type) => {
             }else{
                 backgroundSFX(themes[0].offAmbience, "pause")
             }
+            if(officeLight){
+                lightSFX.pause()
+            }
         }else{
             powerOutageSFX.pause()
         }
@@ -684,6 +669,9 @@ const doPause = (type) => {
                 backgroundSFX(themes[0].off20Ambience, "play")
             }else{
                 backgroundSFX(themes[0].offAmbience, "play")
+            }
+            if(officeLight){
+                lightSFX.play()
             }
         }else{
             powerOutageSFX.play()
@@ -823,7 +811,7 @@ const doorPos = () => {
 const doDoorClose = (type, door, button) => {
         if(type & !powerOutage){
             doPower("+")
-            document.querySelector(`.${door}`).style.bottom = `0%`
+            document.querySelector(`.${door}`).style.bottom = `17%`
             document.querySelector(`.${button}`).style.filter = `hue-rotate(90deg)`
             if(officeView){
                 let audio = new Audio("files/sounds/sfx/door_close.mp3")
@@ -831,7 +819,7 @@ const doDoorClose = (type, door, button) => {
             }
         }else{
             doPower()
-            document.querySelector(`.${door}`).style.bottom = `80%`
+            document.querySelector(`.${door}`).style.bottom = `78%`
             document.querySelector(`.${button}`).style.filter = ``
             if(officeView && !powerOutage){
                 let audio = new Audio("files/sounds/sfx/door_close.mp3")
@@ -1081,10 +1069,6 @@ const animOffice = (num, type) => {
                 officeLightDelay = false
                 doFlash("officeMoveLight")
             }, 250)
-            // document.querySelector(`.${characters[num].name}-office`).style.transition = `left 0.25s, top 0.25s`
-            // setTimeout(() =>{
-            //     document.querySelector(`.${characters[num].name}-office`).style.transition = `left 0s, top 0s`
-            // }, 250)
     }
     if(characters[num].path >= Object.keys(characters[num].pathFind[0]).length - 2 && characters[num].path != 0){
         let place = Object.keys(characters[num].pathFind[0])[characters[num].path]
@@ -1093,17 +1077,16 @@ const animOffice = (num, type) => {
             document.querySelector(`.character-office`).innerHTML += `<div class="${characters[num].name}-office anim-office"></div>`
             document.querySelector(`.${characters[num].name}-office`).style.background = `url(${characters[num].pathFind[0][place].image})`
             document.querySelector(`.${characters[num].name}-office`).style.backgroundSize = `100% 100%`
-            // document.querySelector(`.${characters[num].name}-office`).style.transition = `left 0s, top 0s`
         }
         if(characters[num].pathFind[0][place].pos == "center"){
             document.querySelector(`.${characters[num].name}-office`).style.left = `${officePos * -1 + 87}%`
-            document.querySelector(`.${characters[num].name}-office`).style.top = `25%`
+            document.querySelector(`.${characters[num].name}-office`).style.bottom = `25%`
         }else if(characters[num].pathFind[0][place].pos == "left"){
             document.querySelector(`.${characters[num].name}-office`).style.left = `${officePos * -1 + 5}%`
-            document.querySelector(`.${characters[num].name}-office`).style.top = `50%`
+            document.querySelector(`.${characters[num].name}-office`).style.bottom = `17%`
         }else if(characters[num].pathFind[0][place].pos == "right"){
             document.querySelector(`.${characters[num].name}-office`).style.left = `${officePos * -1 + 170}%`
-            document.querySelector(`.${characters[num].name}-office`).style.top = `50%`
+            document.querySelector(`.${characters[num].name}-office`).style.bottom = `17%`
         }
     }
 }
@@ -1194,10 +1177,10 @@ const doPower = (type) => {
 }
 
 const doPowerOutage = () => {
-    powerOutage = true
     if(camTabOpen && cameraMO){
         enableCams()
     }
+    powerOutage = true
     leftDoorClose = false
     rightDoorClose = false
     gamePlay.style.filter = `brightness(0.1)`
@@ -1378,6 +1361,14 @@ const changeCTN = () => {
         });
     });
 
+    characters.forEach(char => {
+        document.querySelector(`.${char.name}-img`).addEventListener("click", () => {
+            let randomTaunt = Math.floor(Math.random() * char.tauntSFX.length);
+            let audio = new Audio(`${char.tauntSFX[randomTaunt]}`)
+            audio.play()
+        });
+    });
+
     
     document.querySelector(".set-0").addEventListener("click", () => {
         for(let i = 0; i < characters.length; i++){
@@ -1506,8 +1497,6 @@ const konamiFunc = (word, event) => {
         }
     }
 }
-
-doMenu()
 
 document.addEventListener('keydown', function(event) {
     if(event.key == 'Escape' && officeView){
