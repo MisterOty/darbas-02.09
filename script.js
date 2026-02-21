@@ -297,6 +297,9 @@ const clearMain = () => {
     gamePlay.style.backdropFilter = ``
     gamePlay.innerHTML = ``
     copyRight.innerHTML = ``
+    for(let i = 0; i < characters.length; i++){
+        characters[i].path = 0
+    }
     if(jumpSFX != undefined){
         jumpSFX.pause()
         jumpSFX.currentTime = 0;
@@ -528,6 +531,7 @@ const doOffice = () => {
             <div class="left"></div>
             <div class="right"></div>
         </div>
+        <div class="light-div"></div>
         <div class="camera"></div>
         <div class="cam-hover"></div>
         <div class="cam-screen">
@@ -582,6 +586,12 @@ const doOffice = () => {
             const camClass = event.currentTarget.classList[0]
             changeCam(camClass);
         });
+    });
+
+    document.querySelector('.light-div').addEventListener("click", () => {
+        if(officeView && !camSEnable && !pauseView && !officeLightDelay){
+            doFlash()
+        }
     });
 
     document.querySelector('.door-button-left').addEventListener("click", () => {
@@ -716,9 +726,11 @@ const do6am = () => {
             doEnding(ending)
         }else if(currentNight == 6){
             let ending = 2
+            gameData[0].extraMenu = true
             doEnding(ending)
         }else if(currentNight == 5){
             let ending = 1
+            gameData[0].nightSix = true
             doEnding(ending)
         }else if(currentNight <= 5){
             gameData[0].night++
@@ -963,11 +975,13 @@ const doFlash = (type) => {
             officeLight = !officeLight
             if(officeLight){
                 document.querySelector('.office-back').style.filter = `brightness(0.75)`
+                document.querySelector('.light-div').style.filter = `hue-rotate(90deg)`
                 doPower("+")
                 lightSFX.loop = true;
                 lightSFX.play()
             }else{
                 document.querySelector('.office-back').style.filter = `brightness(0)`
+                document.querySelector('.light-div').style.filter = ``
                 doPower()
             }
         }
@@ -1498,20 +1512,14 @@ const konamiFunc = (word, event) => {
     }
 }
 
+doOffice()
+
 document.addEventListener('keydown', function(event) {
     if(event.key == 'Escape' && officeView){
         doPause()
     }
     if(event.key == 'Enter' && viewEnding){
         doEnding("skip")
-    }
-    if(event.key == 'Control' && officeView && !camSEnable && !pauseView && !officeLightDelay){
-        doFlash()
-    }
-    if(event.key == 'Delete' && officeView && !pauseView){
-        for(let i = 0; i < characters.length; i++){
-            doAnimPath(i)
-        }
     }
     konamiFunc(konamiCode, event.key)
 })

@@ -575,6 +575,21 @@ footer p{
     font-size: 150%;
 }
 
+.light-div{
+    position: fixed;
+    display: flex;
+    top: 5%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 5%;
+    height: 10%;
+    margin: 1%;
+    background: url(files/images/office/lightbutton.png);
+    background-size: 100% 100%;
+    border-radius: 1vmax;
+    z-index: 7;
+}
+
 .door-button{
     border-radius: 1vmax;
     width: 5%;
@@ -731,7 +746,7 @@ footer p{
     height: 100%;
 }
 
-.button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .character-img:hover, .door-button-left:hover, .door-button-right:hover{
+.button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .character-img:hover, .door-button-left:hover, .door-button-right:hover, .light-div:hover{
     cursor: pointer;
 }
 
