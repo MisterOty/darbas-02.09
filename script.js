@@ -1,7 +1,7 @@
 // Minigame Web (Point and click game)
 
 let gameData = [{
-    night: 1,
+    night: 0,
     nightSix: false,
     extraMenu: false,
     stars: [{
@@ -250,6 +250,8 @@ let officePos = 50;
 let currentNight = 0;
 let secretCount = 0;
 let picCount = 0;
+let volume = 1;
+let easterEgg = 2067;
 
 let movementInterval = []
 let movementTimeout = []
@@ -311,6 +313,8 @@ const clearMain = () => {
         powerOutageSFX.currentTime = 0;
         powerOutage = false
     }
+    lightSFX.pause()
+    lightSFX.currentTime = 0;
     gameSpeed = 1
     gameTime = 0
     power = 1000
@@ -327,6 +331,7 @@ const clearMain = () => {
 const backgroundSFX = (sound, type) => {
     if(type == "play"){
         sound.loop = true;
+        sound.volume = volume
         sound.play()
     }else if(type == "pause"){
         sound.pause();
@@ -370,7 +375,6 @@ const doMenu = () => {
             <div class="MMenuCharacter"></div>
             <div class="MMSelector">
                 <p class="NG text">New Game</p>
-                <p class="CTN text">Continue</p>
             </div>
         </div>`
     copyRight.innerHTML = `
@@ -390,41 +394,38 @@ const doMenu = () => {
     doMenuImg()
     backgroundSFX(themes[0].mMTheme, "play")
 
+    if(gameData[0].night >= 1){
+        document.querySelector('.MMSelector').innerHTML += `
+        <p class="CTN text">Continue</p>`
+    }
+    if(gameData[0].nightSix){
+        document.querySelector('.MMSelector').innerHTML += `
+        <p class="night-six text">6th Night</p>`
+    }
     if(gameData[0].extraMenu){
         document.querySelector('.MMSelector').innerHTML += `
-        <p class="night-six text">6th Night</p>`
-
-        document.querySelector('.MMSelector').innerHTML += `
         <p class="EXT text">Extra </p>`
-
-        document.querySelector('.night-six').addEventListener('click', () => {
-            doNightShow("night-6")
-        });
-
-        document.querySelector('.EXT').addEventListener('click', () => {
-            doExtra()
-        });
-    }else if(gameData[0].nightSix){
-        document.querySelector('.MMSelector').innerHTML += `
-        <p class="night-six text">6th Night</p>`
-
-        document.querySelector('.night-six').addEventListener('click', () => {
-            doNightShow("night-6")
-        });
     }
 
 
-    document.querySelector('.NG').addEventListener('click', () => {
-        newGame(0)
+    document.querySelector('.MMSelector').addEventListener('click', (e) => {
+        let classes = e.target.classList
+        if(classes[0] == "NG"){
+            newGame(0)
+        }else if(classes[0] == "CTN"){
+            doNightShow("continue")
+        }else if(classes[0] == "night-six"){
+            doNightShow("night-6")
+        }else if(classes[0] == "EXT"){
+            doExtra()
+        }
     });
 
-    document.querySelector('.CTN').addEventListener('click', () => {
-        doNightShow("continue")
-    });
 
     document.querySelectorAll('.text').forEach(btn => {
         btn.addEventListener("mouseover", () => {
             let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+            audio.volume = volume
             audio.play()
         });
     });
@@ -531,6 +532,7 @@ const doOffice = () => {
             <div class="left"></div>
             <div class="right"></div>
         </div>
+        <div class="pause-button"></div>
         <div class="light-div"></div>
         <div class="camera"></div>
         <div class="cam-hover"></div>
@@ -552,7 +554,7 @@ const doOffice = () => {
                 </div>`
     }
     if(extras[0].cheats[0].enable){
-        gameSpeed = 0.5
+        gameSpeed = 0
     }
     if(extras[0].cheats[1].enable){
         power = Infinity;
@@ -563,7 +565,7 @@ const doOffice = () => {
     for(let i = 0; i < characters.length; i++){
         doMoveInterval(i)
     }
-    doFlash("officeMoveLight")
+    doFlash("officeMove")
     doDoorClose(leftDoorClose, "door-left", "door-button-left")
     doDoorClose(rightDoorClose, "door-right", "door-button-right")
     doTwentyCheck()
@@ -581,6 +583,12 @@ const doOffice = () => {
     officeView = true
     cameraMO = true
 
+    document.querySelector('.pause-button').addEventListener("click", () => {
+        if(officeView){
+            doPause()
+        }
+    });
+
     document.querySelectorAll('.button').forEach(btn => {
         btn.addEventListener("click", event => {
             const camClass = event.currentTarget.classList[0]
@@ -595,24 +603,13 @@ const doOffice = () => {
     });
 
     document.querySelector('.door-button-left').addEventListener("click", () => {
-        if(!powerOutage){
-            leftDoorClose = !leftDoorClose
-            doDoorClose(leftDoorClose, "door-left", "door-button-left")
-        }else{
-            powerOutageDoorSFX.load()
-            powerOutageDoorSFX.play()
-        }
+        leftDoorClose = !leftDoorClose
+        doDoorClose(leftDoorClose, "door-left", "door-button-left")
     });
 
-
     document.querySelector('.door-button-right').addEventListener("click", () => {
-        if(!powerOutage){
-            rightDoorClose = !rightDoorClose
-            doDoorClose(rightDoorClose, "door-right", "door-button-right")
-        }else{
-            powerOutageDoorSFX.load()
-            powerOutageDoorSFX.play()
-        }
+        rightDoorClose = !rightDoorClose
+        doDoorClose(rightDoorClose, "door-right", "door-button-right")
     });
 
     document.querySelector('.left').addEventListener("mouseenter", event => {
@@ -655,6 +652,7 @@ const doPause = (type) => {
                 <p class="cont">CONTINUE</p><br>
                 <p class="exit">EXIT</p>
             </div>`
+        document.querySelector('.pause-button').style.display = `none`
         stopRT("Pause")
 
         document.querySelector('.cont').addEventListener("click", () => {
@@ -674,6 +672,7 @@ const doPause = (type) => {
             doMoveInterval(i)
         }
         pauseDiv.innerHTML = ``
+        document.querySelector('.pause-button').style.display = `block`
         if(!powerOutage){
             if(twentyMode){
                 backgroundSFX(themes[0].off20Ambience, "play")
@@ -681,9 +680,11 @@ const doPause = (type) => {
                 backgroundSFX(themes[0].offAmbience, "play")
             }
             if(officeLight){
+                lightSFX.volume = volume
                 lightSFX.play()
             }
         }else{
+            powerOutageSFX.volume = volume
             powerOutageSFX.play()
         }
     }
@@ -692,6 +693,7 @@ const doPause = (type) => {
 const do6am = () => {
     clearMain()
     let audio = new Audio("files/sounds/sfx/6am.mp3")
+    audio.volume = volume
     audio.play()
     gamePlay.innerHTML = `
         <div class="nightShow visible">
@@ -742,6 +744,7 @@ const do6am = () => {
 const doGameOver = () => {
     clearMain()
     let audio = new Audio("files/sounds/sfx/gameover.mp3")
+    audio.volume = volume
     audio.play()
     gamePlay.innerHTML = `
         <div class="nightShow visible">
@@ -769,6 +772,7 @@ const doEnding = (type) => {
         for(let i = 0; i < type; i++){
             gameData[0].stars[i].star = true
         }
+        endingMusic.volume = volume
         endingMusic.play()
         gamePlay.innerHTML = `<div class="ending"></div>`
         document.querySelector('.ending').style.background = `url(files/images/menu/ending/ending0${type}.png)`
@@ -821,12 +825,14 @@ const doorPos = () => {
 }
 
 const doDoorClose = (type, door, button) => {
-        if(type & !powerOutage){
+    if(!powerOutage){
+        if(type){
             doPower("+")
             document.querySelector(`.${door}`).style.bottom = `17%`
             document.querySelector(`.${button}`).style.filter = `hue-rotate(90deg)`
             if(officeView){
                 let audio = new Audio("files/sounds/sfx/door_close.mp3")
+                audio.volume = volume
                 audio.play()
             }
         }else{
@@ -835,14 +841,21 @@ const doDoorClose = (type, door, button) => {
             document.querySelector(`.${button}`).style.filter = ``
             if(officeView && !powerOutage){
                 let audio = new Audio("files/sounds/sfx/door_close.mp3")
+                audio.volume = volume
                 audio.play()
             }else{
                 if(leftDoorClose || rightDoorClose){
                     let audio = new Audio("files/sounds/sfx/door_close.mp3")
+                    audio.volume = volume
                     audio.play()
                 }
             }
         }
+    }else{
+        powerOutage.volume = volume
+        powerOutageDoorSFX.load()
+        powerOutageDoorSFX.play()
+    }
 }
 
 const doJumpscare = (char) => {
@@ -864,6 +877,7 @@ const doJumpscare = (char) => {
     div.style.backgroundSize = `50% 50%`
     div.style.backgroundPosition = `50% 200%`
     jumpScareTimeout = setTimeout(() => {
+        jumpSFX.volume = volume
         jumpSFX.play()
         div.style.width = `200%`
         div.style.height = `200%`
@@ -897,7 +911,6 @@ const doJumpscare = (char) => {
 const enableCams = () => {
     if(!powerOutage){
         let audio = new Audio("files/sounds/sfx/cam.mp3")
-        audio.play()
         clearTimeout(camTimeOut);
         if(camTabOpen && cameraMO){
             document.querySelector('.camera').style.top = `100%`
@@ -914,6 +927,8 @@ const enableCams = () => {
             document.querySelector('.camera').style.transform = `scale(1.11)`
             doPower("+")
         }
+        audio.volume = volume
+        audio.play()
     }
 }
 
@@ -927,14 +942,14 @@ const enableCamScreen = () => {
 }
 
 const enableCamHover = () => {
-    document.querySelector('.cam-hover').addEventListener("mouseenter", event => {
+    document.querySelector('.cam-hover').addEventListener("mouseenter", () => {
         enableCams()
         camTabOpen = !camTabOpen
-        cameraMO = !cameraMO
         document.querySelector('.cam-hover').style.opacity = `0%`
+        cameraMO = !cameraMO
     });
 
-    document.querySelector('.cam-hover').addEventListener("mouseleave", event => {
+    document.querySelector('.cam-hover').addEventListener("mouseleave", () => {
         document.querySelector('.cam-hover').style.opacity = `100%`
         cameraMO = !cameraMO
     });
@@ -948,6 +963,7 @@ const changeCam = (cam) => {
     }else{
         if(camTabOpen){
             let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+            audio.volume = volume
             audio.play()
         }
         document.querySelector(`.${currentCam}`).classList.remove("button-clicked")
@@ -968,8 +984,7 @@ const doFlash = (type) => {
     lightSFX.currentTime = 0
     if(type == "officeMove"){
         document.querySelector('.office-back').style.filter = `brightness(0)`
-    }else if(type == "officeMoveLight"){
-        document.querySelector('.office-back').style.filter = `brightness(0)`
+        document.querySelector('.light-div').style.filter = ``
     }else{
         if(!powerOutage){
             officeLight = !officeLight
@@ -978,6 +993,7 @@ const doFlash = (type) => {
                 document.querySelector('.light-div').style.filter = `hue-rotate(90deg)`
                 doPower("+")
                 lightSFX.loop = true;
+                lightSFX.volume = volume
                 lightSFX.play()
             }else{
                 document.querySelector('.office-back').style.filter = `brightness(0)`
@@ -1036,6 +1052,7 @@ const doAnimPath = (num) => {
             characters[num].path = 0
             animOffice(num, "first")
             document.querySelector(`.${characters[num].name}-office`).remove()
+            audio.volume = volume
             audio.play()
         }
     }else{
@@ -1081,7 +1098,7 @@ const animOffice = (num, type) => {
             doFlash("officeMove")
             setTimeout(() =>{
                 officeLightDelay = false
-                doFlash("officeMoveLight")
+                doFlash("officeMove")
             }, 250)
     }
     if(characters[num].path >= Object.keys(characters[num].pathFind[0]).length - 2 && characters[num].path != 0){
@@ -1208,6 +1225,7 @@ const doPowerOutage = () => {
     clearInterval(powerInterval)
     backgroundSFX(themes[0].offAmbience, "stop")
     backgroundSFX(themes[0].off20Ambience, "stop")
+    powerOutageSFX.volume = volume
     powerOutageSFX.play()
 }
 
@@ -1236,6 +1254,7 @@ const doExtra = () => {
     document.querySelectorAll('.text').forEach(btn => {
         btn.addEventListener("mouseover", () => {
             let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+            audio.volume = volume
             audio.play()
         });
     });
@@ -1299,6 +1318,7 @@ const changeEXTPic = (type, pic) => {
         });
     }else{
         let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+        audio.volume = volume
         audio.play()
     }
     if(type == "left"){
@@ -1379,6 +1399,7 @@ const changeCTN = () => {
         document.querySelector(`.${char.name}-img`).addEventListener("click", () => {
             let randomTaunt = Math.floor(Math.random() * char.tauntSFX.length);
             let audio = new Audio(`${char.tauntSFX[randomTaunt]}`)
+            audio.volume = volume
             audio.play()
         });
     });
@@ -1420,14 +1441,14 @@ const changeCTN = () => {
     });
     
     document.querySelector(".cn-begin").addEventListener("click", () => {
-        let easterEgg = [2, 0, 6, 7]
+        let eGNums = easterEgg.toString().split('')
         if(
-            characters[0].difficulty.night7 == easterEgg[0] &&
-            characters[1].difficulty.night7 == easterEgg[1] &&
-            characters[2].difficulty.night7 == easterEgg[2] &&
-            characters[3].difficulty.night7 == easterEgg[3]
+            characters[0].difficulty.night7 == eGNums[0] &&
+            characters[1].difficulty.night7 == eGNums[1] &&
+            characters[2].difficulty.night7 == eGNums[2] &&
+            characters[3].difficulty.night7 == eGNums[3]
         ){
-            window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", '_blank').focus();
+            doGoldenRobertEG()
         }else{
             doNightShow("custom-night")
         }
@@ -1437,6 +1458,7 @@ const changeCTN = () => {
 const changeCTNValue = (data, type) => {
     if(data.difficulty.night7 > Math.min(Math.max(data.difficulty.night7, 0), 20) || data.difficulty.night7 < Math.min(Math.max(data.difficulty.night7, 0), 20)){}else if(type == "early"){}else{
         let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+        audio.volume = volume
         audio.play()
     }
     data.difficulty.night7 = Math.min(Math.max(data.difficulty.night7, 0), 20)
@@ -1451,6 +1473,17 @@ const changeCTNValue = (data, type) => {
     }else{
         document.querySelector(`.${data.name}-img`).style.filter = `grayscale(0%) contrast(1)`
     }
+}
+
+const doGoldenRobertEG = () => {
+    clearMain()
+    gamePlay.innerHTML = `<div class="golden-robert"></div>`
+    let audio = new Audio("files/sounds/sfx/goldenrobertscream.mp3")
+    audio.volume = volume
+    audio.play()
+    setTimeout(() => {
+        doMenu()
+    }, 3000);
 }
 
 //CHEATS
@@ -1494,6 +1527,7 @@ const changeCHT = () => {
 
 const changeCHTEnable = (cl, num) => {
     let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+    audio.volume = volume
     audio.play()
     document.querySelector(`.${cl}`).classList.toggle('enabled')
     extras[0].cheats[num].enable = !extras[0].cheats[num].enable
@@ -1512,14 +1546,25 @@ const konamiFunc = (word, event) => {
     }
 }
 
-doOffice()
-
 document.addEventListener('keydown', function(event) {
     if(event.key == 'Escape' && officeView){
         doPause()
     }
     if(event.key == 'Enter' && viewEnding){
         doEnding("skip")
+    }
+    if(officeView){
+        if(!pauseView){
+            if(event.key == 'w' && officeView && !camSEnable && !officeLightDelay){
+                doFlash()
+            }else if(event.key == 'a' && officePos <= 30){
+                leftDoorClose = !leftDoorClose
+                doDoorClose(leftDoorClose, "door-left", "door-button-left")
+            }else if(event.key == 'd' && officePos >= 70){
+                rightDoorClose = !rightDoorClose
+                doDoorClose(rightDoorClose, "door-right", "door-button-right")
+            }
+        }
     }
     konamiFunc(konamiCode, event.key)
 })
