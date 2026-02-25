@@ -1,22 +1,28 @@
 // Minigame Web (Point and click game)
 
-let gameData = [{
+let gameData = {
     night: 0,
     nightSix: false,
     extraMenu: false,
-    stars: [{
-        star: false,
-    },
-    {
-        star: false,
-    },
-    {
-        star: false,
-    },
-    {
-        star: false,
-    }]
-}]
+    stars: {
+        star1: false,
+        star2: false,
+        star3: false,
+        star4: false,
+    }
+}
+
+gameData = {
+    night: 5,
+    nightSix: true,
+    extraMenu: true,
+    stars: {
+        star1: true,
+        star2: true,
+        star3: true,
+        star4: true,
+    }
+}
 
 let characters = [
     {
@@ -25,7 +31,8 @@ let characters = [
         tauntSFX: ["files/sounds/sfx/characters/justas/taunt01.mp3"],
         jumpScareSFX: "files/sounds/sfx/characters/justas/jumpscare.mp3",
         path: 0,
-        pathFind: [{
+        isProgressive: false,
+        pathFind: {
             r04: {
                 image: "files/images/characters/justas.png",
                 pos: [50, 50]
@@ -50,7 +57,7 @@ let characters = [
                 image: "files/images/characters/justas.png",
                 pos: "left"
             }
-        }],
+        },
         difficulty: {
             night1: 2,
             night2: 4,
@@ -67,7 +74,8 @@ let characters = [
         tauntSFX: ["files/sounds/sfx/characters/kajus/taunt01.mp3", "files/sounds/sfx/characters/kajus/taunt02.mp3"],
         jumpScareSFX: "files/sounds/sfx/characters/kajus/jumpscare.mp3",
         path: 0,
-        pathFind: [{
+        isProgressive: false,
+        pathFind: {
             r01: {
                 image: "files/images/characters/kajus.png",
                 pos: [30, 25]
@@ -88,7 +96,7 @@ let characters = [
                 image: "files/images/characters/kajus.png",
                 pos: "right"
             }
-        }],
+        },
         difficulty: {
             night1: 0,
             night2: 2,
@@ -105,8 +113,9 @@ let characters = [
         tauntSFX: ["files/sounds/sfx/characters/saulius/taunt01.mp3", "files/sounds/sfx/characters/saulius/taunt02.mp3"],
         jumpScareSFX: "files/sounds/sfx/characters/saulius/jumpscare.mp3",
         path: 0,
-        pathFind: [{
-            r05: {
+        isProgressive: false,
+        pathFind: {
+            r04: {
                 image: "files/images/characters/saulius.png",
                 pos: [50, 25]
             },
@@ -126,7 +135,7 @@ let characters = [
                 image: "files/images/characters/saulius.png",
                 pos: "right"
             }
-        }],
+        },
         difficulty: {
             night1: 0,
             night2: 0,
@@ -143,31 +152,36 @@ let characters = [
         tauntSFX: ["files/sounds/sfx/characters/giedrius/taunt01.mp3"],
         jumpScareSFX: "files/sounds/sfx/characters/giedrius/jumpscare.mp3",
         path: 0,
-        pathFind: [{
-            r04: {
+        isProgressive: true,
+        pathFind: {
+            r05_00: {
+                image: "files/images/characters/giedrius.png",
+                pos: [0, 50]
+            },
+            r05_01: {
                 image: "files/images/characters/giedrius.png",
                 pos: [25, 50]
             },
-            r03: {
+            r05_02: {
                 image: "files/images/characters/giedrius.png",
-                pos: [50, 25]
+                pos: [50, 50]
             },
-            office: {
+            r05_03: {
                 image: "files/images/characters/giedrius.png",
-                pos: "center"
+                pos: [75, 50]
             },
             innerOffice: {
                 image: "files/images/characters/giedrius.png",
-                pos: "left"
+                pos: "right"
             }
-        }],
+        },
         difficulty: {
             night1: 0,
             night2: 0,
-            night3: 4,
-            night4: 7,
-            night5: 10,
-            night6: 13,
+            night3: 0,
+            night4: 3,
+            night5: 7,
+            night6: 10,
             night7: 0,
         }
     }
@@ -217,16 +231,25 @@ let pictures = []
 
 let characterPic = []
 
-let scenePic = [ "files/images/office/office_front.png", "files/images/camera/radar.png"]
+let scenePic = [ "files/images/office/office_front.png", "files/images/camera/radar0.png", "files/images/camera/radar1.png"]
 
 let cameras = ["a1", "a2", "b1", "b2", "r01", "r02", "r03", "r04", "r05", "r06"]
+
+cameras = {
+    first: ["a1", "a2", "b2", "r01", "r02", "r05", "r06"],
+    second: ["b1", "r03", "r04"]
+}
 
 for(let i = 0;i < characters.length; i++){
     characterPic.push(characters[i].mMImage)
 }
 
-for(let i = 0;i < cameras.length; i++){
-    scenePic.push(`files/images/camera/${cameras[i]}.png`)
+for(let i = 0;i < Object.values(cameras)[0].length; i++){
+    scenePic.push(`files/images/camera/${Object.values(cameras)[0][`${i}`]}.png`)
+}
+
+for(let i = 0;i < Object.values(cameras)[1].length; i++){
+    scenePic.push(`files/images/camera/${Object.values(cameras)[1][`${i}`]}.png`)
 }
 
 let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
@@ -250,8 +273,9 @@ let officePos = 50;
 let currentNight = 0;
 let secretCount = 0;
 let picCount = 0;
-let volume = 1;
+let volume = 0.5;
 let easterEgg = 2067;
+let cameraFloor = 1;
 
 let movementInterval = []
 let movementTimeout = []
@@ -320,6 +344,7 @@ const clearMain = () => {
     power = 1000
     powerUsage = 1
     officePos = 50
+    cameraFloor = 1
     leftDoorClose = false
     rightDoorClose = false
     cameraMO = false
@@ -352,9 +377,9 @@ const newGame = (choose) => {
             document.querySelector('.newspaper').classList.add('visible')
         }, 0);
     }else{
-        gameData[0].night = 1
+        gameData.night = 1
         newsPaperView = !newsPaperView
-        doNightShow(gameData, tabName, copyRight, gamePlay)
+        doNightShow()
     }
     document.addEventListener('keydown', function(event) {
         if(event.key = 'String' && newsPaperView){
@@ -381,8 +406,8 @@ const doMenu = () => {
         <p class="Name">Oskaras Venzlauskas GJSM23</p>`
     tabName.innerHTML = `Five Night's at KITM`
 
-    for(let i = 0; i < gameData[0].stars.length; i++){
-        if(gameData[0].stars[i].star){
+    for(let i = 0; i < Object.values(gameData.stars).length; i++){
+        if(gameData.stars[`star${i + 1}`]){
             document.querySelector('.stars').innerHTML += `<div></div>`
         }
     }
@@ -394,15 +419,15 @@ const doMenu = () => {
     doMenuImg()
     backgroundSFX(themes[0].mMTheme, "play")
 
-    if(gameData[0].night >= 1){
+    if(gameData.night >= 1){
         document.querySelector('.MMSelector').innerHTML += `
         <p class="CTN text">Continue</p>`
     }
-    if(gameData[0].nightSix){
+    if(gameData.nightSix){
         document.querySelector('.MMSelector').innerHTML += `
         <p class="night-six text">6th Night</p>`
     }
-    if(gameData[0].extraMenu){
+    if(gameData.extraMenu){
         document.querySelector('.MMSelector').innerHTML += `
         <p class="EXT text">Extra </p>`
     }
@@ -458,7 +483,7 @@ const doNightShow = (type) => {
     }else if(type == "custom-night"){
         currentNight = 7
     }else{
-        currentNight = gameData[0].night
+        currentNight = gameData.night
         currentNight = Math.min(currentNight, 5)
     }
     gamePlay.innerHTML = `
@@ -493,7 +518,7 @@ const doTwentyCheck = () => {
 const doOffice = () => {
     clearMain()
     if(currentNight == 0){
-        currentNight = gameData[0].night
+        currentNight = gameData.night
         currentNight = Math.min(currentNight, 5)
     }
     gamePlay.innerHTML = `
@@ -543,16 +568,11 @@ const doOffice = () => {
             <div class="screen-border"></div>
             <div class="static"></div>
             <div class="cam-change"></div>
+            <div class="change-floor-button">Change Floor</div>
             <div class="map"></div>
         </div>`
     
-    for(let i = 0; i < cameras.length; i++){
-        document.querySelector('.map').innerHTML += `
-                <div class="${cameras[i]} button">
-                    <p>CAM</p>
-                    <p>${cameras[i].toUpperCase()}</p>
-                </div>`
-    }
+    changeCamFloor()
     if(extras[0].cheats[0].enable){
         gameSpeed = 0
     }
@@ -572,7 +592,7 @@ const doOffice = () => {
     enableCamHover()
     doRTimer()
     changePos()
-    changeCam(cameras[0]);
+    changeCam(Object.values(cameras)[cameraFloor][0]);
 
     if(twentyMode){
         backgroundSFX(themes[0].off20Ambience, "play")
@@ -589,17 +609,15 @@ const doOffice = () => {
         }
     });
 
-    document.querySelectorAll('.button').forEach(btn => {
-        btn.addEventListener("click", event => {
-            const camClass = event.currentTarget.classList[0]
-            changeCam(camClass);
-        });
-    });
-
+    
     document.querySelector('.light-div').addEventListener("click", () => {
         if(officeView && !camSEnable && !pauseView && !officeLightDelay){
             doFlash()
         }
+    });
+
+    document.querySelector('.change-floor-button').addEventListener("click", () => {
+        changeCamFloor()
     });
 
     document.querySelector('.door-button-left').addEventListener("click", () => {
@@ -728,14 +746,14 @@ const do6am = () => {
             doEnding(ending)
         }else if(currentNight == 6){
             let ending = 2
-            gameData[0].extraMenu = true
+            gameData.extraMenu = true
             doEnding(ending)
         }else if(currentNight == 5){
             let ending = 1
-            gameData[0].nightSix = true
+            gameData.nightSix = true
             doEnding(ending)
         }else if(currentNight <= 5){
-            gameData[0].night++
+            gameData.night++
             doMenu()
         }
     }, 10000);
@@ -770,7 +788,7 @@ const doEnding = (type) => {
     }else{
         clearMain()
         for(let i = 0; i < type; i++){
-            gameData[0].stars[i].star = true
+            gameData.stars[`star${i + 1}`] = true
         }
         endingMusic.volume = volume
         endingMusic.play()
@@ -955,8 +973,29 @@ const enableCamHover = () => {
     });
 }
 
+const changeCamFloor = () => {
+    cameraFloor = 1 - cameraFloor
+    document.querySelector('.map').innerHTML = ``
+    currentCam = Object.values(cameras)[cameraFloor][0]
+    for(let i = 0;i < Object.values(cameras)[cameraFloor].length; i++){
+        document.querySelector('.map').innerHTML += `
+                <div class="${Object.values(cameras)[cameraFloor][`${i}`]} button">
+                    <p>CAM</p>
+                    <p>${Object.values(cameras)[cameraFloor][`${i}`].toUpperCase()}</p>
+                </div>`
+    }
+    document.querySelector('.map').style.background = `url(files/images/camera/radar${cameraFloor}.png)`
+    document.querySelector('.map').style.backgroundSize = `100% 100%`
+    changeCam(currentCam)
+    document.querySelectorAll('.button').forEach(btn => {
+        btn.addEventListener("click", event => {
+            const camClass = event.currentTarget.classList[0]
+            changeCam(camClass);
+        });
+    });
+}
+
 const changeCam = (cam) => {
-    clearTimeout(camEffect)
     if(currentCam == undefined){
         currentCam = cam
         document.querySelector(`.${currentCam}`).classList.add("button-clicked")
@@ -1041,10 +1080,12 @@ const doAnimatronicMove = (num) => {
 }
 
 const doAnimPath = (num) => {
-    if(characters[num].path + 1 >= Object.keys(characters[num].pathFind[0]).length){
-        if(Object.values(characters[num].pathFind[0])[characters[num].path].pos == "left" && !leftDoorClose){
+    if(characters[num].path >= Object.keys(characters[num].pathFind).length){
+
+    }else if(characters[num].path + 1 >= Object.keys(characters[num].pathFind).length){
+        if(Object.values(characters[num].pathFind)[characters[num].path].pos == "left" && !leftDoorClose){
             doJumpscare(characters[num])
-        }else if(Object.values(characters[num].pathFind[0])[characters[num].path].pos == "right" && !rightDoorClose){
+        }else if(Object.values(characters[num].pathFind)[characters[num].path].pos == "right" && !rightDoorClose){
             doJumpscare(characters[num])
         }else{
             let randomTaunt = Math.floor(Math.random() * characters[num].tauntSFX.length);
@@ -1056,19 +1097,40 @@ const doAnimPath = (num) => {
             audio.play()
         }
     }else{
-        characters[num].path++
+        let rng = Math.floor(Math.random() * 100) + 1;
+        if(rng <= 15 && characters[num].path !== 0 && !characters[num].isProgressive){
+            characters[num].path--
+        }else{
+            characters[num].path++
+        }
+        if(Object.keys(characters[num].pathFind)[characters[num].path] == currentCam || Object.keys(characters[num].pathFind)[characters[num].path + 1] == currentCam){
+            changeCam(currentCam)
+        }
     }
-    let checkArray = !Array.isArray(Object.values(characters[num].pathFind[0])[characters[num].path].pos)
-    if(characters[num].path >= Object.keys(characters[num].pathFind[0]).length - 2 && checkArray){
+    let checkArray = !Array.isArray(Object.values(characters[num].pathFind)[characters[num].path].pos)
+    let chrCM = Object.keys(characters[num].pathFind)
+    if(characters[num].path >= chrCM.length - 2 && checkArray){
         if(checkArray){
-            if(Object.keys(characters[num].pathFind[0])[characters[num].path - 1] == currentCam){
-                changeCam(currentCam)
+            if(characters[num].isProgressive){
+                if(chrCM[characters[num].path - 1].split('_')[0] == currentCam){
+                    changeCam(currentCam)
+                }
+            }else{
+                if(chrCM[characters[num].path - 1] == currentCam){
+                    changeCam(currentCam)
+                }
             }
             animOffice(num, "first")
         }
     }else{
-        if(Object.keys(characters[num].pathFind[0])[characters[num].path] == currentCam || Object.keys(characters[num].pathFind[0])[characters[num].path - 1] == currentCam){
-            changeCam(currentCam)
+        if(characters[num].isProgressive){
+            if(chrCM[characters[num].path].split('_')[0] == currentCam || chrCM[characters[num].path - 1].split('_')[0] == currentCam){
+                changeCam(currentCam)
+            }
+        }else{
+            if(chrCM[characters[num].path] == currentCam || chrCM[characters[num].path - 1] == currentCam){
+                changeCam(currentCam)
+            }
         }
     }
 }
@@ -1077,12 +1139,18 @@ const animCamera = () => {
     document.querySelector('.character-contain').innerHTML = ``
     for(let i = 0; i < characters.length; i++){
         if(characters[i].difficulty[`night${currentNight}`] !== 0){
-            if(Object.keys(characters[i].pathFind[0])[characters[i].path] == currentCam){
+            if(Object.keys(characters[i].pathFind)[characters[i].path] == currentCam){
                 document.querySelector('.character-contain').innerHTML += `<div class="${characters[i].name}-character character"></div>`
-                document.querySelector(`.${characters[i].name}-character`).style.background = `url(${characters[i].pathFind[0][currentCam].image})`
+                document.querySelector(`.${characters[i].name}-character`).style.background = `url(${characters[i].pathFind[currentCam].image})`
                 document.querySelector(`.${characters[i].name}-character`).style.backgroundSize = `100% 100%`
-                document.querySelector(`.${characters[i].name}-character`).style.left = `${characters[i].pathFind[0][currentCam].pos[0]}%`
-                document.querySelector(`.${characters[i].name}-character`).style.top = `${characters[i].pathFind[0][currentCam].pos[1]}%`
+                document.querySelector(`.${characters[i].name}-character`).style.left = `${characters[i].pathFind[currentCam].pos[0]}%`
+                document.querySelector(`.${characters[i].name}-character`).style.top = `${characters[i].pathFind[currentCam].pos[1]}%`
+            }else if(Object.keys(characters[i].pathFind)[characters[i].path].split('_')[0] == currentCam){
+                document.querySelector('.character-contain').innerHTML += `<div class="${characters[i].name}-character character"></div>`
+                document.querySelector(`.${characters[i].name}-character`).style.background = `url(${characters[i].pathFind[`${currentCam}_0${characters[i].path}`].image})`
+                document.querySelector(`.${characters[i].name}-character`).style.backgroundSize = `100% 100%`
+                document.querySelector(`.${characters[i].name}-character`).style.left = `${characters[i].pathFind[`${currentCam}_0${characters[i].path}`].pos[0]}%`
+                document.querySelector(`.${characters[i].name}-character`).style.top = `${characters[i].pathFind[`${currentCam}_0${characters[i].path}`].pos[1]}%`
             }
         }
     }
@@ -1101,21 +1169,21 @@ const animOffice = (num, type) => {
                 doFlash("officeMove")
             }, 250)
     }
-    if(characters[num].path >= Object.keys(characters[num].pathFind[0]).length - 2 && characters[num].path != 0){
-        let place = Object.keys(characters[num].pathFind[0])[characters[num].path]
-        let checkArray = !Array.isArray(Object.values(characters[num].pathFind[0])[characters[num].path].pos)
+    if(characters[num].path >= Object.keys(characters[num].pathFind).length - 2 && characters[num].path != 0){
+        let place = Object.keys(characters[num].pathFind)[characters[num].path]
+        let checkArray = !Array.isArray(Object.values(characters[num].pathFind)[characters[num].path].pos)
         if(checkArray && type == "first" && document.querySelector(`.${characters[num].name}-office`) == null){
             document.querySelector(`.character-office`).innerHTML += `<div class="${characters[num].name}-office anim-office"></div>`
-            document.querySelector(`.${characters[num].name}-office`).style.background = `url(${characters[num].pathFind[0][place].image})`
+            document.querySelector(`.${characters[num].name}-office`).style.background = `url(${characters[num].pathFind[place].image})`
             document.querySelector(`.${characters[num].name}-office`).style.backgroundSize = `100% 100%`
         }
-        if(characters[num].pathFind[0][place].pos == "center"){
+        if(characters[num].pathFind[place].pos == "center"){
             document.querySelector(`.${characters[num].name}-office`).style.left = `${officePos * -1 + 87}%`
             document.querySelector(`.${characters[num].name}-office`).style.bottom = `25%`
-        }else if(characters[num].pathFind[0][place].pos == "left"){
+        }else if(characters[num].pathFind[place].pos == "left"){
             document.querySelector(`.${characters[num].name}-office`).style.left = `${officePos * -1 + 5}%`
             document.querySelector(`.${characters[num].name}-office`).style.bottom = `17%`
-        }else if(characters[num].pathFind[0][place].pos == "right"){
+        }else if(characters[num].pathFind[place].pos == "right"){
             document.querySelector(`.${characters[num].name}-office`).style.left = `${officePos * -1 + 170}%`
             document.querySelector(`.${characters[num].name}-office`).style.bottom = `17%`
         }

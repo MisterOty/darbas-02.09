@@ -203,6 +203,7 @@ main{
 }
 
 .character{
+    filter: saturate(0);
     position: absolute;
     width: 25%;
     height: 50%;
@@ -283,13 +284,27 @@ main{
 }
 
 .map{
-    background: url(files/images/camera/radar.png);
-    background-size: 100% 100%;
     width: 30vmax;
     height: 30vmax;
     position: absolute;
     right: 2%;
-    bottom: 3%;
+    bottom: 10%;
+    z-index: 16;
+}
+
+.change-floor-button{
+    font-family: LCD-Solid;
+    font-size: 1vmax;
+    position: absolute;
+    background: rgba(128, 128, 128, 0.5);
+    text-align: left;
+    align-content: center;
+    width: auto;
+    padding: 1%;
+    height: auto;
+    border: 0.2vmax solid white;
+    right: 4%;
+    bottom: 4%;
     z-index: 16;
 }
 
@@ -773,7 +788,7 @@ footer p{
     background-size: 100% 100%;
 }
 
-.button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .character-img:hover, .door-button-left:hover, .door-button-right:hover, .light-div:hover, .pause-button:hover{
+.button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .character-img:hover, .door-button-left:hover, .door-button-right:hover, .light-div:hover, .pause-button:hover, .change-floor-button:hover{
     cursor: pointer;
 }
 
