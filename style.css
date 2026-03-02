@@ -834,12 +834,13 @@ footer p{
     position: absolute;
 }
 
-.volume-top{
+.volume-main{
     display: flex;
-    justify-content: center;
+    justify-content: right;
+    margin-right: 3%;
 }
 
-.volume-top p{
+.volume-main p{
     margin: 1%;
     text-align: center;
     align-content: center;
@@ -852,7 +853,7 @@ footer p{
     border-radius: 0.5vmax;
 }
 
-#volume-input{
+.volume-main input{
     font-size: 100%;
     background: rgb(0, 0, 0, 0);
     border: 0 solid;

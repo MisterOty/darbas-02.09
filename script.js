@@ -220,13 +220,6 @@ let extras = [{
     }]
 }]
 
-let themes = {
-    mMTheme: new Audio("files/sounds/background/theme.mp3"),
-    extTheme: new Audio("files/sounds/background/extras.mp3"),
-    offAmbience: new Audio("files/sounds/background/officeAmbience.mp3"),
-    off20Ambience: new Audio("files/sounds/background/office20mode.mp3")
-}
-
 let pictures = []
 
 let characterPic = []
@@ -270,10 +263,48 @@ const gamePlay = document.querySelector('main')
 const copyRight = document.querySelector('footer')
 const pauseDiv = document.querySelector('.pause-div')
 
-let endingMusic = new Audio("files/sounds/background/music.mp3")
-let lightSFX = new Audio("files/sounds/sfx/lighthum.mp3")
-let powerOutageSFX = new Audio("files/sounds/sfx/poweroutage.mp3")
-let powerOutageDoorSFX = new Audio("files/sounds/sfx/disabledclick.mp3")
+let volumeControl = {
+    masterVolume: {
+        text: "Master Volume",
+        value: 1
+    },
+    gameVolume: {
+        text: "Game Volume",
+        value: 1
+    },
+    characterVolume: {
+        text: "Character Volume",
+        value: 1
+    },
+    ambienceVolume: {
+        text: "Ambience Volume",
+        value: 1
+    }
+}
+
+let soundEffects = {
+    gameSounds: {
+        click: new Audio("files/sounds/sfx/cam_change.mp3"),
+        door: new Audio("files/sounds/sfx/door_close.mp3"),
+        cameraFlip: new Audio("files/sounds/sfx/cam.mp3"),
+        lightSFX: new Audio("files/sounds/sfx/lighthum.mp3"),
+        powerOutageSFX: new Audio("files/sounds/sfx/poweroutage.mp3"),
+        powerOutageDoorSFX: new Audio("files/sounds/sfx/disabledclick.mp3"),
+        gameOver: new Audio("files/sounds/sfx/gameover.mp3"),
+        SixAM: new Audio("files/sounds/sfx/6am.mp3"),
+    },
+    characterSounds: {
+        jumpSFX: new Audio("files/sounds/sfx/cam_change.mp3"),
+        goldenRobert: new Audio("files/sounds/sfx/goldenrobertscream.mp3"),
+    },
+    ambienceSounds: {
+        mMTheme: new Audio("files/sounds/background/theme.mp3"),
+        extTheme: new Audio("files/sounds/background/extras.mp3"),
+        offAmbience: new Audio("files/sounds/background/officeAmbience.mp3"),
+        off20Ambience: new Audio("files/sounds/background/office20mode.mp3"),
+        endingMusic: new Audio("files/sounds/background/music.mp3")
+    },
+}
 
 let gameSpeed = 1;
 let gameTime = 0;
@@ -322,15 +353,39 @@ let extraText
 let jumpSFX
 let callSFX
 
+const doSoundPlay = (category, sound, type) => {
+    let audio = soundEffects[category][sound]
+    let master = volumeControl.masterVolume.value
+    if(category == "gameSounds"){
+        audio.volume = volumeControl.gameVolume.value * master
+    }else if(category == "characterSounds"){
+        audio.volume = volumeControl.characterVolume.value * master
+    }else if(category == "ambienceSounds"){
+        audio.volume = volumeControl.ambienceVolume.value * master
+    }
+    if(type == "play"){
+        audio.play()
+    }else if(type == "loadPlay"){
+        audio.load()
+        audio.play()
+    }else if(type == "stop"){
+        audio.currentTime = 0
+        audio.pause()
+    }else if(type == "pause"){
+        audio.pause()
+    }
+}
+
 const clearMain = () => {
     clearInterval(timerInterval)
     clearInterval(powerInterval)
     clearTimeout(jumpScareTimeout)
     clearTimeout(movementTimeout)
-    backgroundSFX(themes.mMTheme, "stop")
-    backgroundSFX(themes.extTheme, "stop")
-    backgroundSFX(themes.offAmbience, "stop")
-    backgroundSFX(themes.off20Ambience, "stop")
+    for(let i = 0; i < Object.keys(soundEffects).length; i++){
+        for(let e = 0; e < Object.keys(soundEffects[Object.keys(soundEffects)[i]]).length; e++){
+            doSoundPlay(Object.keys(soundEffects)[i], Object.keys(soundEffects[Object.keys(soundEffects)[i]])[e], "stop")
+        }
+    }
     stopMoveTimeout()
     body.style.background = ``
     gamePlay.style.background = ``
@@ -341,28 +396,16 @@ const clearMain = () => {
     for(let i = 0; i < characters.length; i++){
         characters[i].path = 0
     }
-    if(jumpSFX != undefined){
-        jumpSFX.pause()
-        jumpSFX.currentTime = 0;
-    }
     if(callSFX != undefined){
         clearTimeout(phoneTimeout)
-        callSFX.pause()
-        callSFX.currentTime = 0
         callSFX = undefined
         phoneTimeout = undefined
         phoneTimeoutStart = undefined
         phoneTimeRemaining = undefined
     }
     if(powerOutage){
-        powerOutageDoorSFX.pause
-        powerOutageDoorSFX.currentTime = 0;
-        powerOutageSFX.pause()
-        powerOutageSFX.currentTime = 0;
         powerOutage = false
     }
-    lightSFX.pause()
-    lightSFX.currentTime = 0;
     gameSpeed = 1
     gameTime = 0
     power = 1000
@@ -375,19 +418,6 @@ const clearMain = () => {
     officeView = false
     currentCam = undefined
     jumpSFX = undefined
-}
-
-const backgroundSFX = (sound, type) => {
-    if(type == "play"){
-        sound.loop = true;
-        sound.volume = volume
-        sound.play()
-    }else if(type == "pause"){
-        sound.pause();
-    }else if(type == "stop"){
-        sound.pause();
-        sound.currentTime = 0;
-    }
 }
 
 //CHANGE SCENE
@@ -442,7 +472,7 @@ const doMenu = () => {
     gamePlay.style.backdropFilter = `brightness(0.5)`
     doVolumeSlider(gamePlay)
     doMenuImg()
-    backgroundSFX(themes.mMTheme, "play")
+    doSoundPlay("ambienceSounds", "mMTheme", "play")
 
     if(gameData.night >= 1){
         document.querySelector('.MMSelector').innerHTML += `
@@ -473,9 +503,7 @@ const doMenu = () => {
 
     document.querySelectorAll('.text').forEach(btn => {
         btn.addEventListener("mouseover", () => {
-            let audio = new Audio("files/sounds/sfx/cam_change.mp3")
-            audio.volume = volume
-            audio.play()
+            doSoundPlay("gameSounds", "click", "play")
         });
     });
 }
@@ -638,9 +666,9 @@ const doOffice = () => {
         });
     }
     if(twentyMode){
-        backgroundSFX(themes.off20Ambience, "play")
+        doSoundPlay("ambienceSounds", "off20Ambience", "play")
     }else{
-        backgroundSFX(themes.offAmbience, "play")
+        doSoundPlay("ambienceSounds", "offAmbience", "play")
     }
 
     officeView = true
@@ -698,18 +726,18 @@ const doPause = (type) => {
     if(pauseView){
         if(!powerOutage){
             if(twentyMode){
-                backgroundSFX(themes.off20Ambience, "pause")
+                doSoundPlay("ambienceSounds", "off20Ambience", "pause")
             }else{
-                backgroundSFX(themes.offAmbience, "pause")
+                doSoundPlay("ambienceSounds", "offAmbience", "pause")
             }
             if(officeLight){
-                lightSFX.pause()
+                doSoundPlay("gameSounds", "lightSFX", "pause")
             }
             if(callSFX !== undefined){
                 pausePhoneTimeout()
             }
         }else{
-            powerOutageSFX.pause()
+            doSoundPlay("gameSounds", "powerOutageSFX", "pause")
         }
         pauseDiv.innerHTML += `
             <div class="pause">
@@ -742,29 +770,25 @@ const doPause = (type) => {
         document.querySelector('.pause-button').style.display = `block`
         if(!powerOutage){
             if(twentyMode){
-                backgroundSFX(themes.off20Ambience, "play")
+                doSoundPlay("ambienceSounds", "off20Ambience", "play")
             }else{
-                backgroundSFX(themes.offAmbience, "play")
+                doSoundPlay("ambienceSounds", "offAmbience", "play")
             }
             if(officeLight){
-                lightSFX.volume = volume
-                lightSFX.play()
+                doSoundPlay("gameSounds", "lightSFX", "play")
             }
             if(callSFX !== undefined){
                 resumePhoneTimeout()
             }
         }else{
-            powerOutageSFX.volume = volume
-            powerOutageSFX.play()
+            doSoundPlay("gameSounds", "powerOutageSFX", "play")
         }
     }
 }
 
 const do6am = () => {
     clearMain()
-    let audio = new Audio("files/sounds/sfx/6am.mp3")
-    audio.volume = volume
-    audio.play()
+    doSoundPlay("gameSounds", "sixAM", "play")
     gamePlay.innerHTML = `
         <div class="nightShow visible">
             <p class="timeText">5:59 AM</p>
@@ -813,9 +837,7 @@ const do6am = () => {
 
 const doGameOver = () => {
     clearMain()
-    let audio = new Audio("files/sounds/sfx/gameover.mp3")
-    audio.volume = volume
-    audio.play()
+    doSoundPlay("gameSounds", "gameOver", "play")
     gamePlay.innerHTML = `
         <div class="nightShow visible">
             <p class="timeText">Game Over</p>
@@ -826,7 +848,7 @@ const doGameOver = () => {
         gamePlay.innerHTML = `<div class="gameOver"></div>`
         tabName.innerHTML = `GAME OVER`
     }, 2000);
-    audio.addEventListener("ended", () => {
+    soundEffects.gameSounds.gameOver.addEventListener("ended", () => {
         doMenu()
     });
 }
@@ -834,21 +856,19 @@ const doGameOver = () => {
 const doEnding = (type) => {
     viewEnding = !viewEnding
     if(type == "skip"){
-        endingMusic.pause()
-        endingMusic.currentTime = 0
+        doSoundPlay("ambienceSounds", "endingMusic", "stop")
         doMenu()
     }else{
         clearMain()
         for(let i = 0; i < type; i++){
             gameData.stars[`star${i + 1}`] = true
         }
-        endingMusic.volume = volume
-        endingMusic.play()
+        doSoundPlay("ambienceSounds", "endingMusic", "play")
         gamePlay.innerHTML = `<div class="ending"></div>`
         document.querySelector('.ending').style.background = `url(files/images/menu/ending/ending0${type}.png)`
         document.querySelector('.ending').style.backgroundSize = `100% 100%`
         tabName.innerHTML = `The End`
-        endingMusic.addEventListener("ended", () => {
+        soundEffects.ambienceSounds.endingMusic.addEventListener("ended", () => {
             doMenu()
         });
     }
@@ -857,63 +877,60 @@ const doEnding = (type) => {
 //VOLUME
 
 const doVolumeSlider = (div) => {
-    div.innerHTML += `
-        <div class="volume-slider">
-            <div class="volume-top">
-                    <p>Master Volume</p>
-                    <input type="number" id="volume-input"/><p>%</p>
+    div.innerHTML += `<div class="volume-slider"></div>`
+    for(let i = 0; i < Object.keys(volumeControl).length; i++){
+        document.querySelector(`.volume-slider`).innerHTML += `
+            <div class="volume-main ${Object.keys(volumeControl)[i]}">
+                    <p>${volumeControl[Object.keys(volumeControl)[i]].text}</p>
+                    <input type="number" id="volume-input-${Object.keys(volumeControl)[i]}"/><p>%</p>
                     <p class="volume-button volume-add">+</p>
                     <p class="volume-button volume-remove">-</p>
-            </div>
-        </div>`
+            </div>`
+    }
 
-        doVolumeChange("start", document.querySelector("#volume-input"))
+    for(let i = 0; i < Object.keys(volumeControl).length; i++){
+        doVolumeChange("start", `${Object.keys(volumeControl)[i]}`, volumeControl[Object.keys(volumeControl)[i]].value)
 
-        document.querySelector("#volume-input").addEventListener("input", (event) => {
-            doVolumeChange("typein", event)
+        document.querySelector(`.${Object.keys(volumeControl)[i]}`).addEventListener("input", () => {
+            doVolumeChange("typein", Object.keys(volumeControl)[i], volumeControl[Object.keys(volumeControl)[i]].value)
         });
 
-        document.querySelectorAll('.volume-button').forEach(btn => {
+        document.querySelectorAll(`.${Object.keys(volumeControl)[i]} .volume-button`).forEach(btn => {
             btn.addEventListener("click", () => {
-                doVolumeChange(`${btn.textContent}`)
+                doVolumeChange(btn.textContent, Object.keys(volumeControl)[i], volumeControl[Object.keys(volumeControl)[i]].value)
             });
         });
+    }
 }
 
-const doVolumeChange = (type, event) => {
-    let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+const doVolumeChange = (type, classVolume, value) => {
     let tempValue
     if(type == "start"){
-        tempValue = volume * 100
+        tempValue = value * 100
         tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
-        document.querySelector('#volume-input').value = tempValue
+        document.querySelector(`.${classVolume} #volume-input-${classVolume}`).value = tempValue
         return
     }
     if(type !== "typein"){
-        tempValue = volume * 100
+        tempValue = value * 100
         if(type == "-"){
             tempValue -= 1
         }else{
             tempValue += 1
         }
     }else{
-        tempValue = event.target.value
+        tempValue = document.querySelector(`.${classVolume} #volume-input-${classVolume}`).value
         tempValue = tempValue.replace(/\D/g, "");
     }
     tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
-    document.querySelector('#volume-input').value = tempValue
-    volume = tempValue / 100
-    audio.volume = volume
-    audio.play()
-    toggleAllVolume()
-}
-
-const toggleAllVolume = () => {
-    endingMusic.volume = volume
-    lightSFX.volume = volume
-    powerOutageSFX.volume = volume
-    powerOutageDoorSFX.volume = volume
-    callSFX.volume = volume
+    document.querySelector(`.${classVolume} #volume-input-${classVolume}`).value = tempValue
+    volumeControl[classVolume].value = tempValue / 100
+    doSoundPlay("gameSounds", "click", "play")
+    if(classVolume !== "masterVolume"){
+        for(let i = 0; i < Object.keys(soundEffects[`${classVolume.split('Volume')[0]}Sounds`]).length; i++){
+            doSoundPlay(`${classVolume.split('Volume')[0]}Sounds`, Object.keys(soundEffects[`${classVolume.split('Volume')[0]}Sounds`])[i], "refresh")
+        }
+    }
 }
 
 //PHONE CALL
@@ -997,30 +1014,22 @@ const doDoorClose = (type, door, button) => {
             document.querySelector(`.${door}`).style.bottom = `17%`
             document.querySelector(`.${button}`).style.filter = `hue-rotate(90deg)`
             if(officeView){
-                let audio = new Audio("files/sounds/sfx/door_close.mp3")
-                audio.volume = volume
-                audio.play()
+                doSoundPlay("gameSounds", "door", "play")
             }
         }else{
             doPower()
             document.querySelector(`.${door}`).style.bottom = `78%`
             document.querySelector(`.${button}`).style.filter = ``
             if(officeView && !powerOutage){
-                let audio = new Audio("files/sounds/sfx/door_close.mp3")
-                audio.volume = volume
-                audio.play()
+                doSoundPlay("gameSounds", "door", "play")
             }else{
                 if(leftDoorClose || rightDoorClose){
-                    let audio = new Audio("files/sounds/sfx/door_close.mp3")
-                    audio.volume = volume
-                    audio.play()
+                    doSoundPlay("gameSounds", "door", "play")
                 }
             }
         }
     }else{
-        powerOutage.volume = volume
-        powerOutageDoorSFX.load()
-        powerOutageDoorSFX.play()
+        doSoundPlay("gameSounds", "powerOutageDoorSFX", "loadplay")
     }
 }
 
@@ -1043,8 +1052,7 @@ const doJumpscare = (char) => {
     div.style.backgroundSize = `50% 50%`
     div.style.backgroundPosition = `50% 200%`
     jumpScareTimeout = setTimeout(() => {
-        jumpSFX.volume = volume
-        jumpSFX.play()
+        doSoundPlay("characterSounds", "jumpSFX", "play")
         div.style.width = `200%`
         div.style.height = `200%`
         div.style.transition = `background-position 0.125s, background-size 0.125s, rotate 0.125s`
@@ -1076,7 +1084,6 @@ const doJumpscare = (char) => {
 
 const enableCams = () => {
     if(!powerOutage){
-        let audio = new Audio("files/sounds/sfx/cam.mp3")
         clearTimeout(camTimeOut);
         if(camTabOpen && cameraMO){
             document.querySelector('.camera').style.top = `100%`
@@ -1093,8 +1100,7 @@ const enableCams = () => {
             document.querySelector('.camera').style.transform = `scale(1.11)`
             doPower("+")
         }
-        audio.volume = volume
-        audio.play()
+        doSoundPlay("gameSounds", "cameraFlip", "play")
     }
 }
 
@@ -1148,9 +1154,7 @@ const changeCam = (cam) => {
         document.querySelector(`.${currentCam}`).classList.add("button-clicked")
     }else{
         if(camTabOpen){
-            let audio = new Audio("files/sounds/sfx/cam_change.mp3")
-            audio.volume = volume
-            audio.play()
+            doSoundPlay("gameSounds", "click", "play")
         }
         document.querySelector(`.${currentCam}`).classList.remove("button-clicked")
         currentCam = cam
@@ -1167,8 +1171,7 @@ const changeCam = (cam) => {
 }
 
 const doFlash = (type) => {
-    lightSFX.pause()
-    lightSFX.currentTime = 0
+    doSoundPlay("gameSounds", "lightSFX", "pause")
     if(type == "officeMove"){
         document.querySelector('.office-back').style.filter = `brightness(0)`
         document.querySelector('.light-div').style.filter = ``
@@ -1179,9 +1182,8 @@ const doFlash = (type) => {
                 document.querySelector('.office-back').style.filter = `brightness(0.75)`
                 document.querySelector('.light-div').style.filter = `hue-rotate(90deg)`
                 doPower("+")
-                lightSFX.loop = true;
-                lightSFX.volume = volume
-                lightSFX.play()
+                doSoundPlay("gameSounds", "lightSFX", "play")
+                soundEffects.gameSounds.lightSFX.loop = true
             }else{
                 document.querySelector('.office-back').style.filter = `brightness(0)`
                 document.querySelector('.light-div').style.filter = ``
@@ -1439,10 +1441,9 @@ const doPowerOutage = () => {
     tabName.innerHTML = `0% Power`
     doFlash("officeMove")
     clearInterval(powerInterval)
-    backgroundSFX(themes.offAmbience, "stop")
-    backgroundSFX(themes.off20Ambience, "stop")
-    powerOutageSFX.volume = volume
-    powerOutageSFX.play()
+    doSoundPlay("ambienceSounds", "offAmbience", "play")
+    doSoundPlay("ambienceSounds", "off20Ambience", "play")
+    doSoundPlay("gameSounds", "powerOutage", "play")
 }
 
 //--EXTRA FUNCTIONS
@@ -1465,13 +1466,11 @@ const doExtra = () => {
 
     doEXTOpt(characterPic, "Characters")
     changeEXTPic("early", pictures)
-    backgroundSFX(themes.extTheme, "play")
+    doSoundPlay("ambienceSounds", "extTheme", "play")
 
     document.querySelectorAll('.text').forEach(btn => {
         btn.addEventListener("mouseover", () => {
-            let audio = new Audio("files/sounds/sfx/cam_change.mp3")
-            audio.volume = volume
-            audio.play()
+            doSoundPlay("gameSounds", "click", "play")
         });
     });
 
@@ -1533,9 +1532,7 @@ const changeEXTPic = (type, pic) => {
             changeEXTPic("right", pictures)
         });
     }else{
-        let audio = new Audio("files/sounds/sfx/cam_change.mp3")
-        audio.volume = volume
-        audio.play()
+        doSoundPlay("gameSounds", "click", "play")
     }
     if(type == "left"){
         picCount--
@@ -1673,9 +1670,7 @@ const changeCTN = () => {
 
 const changeCTNValue = (data, type) => {
     if(data.difficulty.night7 > Math.min(Math.max(data.difficulty.night7, 0), 20) || data.difficulty.night7 < Math.min(Math.max(data.difficulty.night7, 0), 20)){}else if(type == "early"){}else{
-        let audio = new Audio("files/sounds/sfx/cam_change.mp3")
-        audio.volume = volume
-        audio.play()
+        doSoundPlay("gameSounds", "click", "play")
     }
     data.difficulty.night7 = Math.min(Math.max(data.difficulty.night7, 0), 20)
     document.querySelector(`.${data.name}-dif-text`).innerHTML = `${data.difficulty.night7}`
@@ -1694,9 +1689,7 @@ const changeCTNValue = (data, type) => {
 const doGoldenRobertEG = () => {
     clearMain()
     gamePlay.innerHTML = `<div class="golden-robert"></div>`
-    let audio = new Audio("files/sounds/sfx/goldenrobertscream.mp3")
-    audio.volume = volume
-    audio.play()
+    doSoundPlay("characterSounds", "goldenRobert", "play")
     setTimeout(() => {
         doMenu()
     }, 3000);
@@ -1742,9 +1735,7 @@ const changeCHT = () => {
 }
 
 const changeCHTEnable = (cl, num) => {
-    let audio = new Audio("files/sounds/sfx/cam_change.mp3")
-    audio.volume = volume
-    audio.play()
+    doSoundPlay("gameSounds", "click", "play")
     document.querySelector(`.${cl}`).classList.toggle('enabled')
     extras[0].cheats[num].enable = !extras[0].cheats[num].enable
 }
