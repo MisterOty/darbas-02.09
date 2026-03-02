@@ -47,7 +47,7 @@ let characters = [
             },
             a2: {
                 image: "files/images/characters/justas.png",
-                pos: [50, 0]
+                pos: [50, 35]
             },
             office: {
                 image: "files/images/characters/justas.png",
@@ -117,7 +117,7 @@ let characters = [
         pathFind: {
             r04: {
                 image: "files/images/characters/saulius.png",
-                pos: [50, 25]
+                pos: [15, 50]
             },
             b1: {
                 image: "files/images/characters/saulius.png",
@@ -220,12 +220,12 @@ let extras = [{
     }]
 }]
 
-let themes = [{
+let themes = {
     mMTheme: new Audio("files/sounds/background/theme.mp3"),
     extTheme: new Audio("files/sounds/background/extras.mp3"),
     offAmbience: new Audio("files/sounds/background/officeAmbience.mp3"),
     off20Ambience: new Audio("files/sounds/background/office20mode.mp3")
-}]
+}
 
 let pictures = []
 
@@ -233,23 +233,33 @@ let characterPic = []
 
 let scenePic = [ "files/images/office/office_front.png", "files/images/camera/radar0.png", "files/images/camera/radar1.png"]
 
-let cameras = ["a1", "a2", "b1", "b2", "r01", "r02", "r03", "r04", "r05", "r06"]
-
-cameras = {
-    first: ["a1", "a2", "b2", "r01", "r02", "r05", "r06"],
-    second: ["b1", "r03", "r04"]
+let cameras = {
+    first: {
+        a1: "Hallway A1",
+        a2: "Hallway A2",
+        b2: "Hallway B2",
+        r01: "Room 101",
+        r02: "Room 102",
+        r05: "Room 105",
+        r06: "Room 106"
+    },
+    second: {
+        b1: "Hallway B1",
+        r03: "Room 103",
+        r04: "Room 104",
+    },
 }
 
 for(let i = 0;i < characters.length; i++){
     characterPic.push(characters[i].mMImage)
 }
 
-for(let i = 0;i < Object.values(cameras)[0].length; i++){
-    scenePic.push(`files/images/camera/${Object.values(cameras)[0][`${i}`]}.png`)
+for(let i = 0;i < Object.keys(cameras.first).length; i++){
+    scenePic.push(`files/images/camera/${Object.keys(Object.values(cameras)[0])[i]}.png`)
 }
 
-for(let i = 0;i < Object.values(cameras)[1].length; i++){
-    scenePic.push(`files/images/camera/${Object.values(cameras)[1][`${i}`]}.png`)
+for(let i = 0;i < Object.keys(cameras.second).length; i++){
+    scenePic.push(`files/images/camera/${Object.keys(Object.values(cameras)[1])[i]}.png`)
 }
 
 let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
@@ -273,10 +283,11 @@ let officePos = 50;
 let currentNight = 0;
 let secretCount = 0;
 let picCount = 0;
-let volume = 0.5;
+let volume = 1;
 let easterEgg = 2067;
-let cameraFloor = 1;
+let cameraFloor = 0;
 
+let allAudio = []
 let movementInterval = []
 let movementTimeout = []
 
@@ -301,21 +312,25 @@ let timerInterval
 let moveInterval
 let powerInterval
 let jumpScareTimeout
+let phoneTimeout
+let phoneTimeoutStart
+let phoneTimeRemaining
 let camTimeOut
 let camEffect
 let currentCam
 let extraText
 let jumpSFX
+let callSFX
 
 const clearMain = () => {
     clearInterval(timerInterval)
     clearInterval(powerInterval)
     clearTimeout(jumpScareTimeout)
     clearTimeout(movementTimeout)
-    backgroundSFX(themes[0].mMTheme, "stop")
-    backgroundSFX(themes[0].extTheme, "stop")
-    backgroundSFX(themes[0].offAmbience, "stop")
-    backgroundSFX(themes[0].off20Ambience, "stop")
+    backgroundSFX(themes.mMTheme, "stop")
+    backgroundSFX(themes.extTheme, "stop")
+    backgroundSFX(themes.offAmbience, "stop")
+    backgroundSFX(themes.off20Ambience, "stop")
     stopMoveTimeout()
     body.style.background = ``
     gamePlay.style.background = ``
@@ -329,6 +344,15 @@ const clearMain = () => {
     if(jumpSFX != undefined){
         jumpSFX.pause()
         jumpSFX.currentTime = 0;
+    }
+    if(callSFX != undefined){
+        clearTimeout(phoneTimeout)
+        callSFX.pause()
+        callSFX.currentTime = 0
+        callSFX = undefined
+        phoneTimeout = undefined
+        phoneTimeoutStart = undefined
+        phoneTimeRemaining = undefined
     }
     if(powerOutage){
         powerOutageDoorSFX.pause
@@ -344,7 +368,7 @@ const clearMain = () => {
     power = 1000
     powerUsage = 1
     officePos = 50
-    cameraFloor = 1
+    cameraFloor = 0
     leftDoorClose = false
     rightDoorClose = false
     cameraMO = false
@@ -416,8 +440,9 @@ const doMenu = () => {
     body.style.backgroundSize = `100% 100%`
     gamePlay.style.background = ``
     gamePlay.style.backdropFilter = `brightness(0.5)`
+    doVolumeSlider(gamePlay)
     doMenuImg()
-    backgroundSFX(themes[0].mMTheme, "play")
+    backgroundSFX(themes.mMTheme, "play")
 
     if(gameData.night >= 1){
         document.querySelector('.MMSelector').innerHTML += `
@@ -445,7 +470,6 @@ const doMenu = () => {
             doExtra()
         }
     });
-
 
     document.querySelectorAll('.text').forEach(btn => {
         btn.addEventListener("mouseover", () => {
@@ -568,13 +592,17 @@ const doOffice = () => {
             <div class="screen-border"></div>
             <div class="static"></div>
             <div class="cam-change"></div>
-            <div class="change-floor-button">Change Floor</div>
-            <div class="map"></div>
+            <div class="radar">
+                <div class="radar-top">
+                    <p class="current-cam-text"></p>
+                    <div class="change-floor-button">Change Floor</div>
+                </div>
+                <div class="map"></div>
+            </div>
         </div>`
     
-    changeCamFloor()
     if(extras[0].cheats[0].enable){
-        gameSpeed = 0
+        gameSpeed = 0.5
     }
     if(extras[0].cheats[1].enable){
         power = Infinity;
@@ -585,6 +613,7 @@ const doOffice = () => {
     for(let i = 0; i < characters.length; i++){
         doMoveInterval(i)
     }
+    changeCamFloor()
     doFlash("officeMove")
     doDoorClose(leftDoorClose, "door-left", "door-button-left")
     doDoorClose(rightDoorClose, "door-right", "door-button-right")
@@ -592,12 +621,26 @@ const doOffice = () => {
     enableCamHover()
     doRTimer()
     changePos()
-    changeCam(Object.values(cameras)[cameraFloor][0]);
+    changeCam(Object.keys(Object.values(cameras)[cameraFloor])[0])
 
+    if(currentNight <= 5){
+        document.querySelector('.office').innerHTML += `<div class="call-button">MUTE CALL</div>`
+        doPhoneCall()
+
+        document.querySelector('.call-button').addEventListener("click", () => {
+            document.querySelector('.call-button').style.display = `none`
+            clearTimeout(phoneTimeout)
+            callSFX.pause()
+            callSFX.currentTime = 0
+            phoneTimeout = undefined
+            phoneTimeoutStart = undefined
+            phoneTimeRemaining = undefined
+        });
+    }
     if(twentyMode){
-        backgroundSFX(themes[0].off20Ambience, "play")
+        backgroundSFX(themes.off20Ambience, "play")
     }else{
-        backgroundSFX(themes[0].offAmbience, "play")
+        backgroundSFX(themes.offAmbience, "play")
     }
 
     officeView = true
@@ -617,6 +660,7 @@ const doOffice = () => {
     });
 
     document.querySelector('.change-floor-button').addEventListener("click", () => {
+        cameraFloor = 1 - cameraFloor
         changeCamFloor()
     });
 
@@ -654,12 +698,15 @@ const doPause = (type) => {
     if(pauseView){
         if(!powerOutage){
             if(twentyMode){
-                backgroundSFX(themes[0].off20Ambience, "pause")
+                backgroundSFX(themes.off20Ambience, "pause")
             }else{
-                backgroundSFX(themes[0].offAmbience, "pause")
+                backgroundSFX(themes.offAmbience, "pause")
             }
             if(officeLight){
                 lightSFX.pause()
+            }
+            if(callSFX !== undefined){
+                pausePhoneTimeout()
             }
         }else{
             powerOutageSFX.pause()
@@ -672,6 +719,7 @@ const doPause = (type) => {
             </div>`
         document.querySelector('.pause-button').style.display = `none`
         stopRT("Pause")
+        doVolumeSlider(pauseDiv)
 
         document.querySelector('.cont').addEventListener("click", () => {
             doPause()
@@ -681,6 +729,7 @@ const doPause = (type) => {
             doMenu()
             doPause("menu")
         });
+
     }else if(type == "menu"){
         pauseDiv.innerHTML = ``
     }else{
@@ -693,13 +742,16 @@ const doPause = (type) => {
         document.querySelector('.pause-button').style.display = `block`
         if(!powerOutage){
             if(twentyMode){
-                backgroundSFX(themes[0].off20Ambience, "play")
+                backgroundSFX(themes.off20Ambience, "play")
             }else{
-                backgroundSFX(themes[0].offAmbience, "play")
+                backgroundSFX(themes.offAmbience, "play")
             }
             if(officeLight){
                 lightSFX.volume = volume
                 lightSFX.play()
+            }
+            if(callSFX !== undefined){
+                resumePhoneTimeout()
             }
         }else{
             powerOutageSFX.volume = volume
@@ -800,6 +852,102 @@ const doEnding = (type) => {
             doMenu()
         });
     }
+}
+
+//VOLUME
+
+const doVolumeSlider = (div) => {
+    div.innerHTML += `
+        <div class="volume-slider">
+            <div class="volume-top">
+                    <p>Master Volume</p>
+                    <input type="number" id="volume-input"/><p>%</p>
+                    <p class="volume-button volume-add">+</p>
+                    <p class="volume-button volume-remove">-</p>
+            </div>
+        </div>`
+
+        doVolumeChange("start", document.querySelector("#volume-input"))
+
+        document.querySelector("#volume-input").addEventListener("input", (event) => {
+            doVolumeChange("typein", event)
+        });
+
+        document.querySelectorAll('.volume-button').forEach(btn => {
+            btn.addEventListener("click", () => {
+                doVolumeChange(`${btn.textContent}`)
+            });
+        });
+}
+
+const doVolumeChange = (type, event) => {
+    let audio = new Audio("files/sounds/sfx/cam_change.mp3")
+    let tempValue
+    if(type == "start"){
+        tempValue = volume * 100
+        tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
+        document.querySelector('#volume-input').value = tempValue
+        return
+    }
+    if(type !== "typein"){
+        tempValue = volume * 100
+        if(type == "-"){
+            tempValue -= 1
+        }else{
+            tempValue += 1
+        }
+    }else{
+        tempValue = event.target.value
+        tempValue = tempValue.replace(/\D/g, "");
+    }
+    tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
+    document.querySelector('#volume-input').value = tempValue
+    volume = tempValue / 100
+    audio.volume = volume
+    audio.play()
+    toggleAllVolume()
+}
+
+const toggleAllVolume = () => {
+    endingMusic.volume = volume
+    lightSFX.volume = volume
+    powerOutageSFX.volume = volume
+    powerOutageDoorSFX.volume = volume
+    callSFX.volume = volume
+}
+
+//PHONE CALL
+
+const doPhoneCall = () => {
+    callSFX = new Audio(`files/sounds/phone/night0${currentNight}.mp3`)
+    callSFX.volume = volume
+    callSFX.addEventListener('loadedmetadata', () => {
+        let callDuration = callSFX.duration * 1000
+        phoneTimeRemaining = callDuration
+        startPhoneTimeout()
+    });
+}
+
+const startPhoneTimeout = () => {
+    callSFX.play()
+    timeoutStart = Date.now()
+        phoneTimeout = setTimeout(() => {
+        document.querySelector('.call-button').style.display = `none`
+        callSFX = undefined
+        phoneTimeout = undefined
+        phoneTimeoutStart = undefined
+        phoneTimeRemaining = undefined
+    }, phoneTimeRemaining);
+}
+
+const pausePhoneTimeout = () => {
+    callSFX.pause()
+    clearTimeout(phoneTimeout);
+    phoneTimeRemaining -= Date.now() - timeoutStart;
+}
+
+const resumePhoneTimeout = () => {
+    startPhoneTimeout()
 }
 
 //OFFICE FUNCTIONS
@@ -974,14 +1122,13 @@ const enableCamHover = () => {
 }
 
 const changeCamFloor = () => {
-    cameraFloor = 1 - cameraFloor
     document.querySelector('.map').innerHTML = ``
-    currentCam = Object.values(cameras)[cameraFloor][0]
-    for(let i = 0;i < Object.values(cameras)[cameraFloor].length; i++){
+    currentCam = Object.keys(Object.values(cameras)[cameraFloor])[0]
+    for(let i = 0;i < Object.keys(Object.values(cameras)[cameraFloor]).length; i++){
         document.querySelector('.map').innerHTML += `
-                <div class="${Object.values(cameras)[cameraFloor][`${i}`]} button">
+                <div class="${Object.keys(Object.values(cameras)[cameraFloor])[`${i}`]} button">
                     <p>CAM</p>
-                    <p>${Object.values(cameras)[cameraFloor][`${i}`].toUpperCase()}</p>
+                    <p>${Object.keys(Object.values(cameras)[cameraFloor])[`${i}`].toUpperCase()}</p>
                 </div>`
     }
     document.querySelector('.map').style.background = `url(files/images/camera/radar${cameraFloor}.png)`
@@ -1008,6 +1155,7 @@ const changeCam = (cam) => {
         document.querySelector(`.${currentCam}`).classList.remove("button-clicked")
         currentCam = cam
         document.querySelector(`.${currentCam}`).classList.add("button-clicked")
+        document.querySelector(`.current-cam-text`).innerHTML = `${Object.values(cameras)[cameraFloor][`${currentCam}`]}`
     }
     document.querySelector('.cam-change').style.display = `block`
     camEffect = setTimeout(() => {
@@ -1291,8 +1439,8 @@ const doPowerOutage = () => {
     tabName.innerHTML = `0% Power`
     doFlash("officeMove")
     clearInterval(powerInterval)
-    backgroundSFX(themes[0].offAmbience, "stop")
-    backgroundSFX(themes[0].off20Ambience, "stop")
+    backgroundSFX(themes.offAmbience, "stop")
+    backgroundSFX(themes.off20Ambience, "stop")
     powerOutageSFX.volume = volume
     powerOutageSFX.play()
 }
@@ -1317,7 +1465,7 @@ const doExtra = () => {
 
     doEXTOpt(characterPic, "Characters")
     changeEXTPic("early", pictures)
-    backgroundSFX(themes[0].extTheme, "play")
+    backgroundSFX(themes.extTheme, "play")
 
     document.querySelectorAll('.text').forEach(btn => {
         btn.addEventListener("mouseover", () => {
@@ -1632,7 +1780,13 @@ document.addEventListener('keydown', function(event) {
                 rightDoorClose = !rightDoorClose
                 doDoorClose(rightDoorClose, "door-right", "door-button-right")
             }
+        }else{
+            if(event.key == "-" || event.key == "=" || event.key == "+"){
+                doVolumeChange(event.key)
+            }
         }
     }
     konamiFunc(konamiCode, event.key)
 })
+
+doMenu()
