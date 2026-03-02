@@ -220,6 +220,21 @@ let extras = [{
     }]
 }]
 
+let settings = [
+    {
+        name: "Gameplay",
+        class: "CHR",
+    },
+    {
+        name: "Audio",
+        class: "SCN",
+    },
+    {
+        name: "Exit",
+        class: "EXT",
+    }
+]
+
 let pictures = []
 
 let characterPic = []
@@ -257,16 +272,16 @@ for(let i = 0;i < Object.keys(cameras.second).length; i++){
 
 let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
 
-const body = document.querySelector('body')
-const tabName = document.querySelector('.tab-title')
-const gamePlay = document.querySelector('main')
-const copyRight = document.querySelector('footer')
-const pauseDiv = document.querySelector('.pause-div')
+const body = document.querySelector("body")
+const tabName = document.querySelector(".tab-title")
+const gamePlay = document.querySelector("main")
+const copyRight = document.querySelector("footer")
+const pauseDiv = document.querySelector(".pause-div")
 
 let volumeControl = {
     masterVolume: {
         text: "Master Volume",
-        value: 1
+        value: 0.1
     },
     gameVolume: {
         text: "Game Volume",
@@ -291,11 +306,12 @@ let soundEffects = {
         powerOutageSFX: new Audio("files/sounds/sfx/poweroutage.mp3"),
         powerOutageDoorSFX: new Audio("files/sounds/sfx/disabledclick.mp3"),
         gameOver: new Audio("files/sounds/sfx/gameover.mp3"),
-        SixAM: new Audio("files/sounds/sfx/6am.mp3"),
+        sixAM: new Audio("files/sounds/sfx/6am.mp3"),
     },
     characterSounds: {
         jumpSFX: new Audio("files/sounds/sfx/cam_change.mp3"),
         goldenRobert: new Audio("files/sounds/sfx/goldenrobertscream.mp3"),
+        phoneCall: new Audio(""),
     },
     ambienceSounds: {
         mMTheme: new Audio("files/sounds/background/theme.mp3"),
@@ -322,6 +338,7 @@ let allAudio = []
 let movementInterval = []
 let movementTimeout = []
 
+let settingsView = false
 let cameraView = false
 let officeView = false
 let pauseView = false
@@ -343,9 +360,6 @@ let timerInterval
 let moveInterval
 let powerInterval
 let jumpScareTimeout
-let phoneTimeout
-let phoneTimeoutStart
-let phoneTimeRemaining
 let camTimeOut
 let camEffect
 let currentCam
@@ -353,7 +367,7 @@ let extraText
 let jumpSFX
 let callSFX
 
-const doSoundPlay = (category, sound, type) => {
+const doSoundPlay = (category, sound, type, isLoop) => {
     let audio = soundEffects[category][sound]
     let master = volumeControl.masterVolume.value
     if(category == "gameSounds"){
@@ -373,6 +387,9 @@ const doSoundPlay = (category, sound, type) => {
         audio.pause()
     }else if(type == "pause"){
         audio.pause()
+    }
+    if(isLoop){
+        audio.loop = true
     }
 }
 
@@ -396,15 +413,11 @@ const clearMain = () => {
     for(let i = 0; i < characters.length; i++){
         characters[i].path = 0
     }
-    if(callSFX != undefined){
-        clearTimeout(phoneTimeout)
-        callSFX = undefined
-        phoneTimeout = undefined
-        phoneTimeoutStart = undefined
-        phoneTimeRemaining = undefined
-    }
     if(powerOutage){
         powerOutage = false
+    }
+    if(soundEffects.characterSounds.phoneCall !== new Audio(``)){
+        soundEffects.characterSounds.phoneCall = new Audio(``)
     }
     gameSpeed = 1
     gameTime = 0
@@ -428,15 +441,15 @@ const newGame = (choose) => {
         gamePlay.innerHTML +=`
         <div class="newspaper"></div>`
         setTimeout(() => {
-            document.querySelector('.newspaper').classList.add('visible')
+            document.querySelector(".newspaper").classList.add("visible")
         }, 0);
     }else{
         gameData.night = 1
         newsPaperView = !newsPaperView
         doNightShow()
     }
-    document.addEventListener('keydown', function(event) {
-        if(event.key = 'String' && newsPaperView){
+    document.addEventListener("keydown", function(event) {
+        if(event.key = "String" && newsPaperView){
             newGame(1)
         }
     })
@@ -450,19 +463,20 @@ const doMenu = () => {
     gamePlay.innerHTML = `
         <div class="stars"></div>
         <div class="MMenu">
-            <h1 class="title">Five Night's at KITM</h1>
+            <h1 class="title">Five Night"s at KITM</h1>
             <div class="MMenuCharacter"></div>
             <div class="MMSelector">
                 <p class="NG text">New Game</p>
             </div>
-        </div>`
+        </div>
+        <div class="settings-button text">Settings</div>`
     copyRight.innerHTML = `
         <p class="Name">Oskaras Venzlauskas GJSM23</p>`
-    tabName.innerHTML = `Five Night's at KITM`
+    tabName.innerHTML = `Five Night"s at KITM`
 
     for(let i = 0; i < Object.values(gameData.stars).length; i++){
         if(gameData.stars[`star${i + 1}`]){
-            document.querySelector('.stars').innerHTML += `<div></div>`
+            document.querySelector(".stars").innerHTML += `<div></div>`
         }
     }
 
@@ -470,25 +484,24 @@ const doMenu = () => {
     body.style.backgroundSize = `100% 100%`
     gamePlay.style.background = ``
     gamePlay.style.backdropFilter = `brightness(0.5)`
-    doVolumeSlider(gamePlay)
     doMenuImg()
-    doSoundPlay("ambienceSounds", "mMTheme", "play")
+    doSoundPlay("ambienceSounds", "mMTheme", "play", true)
 
     if(gameData.night >= 1){
-        document.querySelector('.MMSelector').innerHTML += `
+        document.querySelector(".MMSelector").innerHTML += `
         <p class="CTN text">Continue</p>`
     }
     if(gameData.nightSix){
-        document.querySelector('.MMSelector').innerHTML += `
+        document.querySelector(".MMSelector").innerHTML += `
         <p class="night-six text">6th Night</p>`
     }
     if(gameData.extraMenu){
-        document.querySelector('.MMSelector').innerHTML += `
+        document.querySelector(".MMSelector").innerHTML += `
         <p class="EXT text">Extra </p>`
     }
 
 
-    document.querySelector('.MMSelector').addEventListener('click', (e) => {
+    document.querySelector(".MMSelector").addEventListener("click", (e) => {
         let classes = e.target.classList
         if(classes[0] == "NG"){
             newGame(0)
@@ -501,9 +514,13 @@ const doMenu = () => {
         }
     });
 
-    document.querySelectorAll('.text').forEach(btn => {
+    document.querySelector(".settings-button").addEventListener("click", () => {
+        doSettings()
+    });
+
+    document.querySelectorAll(".text").forEach(btn => {
         btn.addEventListener("mouseover", () => {
-            doSoundPlay("gameSounds", "click", "play")
+            doSoundPlay("gameSounds", "click", "loadPlay")
         });
     });
 }
@@ -634,10 +651,10 @@ const doOffice = () => {
     }
     if(extras[0].cheats[1].enable){
         power = Infinity;
-        document.querySelector('.power-number').innerHTML = `∞%`
+        document.querySelector(".power-number").innerHTML = `∞%`
     }
-    document.querySelector('.calender-day').style.background = `url(files/images/office/calender/0${currentNight}.png)`
-    document.querySelector('.calender-day').style.backgroundSize = `200% 100%`
+    document.querySelector(".calender-day").style.background = `url(files/images/office/calender/0${currentNight}.png)`
+    document.querySelector(".calender-day").style.backgroundSize = `200% 100%`
     for(let i = 0; i < characters.length; i++){
         doMoveInterval(i)
     }
@@ -652,71 +669,77 @@ const doOffice = () => {
     changeCam(Object.keys(Object.values(cameras)[cameraFloor])[0])
 
     if(currentNight <= 5){
-        document.querySelector('.office').innerHTML += `<div class="call-button">MUTE CALL</div>`
-        doPhoneCall()
+        document.querySelector(".office").innerHTML += `<div class="call-button">MUTE CALL</div>`
+        soundEffects.characterSounds.phoneCall = new Audio(`files/sounds/phone/night0${currentNight}.mp3`)
+        doSoundPlay("characterSounds", "phoneCall", "play")
 
-        document.querySelector('.call-button').addEventListener("click", () => {
-            document.querySelector('.call-button').style.display = `none`
-            clearTimeout(phoneTimeout)
-            callSFX.pause()
-            callSFX.currentTime = 0
-            phoneTimeout = undefined
-            phoneTimeoutStart = undefined
-            phoneTimeRemaining = undefined
+        soundEffects.characterSounds.phoneCall.addEventListener("ended", () => {
+            document.querySelector(".call-button").style.display = `none`
+            soundEffects.characterSounds.phoneCall = new Audio("")
+        });
+
+        document.querySelector(".call-button").addEventListener("click", () => {
+            document.querySelector(".call-button").style.display = `none`
+            soundEffects.characterSounds.phoneCall = new Audio("")
+            doSoundPlay("characterSounds", "phoneCall", "stop")
         });
     }
     if(twentyMode){
-        doSoundPlay("ambienceSounds", "off20Ambience", "play")
+        doSoundPlay("ambienceSounds", "off20Ambience", "play", true)
     }else{
-        doSoundPlay("ambienceSounds", "offAmbience", "play")
+        doSoundPlay("ambienceSounds", "offAmbience", "play", true)
     }
 
     officeView = true
     cameraMO = true
 
-    document.querySelector('.pause-button').addEventListener("click", () => {
+    document.querySelector(".pause-button").addEventListener("click", () => {
         if(officeView){
             doPause()
         }
     });
 
     
-    document.querySelector('.light-div').addEventListener("click", () => {
+    document.querySelector(".light-div").addEventListener("click", () => {
         if(officeView && !camSEnable && !pauseView && !officeLightDelay){
             doFlash()
         }
     });
 
-    document.querySelector('.change-floor-button').addEventListener("click", () => {
+    document.querySelector(".change-floor-button").addEventListener("click", () => {
         cameraFloor = 1 - cameraFloor
         changeCamFloor()
     });
 
-    document.querySelector('.door-button-left').addEventListener("click", () => {
-        leftDoorClose = !leftDoorClose
+    document.querySelector(".door-button-left").addEventListener("click", () => {
+        if(!powerOutage){
+            leftDoorClose = !leftDoorClose
+        }
         doDoorClose(leftDoorClose, "door-left", "door-button-left")
     });
 
-    document.querySelector('.door-button-right').addEventListener("click", () => {
-        rightDoorClose = !rightDoorClose
+    document.querySelector(".door-button-right").addEventListener("click", () => {
+        if(!powerOutage){
+            rightDoorClose = !rightDoorClose
+        }
         doDoorClose(rightDoorClose, "door-right", "door-button-right")
     });
 
-    document.querySelector('.left').addEventListener("mouseenter", event => {
+    document.querySelector(".left").addEventListener("mouseenter", event => {
         mouseOver = true
         changePosLeft()
     });
 
-    document.querySelector('.left').addEventListener("mouseleave", event => {
+    document.querySelector(".left").addEventListener("mouseleave", event => {
         mouseOver = false
     });
 
-    document.querySelector('.right').addEventListener("mouseenter", event => {
+    document.querySelector(".right").addEventListener("mouseenter", event => {
         mouseOver = true
         changePosRight()
     });
 
-    document.querySelector('.right').addEventListener("mouseleave", event => {
+    document.querySelector(".right").addEventListener("mouseleave", event => {
         mouseOver = false
     });
 }
@@ -726,15 +749,15 @@ const doPause = (type) => {
     if(pauseView){
         if(!powerOutage){
             if(twentyMode){
-                doSoundPlay("ambienceSounds", "off20Ambience", "pause")
+                doSoundPlay("ambienceSounds", "off20Ambience", "pause", true)
             }else{
-                doSoundPlay("ambienceSounds", "offAmbience", "pause")
+                doSoundPlay("ambienceSounds", "offAmbience", "pause", true)
             }
             if(officeLight){
-                doSoundPlay("gameSounds", "lightSFX", "pause")
+                doSoundPlay("gameSounds", "lightSFX", "pause", true)
             }
-            if(callSFX !== undefined){
-                pausePhoneTimeout()
+            if(currentNight <= 5){
+                doSoundPlay("characterSounds", "phoneCall", "pause")
             }
         }else{
             doSoundPlay("gameSounds", "powerOutageSFX", "pause")
@@ -742,18 +765,22 @@ const doPause = (type) => {
         pauseDiv.innerHTML += `
             <div class="pause">
                 <h1>Paused</h1>
-                <p class="cont">CONTINUE</p><br>
-                <p class="exit">EXIT</p>
+                <p class="cont text">Continue</p><br>
+                <p class="sett text">Settings</p><br>
+                <p class="exit text">Exit</p>
             </div>`
-        document.querySelector('.pause-button').style.display = `none`
+        document.querySelector(".pause-button").style.display = `none`
         stopRT("Pause")
-        doVolumeSlider(pauseDiv)
 
-        document.querySelector('.cont').addEventListener("click", () => {
+        document.querySelector(".cont").addEventListener("click", () => {
             doPause()
         });
 
-        document.querySelector('.exit').addEventListener("click", () => {
+        document.querySelector(".sett").addEventListener("click", () => {
+            doSettings()
+        });
+
+        document.querySelector(".exit").addEventListener("click", () => {
             doMenu()
             doPause("menu")
         });
@@ -767,18 +794,18 @@ const doPause = (type) => {
             doMoveInterval(i)
         }
         pauseDiv.innerHTML = ``
-        document.querySelector('.pause-button').style.display = `block`
+        document.querySelector(".pause-button").style.display = `block`
         if(!powerOutage){
             if(twentyMode){
-                doSoundPlay("ambienceSounds", "off20Ambience", "play")
+                doSoundPlay("ambienceSounds", "off20Ambience", "play", true)
             }else{
-                doSoundPlay("ambienceSounds", "offAmbience", "play")
+                doSoundPlay("ambienceSounds", "offAmbience", "play", true)
             }
             if(officeLight){
-                doSoundPlay("gameSounds", "lightSFX", "play")
+                doSoundPlay("gameSounds", "lightSFX", "play", true)
             }
-            if(callSFX !== undefined){
-                resumePhoneTimeout()
+            if(currentNight <= 5){
+                doSoundPlay("characterSounds", "phoneCall", "play")
             }
         }else{
             doSoundPlay("gameSounds", "powerOutageSFX", "play")
@@ -795,23 +822,23 @@ const do6am = () => {
         </div>`
     tabName.innerHTML = `5:59 AM`
     setTimeout(() => {
-        document.querySelector('.timeText').innerHTML = ``
+        document.querySelector(".timeText").innerHTML = ``
     }, 900);
     setTimeout(() => {
-        document.querySelector('.timeText').innerHTML = `5:59 AM`
+        document.querySelector(".timeText").innerHTML = `5:59 AM`
     }, 1850);
     setTimeout(() => {
-        document.querySelector('.timeText').innerHTML = ``
+        document.querySelector(".timeText").innerHTML = ``
     }, 2800);
     setTimeout(() => {
-        document.querySelector('.timeText').innerHTML = `6:00 AM`
+        document.querySelector(".timeText").innerHTML = `6:00 AM`
         tabName.innerHTML = `6:00 AM`
     }, 4500);
     setTimeout(() => {
-        document.querySelector('.timeText').style.transform = `scale(2)`
+        document.querySelector(".timeText").style.transform = `scale(2)`
     }, 5400);
     setTimeout(() => {
-        document.querySelector('.timeText').style.transform = `scale(3)`
+        document.querySelector(".timeText").style.transform = `scale(3)`
     }, 6300);
     setTimeout(() => {
         if(currentNight == 7 && twentyMode){
@@ -865,8 +892,8 @@ const doEnding = (type) => {
         }
         doSoundPlay("ambienceSounds", "endingMusic", "play")
         gamePlay.innerHTML = `<div class="ending"></div>`
-        document.querySelector('.ending').style.background = `url(files/images/menu/ending/ending0${type}.png)`
-        document.querySelector('.ending').style.backgroundSize = `100% 100%`
+        document.querySelector(".ending").style.background = `url(files/images/menu/ending/ending0${type}.png)`
+        document.querySelector(".ending").style.backgroundSize = `100% 100%`
         tabName.innerHTML = `The End`
         soundEffects.ambienceSounds.endingMusic.addEventListener("ended", () => {
             doMenu()
@@ -874,15 +901,66 @@ const doEnding = (type) => {
     }
 }
 
-//VOLUME
+//SETTINGS
+
+const doSettings = () => {
+    if(!settingsView){
+        settingsView = !settingsView
+        document.querySelector(".settings").style.display = `flex`
+        document.querySelector(".settings").innerHTML = `
+            <div class="settings-text">
+                <div class="settings-selector"></div>
+            </div>
+            <div class="settings-show"></div>`
+
+        for(let i = 0; i < settings.length; i++){
+            document.querySelector(".settings-selector").innerHTML += `<p class="${settings[i].class} text">${settings[i].name}</p>`
+        }
+
+        document.querySelector(".settings-show").innerHTML = `<h1>Gameplay</h1>`
+        doGameplayChange(document.querySelector(".settings-show"))
+
+        document.querySelectorAll(".text").forEach(btn => {
+            btn.addEventListener("mouseover", () => {
+                doSoundPlay("gameSounds", "click", "loadPlay")
+            });
+        });
+
+        document.querySelectorAll(".text").forEach(btn => {
+            btn.addEventListener("click", (event) => {
+                if(event.target.textContent == "Gameplay"){
+                    document.querySelector(".settings-show").innerHTML = `<h1>${event.target.textContent}</h1>`
+                    doGameplayChange(document.querySelector(".settings-show"))
+                }else if(event.target.textContent == "Audio"){
+                    document.querySelector(".settings-show").innerHTML = `<h1>${event.target.textContent}</h1>`
+                    doVolumeSlider(document.querySelector(".settings-show"))
+                }else if(event.target.textContent == "Exit"){
+                    doSettings()
+                }
+            });
+        });
+    }else{
+        settingsView = !settingsView
+        document.querySelector(".settings").innerHTML = ``
+        document.querySelector(".settings").style.display = `none`
+    }
+}
 
 const doVolumeSlider = (div) => {
+    div.innerHTML += `<div class="volume-slider-master"></div>`
+        document.querySelector(`.volume-slider-master`).innerHTML += `
+        <div class="volume-main ${Object.keys(volumeControl)[0]}">
+                <p>${volumeControl[Object.keys(volumeControl)[0]].text}</p>
+                <input type="number" id="volume-input-${Object.keys(volumeControl)[0]}" min="0"/><p>%</p>
+                <p class="volume-button volume-add">+</p>
+                <p class="volume-button volume-remove">-</p>
+        </div>`
     div.innerHTML += `<div class="volume-slider"></div>`
-    for(let i = 0; i < Object.keys(volumeControl).length; i++){
+    for(let i = 1; i < Object.keys(volumeControl).length; i++){
         document.querySelector(`.volume-slider`).innerHTML += `
             <div class="volume-main ${Object.keys(volumeControl)[i]}">
                     <p>${volumeControl[Object.keys(volumeControl)[i]].text}</p>
-                    <input type="number" id="volume-input-${Object.keys(volumeControl)[i]}"/><p>%</p>
+                    <input type="number" id="volume-input-${Object.keys(volumeControl)[i]}" min="0"/><p>%</p>
                     <p class="volume-button volume-add">+</p>
                     <p class="volume-button volume-remove">-</p>
             </div>`
@@ -925,46 +1003,22 @@ const doVolumeChange = (type, classVolume, value) => {
     tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
     document.querySelector(`.${classVolume} #volume-input-${classVolume}`).value = tempValue
     volumeControl[classVolume].value = tempValue / 100
-    doSoundPlay("gameSounds", "click", "play")
+    doSoundPlay("gameSounds", "click", "loadPlay")
     if(classVolume !== "masterVolume"){
-        for(let i = 0; i < Object.keys(soundEffects[`${classVolume.split('Volume')[0]}Sounds`]).length; i++){
-            doSoundPlay(`${classVolume.split('Volume')[0]}Sounds`, Object.keys(soundEffects[`${classVolume.split('Volume')[0]}Sounds`])[i], "refresh")
+        for(let i = 0; i < Object.keys(soundEffects[`${classVolume.split("Volume")[0]}Sounds`]).length; i++){
+            doSoundPlay(`${classVolume.split("Volume")[0]}Sounds`, Object.keys(soundEffects[`${classVolume.split("Volume")[0]}Sounds`])[i], "refresh")
+        }
+    }else{
+        for(let i = 0; i < Object.keys(soundEffects).length; i++){
+            for(let e = 0; e < Object.keys(soundEffects[Object.keys(soundEffects)[i]]).length; e++){
+                doSoundPlay(Object.keys(soundEffects)[i], Object.keys(soundEffects[Object.keys(soundEffects)[i]])[e], "refresh")
+            }
         }
     }
 }
 
-//PHONE CALL
-
-const doPhoneCall = () => {
-    callSFX = new Audio(`files/sounds/phone/night0${currentNight}.mp3`)
-    callSFX.volume = volume
-    callSFX.addEventListener('loadedmetadata', () => {
-        let callDuration = callSFX.duration * 1000
-        phoneTimeRemaining = callDuration
-        startPhoneTimeout()
-    });
-}
-
-const startPhoneTimeout = () => {
-    callSFX.play()
-    timeoutStart = Date.now()
-        phoneTimeout = setTimeout(() => {
-        document.querySelector('.call-button').style.display = `none`
-        callSFX = undefined
-        phoneTimeout = undefined
-        phoneTimeoutStart = undefined
-        phoneTimeRemaining = undefined
-    }, phoneTimeRemaining);
-}
-
-const pausePhoneTimeout = () => {
-    callSFX.pause()
-    clearTimeout(phoneTimeout);
-    phoneTimeRemaining -= Date.now() - timeoutStart;
-}
-
-const resumePhoneTimeout = () => {
-    startPhoneTimeout()
+const doGameplayChange = (div) => {
+    console.log("wip")
 }
 
 //OFFICE FUNCTIONS
@@ -985,15 +1039,15 @@ const changePosRight = () => {
 
 const changePos = () => {
     if(officePos >= 30 && 70 >= officePos && !powerOutage){
-        document.querySelector('.cam-hover').style.display = `block`
+        document.querySelector(".cam-hover").style.display = `block`
     }else{
-        document.querySelector('.cam-hover').style.display = `none`
+        document.querySelector(".cam-hover").style.display = `none`
     }
     officePos = Math.min(100, Math.max(0, officePos));
-    document.querySelector('.calender-day').style.backgroundPosition = `${officePos}%`
-    document.querySelector('.office-front-calendar').style.backgroundPosition = `${officePos}%`
-    document.querySelector('.office-front').style.backgroundPosition = `${officePos}%`
-    document.querySelector('.office-back').style.backgroundPosition = `${officePos}%`
+    document.querySelector(".calender-day").style.backgroundPosition = `${officePos}%`
+    document.querySelector(".office-front-calendar").style.backgroundPosition = `${officePos}%`
+    document.querySelector(".office-front").style.backgroundPosition = `${officePos}%`
+    document.querySelector(".office-back").style.backgroundPosition = `${officePos}%`
     for(let i = 0; i < characters.length; i++){
         animOffice(i)
     }
@@ -1013,23 +1067,16 @@ const doDoorClose = (type, door, button) => {
             doPower("+")
             document.querySelector(`.${door}`).style.bottom = `17%`
             document.querySelector(`.${button}`).style.filter = `hue-rotate(90deg)`
-            if(officeView){
-                doSoundPlay("gameSounds", "door", "play")
-            }
         }else{
             doPower()
             document.querySelector(`.${door}`).style.bottom = `78%`
             document.querySelector(`.${button}`).style.filter = ``
-            if(officeView && !powerOutage){
-                doSoundPlay("gameSounds", "door", "play")
-            }else{
-                if(leftDoorClose || rightDoorClose){
-                    doSoundPlay("gameSounds", "door", "play")
-                }
-            }
+        }
+        if(officeView){
+            doSoundPlay("gameSounds", "door", "loadPlay")
         }
     }else{
-        doSoundPlay("gameSounds", "powerOutageDoorSFX", "loadplay")
+        doSoundPlay("gameSounds", "powerOutageDoorSFX", "loadPlay")
     }
 }
 
@@ -1041,12 +1088,12 @@ const doJumpscare = (char) => {
         enableCams()
         camTabOpen = !camTabOpen
         cameraMO = !cameraMO
-        document.querySelector('.cam-hover').style.opacity = `0%`
+        document.querySelector(".cam-hover").style.opacity = `0%`
     }
     officeView = false
     gamePlay.innerHTML += `<div class="jumpscare"></div>`
     let option = Math.floor(Math.random() * 2)
-    let div = document.querySelector('.jumpscare')
+    let div = document.querySelector(".jumpscare")
     div.style.background = `url(${char.mMImage})`
     div.style.backgroundRepeat = `no-repeat`
     div.style.backgroundSize = `50% 50%`
@@ -1086,8 +1133,8 @@ const enableCams = () => {
     if(!powerOutage){
         clearTimeout(camTimeOut);
         if(camTabOpen && cameraMO){
-            document.querySelector('.camera').style.top = `100%`
-            document.querySelector('.camera').style.transform = `scale(0.9)`
+            document.querySelector(".camera").style.top = `100%`
+            document.querySelector(".camera").style.transform = `scale(0.9)`
             camSEnable = false
             enableCamScreen()
             doPower()
@@ -1096,8 +1143,8 @@ const enableCams = () => {
                 camSEnable = true
                 enableCamScreen()
             }, 250);
-            document.querySelector('.camera').style.top = `0%`
-            document.querySelector('.camera').style.transform = `scale(1.11)`
+            document.querySelector(".camera").style.top = `0%`
+            document.querySelector(".camera").style.transform = `scale(1.11)`
             doPower("+")
         }
         doSoundPlay("gameSounds", "cameraFlip", "play")
@@ -1106,41 +1153,41 @@ const enableCams = () => {
 
 const enableCamScreen = () => {
     if(camSEnable){
-        document.querySelector('.cam-screen').style.display = `block`
+        document.querySelector(".cam-screen").style.display = `block`
         changeCam(currentCam)
     }else{
-        document.querySelector('.cam-screen').style.display = `none`
+        document.querySelector(".cam-screen").style.display = `none`
     }
 }
 
 const enableCamHover = () => {
-    document.querySelector('.cam-hover').addEventListener("mouseenter", () => {
+    document.querySelector(".cam-hover").addEventListener("mouseenter", () => {
         enableCams()
         camTabOpen = !camTabOpen
-        document.querySelector('.cam-hover').style.opacity = `0%`
+        document.querySelector(".cam-hover").style.opacity = `0%`
         cameraMO = !cameraMO
     });
 
-    document.querySelector('.cam-hover').addEventListener("mouseleave", () => {
-        document.querySelector('.cam-hover').style.opacity = `100%`
+    document.querySelector(".cam-hover").addEventListener("mouseleave", () => {
+        document.querySelector(".cam-hover").style.opacity = `100%`
         cameraMO = !cameraMO
     });
 }
 
 const changeCamFloor = () => {
-    document.querySelector('.map').innerHTML = ``
+    document.querySelector(".map").innerHTML = ``
     currentCam = Object.keys(Object.values(cameras)[cameraFloor])[0]
     for(let i = 0;i < Object.keys(Object.values(cameras)[cameraFloor]).length; i++){
-        document.querySelector('.map').innerHTML += `
+        document.querySelector(".map").innerHTML += `
                 <div class="${Object.keys(Object.values(cameras)[cameraFloor])[`${i}`]} button">
                     <p>CAM</p>
                     <p>${Object.keys(Object.values(cameras)[cameraFloor])[`${i}`].toUpperCase()}</p>
                 </div>`
     }
-    document.querySelector('.map').style.background = `url(files/images/camera/radar${cameraFloor}.png)`
-    document.querySelector('.map').style.backgroundSize = `100% 100%`
+    document.querySelector(".map").style.background = `url(files/images/camera/radar${cameraFloor}.png)`
+    document.querySelector(".map").style.backgroundSize = `100% 100%`
     changeCam(currentCam)
-    document.querySelectorAll('.button').forEach(btn => {
+    document.querySelectorAll(".button").forEach(btn => {
         btn.addEventListener("click", event => {
             const camClass = event.currentTarget.classList[0]
             changeCam(camClass);
@@ -1154,18 +1201,18 @@ const changeCam = (cam) => {
         document.querySelector(`.${currentCam}`).classList.add("button-clicked")
     }else{
         if(camTabOpen){
-            doSoundPlay("gameSounds", "click", "play")
+            doSoundPlay("gameSounds", "click", "loadPlay")
         }
         document.querySelector(`.${currentCam}`).classList.remove("button-clicked")
         currentCam = cam
         document.querySelector(`.${currentCam}`).classList.add("button-clicked")
         document.querySelector(`.current-cam-text`).innerHTML = `${Object.values(cameras)[cameraFloor][`${currentCam}`]}`
     }
-    document.querySelector('.cam-change').style.display = `block`
+    document.querySelector(".cam-change").style.display = `block`
     camEffect = setTimeout(() => {
-        document.querySelector('.cam-change').style.display = `none`
-        document.querySelector('.screen').style.background = `url(files/images/camera/${cam}.png)`
-        document.querySelector('.screen').style.backgroundSize = `100% 100%`
+        document.querySelector(".cam-change").style.display = `none`
+        document.querySelector(".screen").style.background = `url(files/images/camera/${cam}.png)`
+        document.querySelector(".screen").style.backgroundSize = `100% 100%`
         animCamera()
     }, 50);
 }
@@ -1173,20 +1220,20 @@ const changeCam = (cam) => {
 const doFlash = (type) => {
     doSoundPlay("gameSounds", "lightSFX", "pause")
     if(type == "officeMove"){
-        document.querySelector('.office-back').style.filter = `brightness(0)`
-        document.querySelector('.light-div').style.filter = ``
+        document.querySelector(".office-back").style.filter = `brightness(0)`
+        document.querySelector(".light-div").style.filter = ``
     }else{
         if(!powerOutage){
             officeLight = !officeLight
             if(officeLight){
-                document.querySelector('.office-back').style.filter = `brightness(0.75)`
-                document.querySelector('.light-div').style.filter = `hue-rotate(90deg)`
+                document.querySelector(".office-back").style.filter = `brightness(0.75)`
+                document.querySelector(".light-div").style.filter = `hue-rotate(90deg)`
                 doPower("+")
                 doSoundPlay("gameSounds", "lightSFX", "play")
                 soundEffects.gameSounds.lightSFX.loop = true
             }else{
-                document.querySelector('.office-back').style.filter = `brightness(0)`
-                document.querySelector('.light-div').style.filter = ``
+                document.querySelector(".office-back").style.filter = `brightness(0)`
+                document.querySelector(".light-div").style.filter = ``
                 doPower()
             }
         }
@@ -1262,7 +1309,7 @@ const doAnimPath = (num) => {
     if(characters[num].path >= chrCM.length - 2 && checkArray){
         if(checkArray){
             if(characters[num].isProgressive){
-                if(chrCM[characters[num].path - 1].split('_')[0] == currentCam){
+                if(chrCM[characters[num].path - 1].split("_")[0] == currentCam){
                     changeCam(currentCam)
                 }
             }else{
@@ -1274,7 +1321,7 @@ const doAnimPath = (num) => {
         }
     }else{
         if(characters[num].isProgressive){
-            if(chrCM[characters[num].path].split('_')[0] == currentCam || chrCM[characters[num].path - 1].split('_')[0] == currentCam){
+            if(chrCM[characters[num].path].split("_")[0] == currentCam || chrCM[characters[num].path - 1].split("_")[0] == currentCam){
                 changeCam(currentCam)
             }
         }else{
@@ -1286,17 +1333,17 @@ const doAnimPath = (num) => {
 }
 
 const animCamera = () => {
-    document.querySelector('.character-contain').innerHTML = ``
+    document.querySelector(".character-contain").innerHTML = ``
     for(let i = 0; i < characters.length; i++){
         if(characters[i].difficulty[`night${currentNight}`] !== 0){
             if(Object.keys(characters[i].pathFind)[characters[i].path] == currentCam){
-                document.querySelector('.character-contain').innerHTML += `<div class="${characters[i].name}-character character"></div>`
+                document.querySelector(".character-contain").innerHTML += `<div class="${characters[i].name}-character character"></div>`
                 document.querySelector(`.${characters[i].name}-character`).style.background = `url(${characters[i].pathFind[currentCam].image})`
                 document.querySelector(`.${characters[i].name}-character`).style.backgroundSize = `100% 100%`
                 document.querySelector(`.${characters[i].name}-character`).style.left = `${characters[i].pathFind[currentCam].pos[0]}%`
                 document.querySelector(`.${characters[i].name}-character`).style.top = `${characters[i].pathFind[currentCam].pos[1]}%`
-            }else if(Object.keys(characters[i].pathFind)[characters[i].path].split('_')[0] == currentCam){
-                document.querySelector('.character-contain').innerHTML += `<div class="${characters[i].name}-character character"></div>`
+            }else if(Object.keys(characters[i].pathFind)[characters[i].path].split("_")[0] == currentCam){
+                document.querySelector(".character-contain").innerHTML += `<div class="${characters[i].name}-character character"></div>`
                 document.querySelector(`.${characters[i].name}-character`).style.background = `url(${characters[i].pathFind[`${currentCam}_0${characters[i].path}`].image})`
                 document.querySelector(`.${characters[i].name}-character`).style.backgroundSize = `100% 100%`
                 document.querySelector(`.${characters[i].name}-character`).style.left = `${characters[i].pathFind[`${currentCam}_0${characters[i].path}`].pos[0]}%`
@@ -1380,7 +1427,7 @@ const doRTimer = () => {
             stopRT("win")
         }else{
             if(!powerOutage){
-                document.querySelector('.time').innerHTML = `${doTimerHour(gameTime)}:${doTimerSec(Math.floor(((gameTime * 6) % 360) / 6))} AM`
+                document.querySelector(".time").innerHTML = `${doTimerHour(gameTime)}:${doTimerSec(Math.floor(((gameTime * 6) % 360) / 6))} AM`
                 tabName.innerHTML = `${doTimerHour(gameTime)}:${doTimerSec(Math.floor(((gameTime * 6) % 360) / 6))} AM`
             }
         }
@@ -1393,14 +1440,14 @@ const doPowerCount = () => {
     if(!powerOutage){
             powerInterval = setInterval(() => {
             if(power !== Infinity){
-                document.querySelector('.power-number').innerHTML = `${Math.floor(power / 10)}%`
+                document.querySelector(".power-number").innerHTML = `${Math.floor(power / 10)}%`
                 power--
                 if(power == 0){
                     doPowerOutage()
                     return
                 }
             }else{
-                document.querySelector('.power-number').innerHTML = `∞%`
+                document.querySelector(".power-number").innerHTML = `∞%`
             }
         }, (1000 / powerUsage) * gameSpeed);
         doPowerBar()
@@ -1408,9 +1455,9 @@ const doPowerCount = () => {
 }
 
 const doPowerBar = () => {
-    document.querySelector('.usage').innerHTML = ``
+    document.querySelector(".usage").innerHTML = ``
     for(let i = 0; i < powerUsage; i++){
-        document.querySelector('.usage').innerHTML += `<div></div>`
+        document.querySelector(".usage").innerHTML += `<div></div>`
     }
 }
 
@@ -1429,21 +1476,25 @@ const doPowerOutage = () => {
     if(camTabOpen && cameraMO){
         enableCams()
     }
+    if(leftDoorClose){
+        leftDoorClose = false
+        doDoorClose(leftDoorClose, "door-left", "door-button-left")
+    }
+    if(rightDoorClose){
+        rightDoorClose = false
+        doDoorClose(rightDoorClose, "door-right", "door-button-right")
+    }
     powerOutage = true
-    leftDoorClose = false
-    rightDoorClose = false
     gamePlay.style.filter = `brightness(0.1)`
     document.querySelector(".power").style.display = `none`
     document.querySelector(".cam-hover").style.display = `none`
     document.querySelector(".timer").style.display = `none`
-    doDoorClose(leftDoorClose, "door-left", "door-button-left")
-    doDoorClose(rightDoorClose, "door-right", "door-button-right")
     tabName.innerHTML = `0% Power`
     doFlash("officeMove")
     clearInterval(powerInterval)
-    doSoundPlay("ambienceSounds", "offAmbience", "play")
-    doSoundPlay("ambienceSounds", "off20Ambience", "play")
-    doSoundPlay("gameSounds", "powerOutage", "play")
+    doSoundPlay("ambienceSounds", "offAmbience", "stop")
+    doSoundPlay("ambienceSounds", "off20Ambience", "stop")
+    doSoundPlay("gameSounds", "powerOutageSFX", "play")
 }
 
 //--EXTRA FUNCTIONS
@@ -1458,7 +1509,7 @@ const doExtra = () => {
         <div class="scene-show"></div>`
 
     for(let i = 0; i < extras[0].extraOp.length; i++){
-        document.querySelector('.nav-selector').innerHTML += `<p class="${extras[0].extraOp[i].class} text">${extras[0].extraOp[i].name}</p>`
+        document.querySelector(".nav-selector").innerHTML += `<p class="${extras[0].extraOp[i].class} text">${extras[0].extraOp[i].name}</p>`
     }
 
     gamePlay.style.background = `url(files/images/camera/static.gif)`
@@ -1468,34 +1519,34 @@ const doExtra = () => {
     changeEXTPic("early", pictures)
     doSoundPlay("ambienceSounds", "extTheme", "play")
 
-    document.querySelectorAll('.text').forEach(btn => {
+    document.querySelectorAll(".text").forEach(btn => {
         btn.addEventListener("mouseover", () => {
-            doSoundPlay("gameSounds", "click", "play")
+            doSoundPlay("gameSounds", "click", "loadPlay")
         });
     });
 
-    document.querySelector('.CHR').addEventListener("click", (event) => {
+    document.querySelector(".CHR").addEventListener("click", (event) => {
         doEXTOpt(characterPic, event.currentTarget.textContent)
         changeEXTPic("early", pictures)
     });
 
-    document.querySelector('.SCN').addEventListener("click", (event) => {
+    document.querySelector(".SCN").addEventListener("click", (event) => {
         doEXTOpt(scenePic, event.currentTarget.textContent)
         changeEXTPic("early", pictures)
     });
 
-    document.querySelector('.CTN').addEventListener("click", (event) => {
+    document.querySelector(".CTN").addEventListener("click", (event) => {
         doEXTOpt(scenePic, event.currentTarget.textContent)
         changeCTN()
     });
 
-    document.querySelector('.CHT').addEventListener("click", (event) => {
+    document.querySelector(".CHT").addEventListener("click", (event) => {
         doEXTOpt(scenePic, event.currentTarget.textContent)
         changeCHT()
     });
 
 
-    document.querySelector('.EXT').addEventListener("click", () => {
+    document.querySelector(".EXT").addEventListener("click", () => {
         doMenu()
     });
 }
@@ -1524,15 +1575,15 @@ const changeEXTPic = (type, pic) => {
                 <div class="scene-container"></div>
             </div>`
         
-        document.querySelector('.arrow-left').addEventListener("click", () => {
+        document.querySelector(".arrow-left").addEventListener("click", () => {
             changeEXTPic("left", pictures)
         });
 
-        document.querySelector('.arrow-right').addEventListener("click", () => {
+        document.querySelector(".arrow-right").addEventListener("click", () => {
             changeEXTPic("right", pictures)
         });
     }else{
-        doSoundPlay("gameSounds", "click", "play")
+        doSoundPlay("gameSounds", "click", "loadPlay")
     }
     if(type == "left"){
         picCount--
@@ -1654,7 +1705,7 @@ const changeCTN = () => {
     });
     
     document.querySelector(".cn-begin").addEventListener("click", () => {
-        let eGNums = easterEgg.toString().split('')
+        let eGNums = easterEgg.toString().split("")
         if(
             characters[0].difficulty.night7 == eGNums[0] &&
             characters[1].difficulty.night7 == eGNums[1] &&
@@ -1670,7 +1721,7 @@ const changeCTN = () => {
 
 const changeCTNValue = (data, type) => {
     if(data.difficulty.night7 > Math.min(Math.max(data.difficulty.night7, 0), 20) || data.difficulty.night7 < Math.min(Math.max(data.difficulty.night7, 0), 20)){}else if(type == "early"){}else{
-        doSoundPlay("gameSounds", "click", "play")
+        doSoundPlay("gameSounds", "click", "loadPlay")
     }
     data.difficulty.night7 = Math.min(Math.max(data.difficulty.night7, 0), 20)
     document.querySelector(`.${data.name}-dif-text`).innerHTML = `${data.difficulty.night7}`
@@ -1710,33 +1761,33 @@ const changeCHT = () => {
             </div>`
 
     for(let i = 0;i < extras[0].cheats.length; i++){
-        document.querySelector('.cheats').innerHTML += `
+        document.querySelector(".cheats").innerHTML += `
                 <div class="row ${extras[0].cheats[i].class} row-hover">
                     <div class="switch"></div><p class="cheat-text">${extras[0].cheats[i].text}</p>
                 </div>`
         if(extras[0].cheats[i].enable){
-            document.querySelector(`.${extras[0].cheats[i].class}`).classList.add('enabled')
+            document.querySelector(`.${extras[0].cheats[i].class}`).classList.add("enabled")
         }
     }
 
-    document.querySelector('.tgl-cheats').addEventListener("click", () => {
+    document.querySelector(".tgl-cheats").addEventListener("click", () => {
         for(let i = 0; i < extras[0].cheats.length; i++){
             changeCHTEnable(extras[0].cheats[i].class, i)
         }
     });
 
-    document.querySelector('.fstngt').addEventListener("click", () => {
+    document.querySelector(".fstngt").addEventListener("click", () => {
         changeCHTEnable("fstngt", 0)
     });
 
-    document.querySelector('.unltpw').addEventListener("click", () => {
+    document.querySelector(".unltpw").addEventListener("click", () => {
         changeCHTEnable("unltpw", 1)
     });
 }
 
 const changeCHTEnable = (cl, num) => {
-    doSoundPlay("gameSounds", "click", "play")
-    document.querySelector(`.${cl}`).classList.toggle('enabled')
+    doSoundPlay("gameSounds", "click", "loadPlay")
+    document.querySelector(`.${cl}`).classList.toggle("enabled")
     extras[0].cheats[num].enable = !extras[0].cheats[num].enable
 }
 
@@ -1753,21 +1804,25 @@ const konamiFunc = (word, event) => {
     }
 }
 
-document.addEventListener('keydown', function(event) {
-    if(event.key == 'Escape' && officeView){
-        doPause()
+document.addEventListener("keydown", function(event) {
+    if(event.key == "Escape"){
+        if(settingsView){
+            doSettings()
+        }else if(officeView){
+            doPause()
+        }
     }
-    if(event.key == 'Enter' && viewEnding){
+    if(event.key == "Enter" && viewEnding){
         doEnding("skip")
     }
     if(officeView){
         if(!pauseView){
-            if(event.key == 'w' && officeView && !camSEnable && !officeLightDelay){
+            if(event.key == "w" && officeView && !camSEnable && !officeLightDelay){
                 doFlash()
-            }else if(event.key == 'a' && officePos <= 30){
+            }else if(event.key == "a" && officePos <= 30){
                 leftDoorClose = !leftDoorClose
                 doDoorClose(leftDoorClose, "door-left", "door-button-left")
-            }else if(event.key == 'd' && officePos >= 70){
+            }else if(event.key == "d" && officePos >= 70){
                 rightDoorClose = !rightDoorClose
                 doDoorClose(rightDoorClose, "door-right", "door-button-right")
             }
@@ -1781,3 +1836,4 @@ document.addEventListener('keydown', function(event) {
 })
 
 doMenu()
+doSettings()
