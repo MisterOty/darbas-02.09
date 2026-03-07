@@ -28,7 +28,6 @@ let characters = [
     {
         name: "Speedster",
         mMImage: "files/images/characters/justas.png",
-        tauntSFX: ["files/sounds/sfx/characters/justas/taunt01.mp3"],
         jumpScareSFX: "files/sounds/sfx/characters/justas/jumpscare.mp3",
         path: 0,
         isProgressive: false,
@@ -71,7 +70,6 @@ let characters = [
     {
         name: "Bonepart",
         mMImage: "files/images/characters/kajus.png",
-        tauntSFX: ["files/sounds/sfx/characters/kajus/taunt01.mp3", "files/sounds/sfx/characters/kajus/taunt02.mp3"],
         jumpScareSFX: "files/sounds/sfx/characters/kajus/jumpscare.mp3",
         path: 0,
         isProgressive: false,
@@ -110,7 +108,6 @@ let characters = [
     {
         name: "BusinessMan",
         mMImage: "files/images/characters/saulius.png",
-        tauntSFX: ["files/sounds/sfx/characters/saulius/taunt01.mp3", "files/sounds/sfx/characters/saulius/taunt02.mp3"],
         jumpScareSFX: "files/sounds/sfx/characters/saulius/jumpscare.mp3",
         path: 0,
         isProgressive: false,
@@ -149,7 +146,6 @@ let characters = [
     {
         name: "HelloWorld",
         mMImage: "files/images/characters/giedrius.png",
-        tauntSFX: ["files/sounds/sfx/characters/giedrius/taunt01.mp3"],
         jumpScareSFX: "files/sounds/sfx/characters/giedrius/jumpscare.mp3",
         path: 0,
         isProgressive: true,
@@ -245,16 +241,20 @@ let cameras = {
     first: {
         a1: "Hallway A1",
         a2: "Hallway A2",
-        b2: "Hallway B2",
-        r01: "Room 101",
-        r02: "Room 102",
-        r05: "Room 105",
-        r06: "Room 106"
+        t1: "Toilet Hallway",
+        q1: "Question Room",
+        r11: "Room 101",
+        r12: "Room 102",
+        r13: "Room 103",
+        r14: "Room 104"
     },
     second: {
         b1: "Hallway B1",
-        r03: "Room 103",
-        r04: "Room 104",
+        r21: "Room 201",
+        r22: "Room 202",
+        r23: "Room 203",
+        r24: "Room 204",
+        r25: "Room 205",
     },
 }
 
@@ -278,24 +278,34 @@ const gamePlay = document.querySelector("main")
 const copyRight = document.querySelector("footer")
 const pauseDiv = document.querySelector(".pause-div")
 
-let volumeControl = {
-    masterVolume: {
-        text: "Master Volume",
-        value: 0.1
+let settingsMenu = {
+    gameplayControl: {
+        reduceFL: {
+            text: "Reduce Flashing Lights",
+            value: false
+        }
     },
-    gameVolume: {
-        text: "Game Volume",
-        value: 1
-    },
-    characterVolume: {
-        text: "Character Volume",
-        value: 1
-    },
-    ambienceVolume: {
-        text: "Ambience Volume",
-        value: 1
+    volumeControl: {
+        masterVolume: {
+            text: "Master Volume",
+            value: 1
+        },
+        gameVolume: {
+            text: "Game Volume",
+            value: 1
+        },
+        characterVolume: {
+            text: "Character Volume",
+            value: 1
+        },
+        ambienceVolume: {
+            text: "Ambience Volume",
+            value: 1
+        }
     }
 }
+
+settingsMenu.volumeControl.masterVolume.value = 0.1
 
 let soundEffects = {
     gameSounds: {
@@ -309,8 +319,10 @@ let soundEffects = {
         sixAM: new Audio("files/sounds/sfx/6am.mp3"),
     },
     characterSounds: {
-        jumpSFX: new Audio("files/sounds/sfx/cam_change.mp3"),
+        footsteps: new Audio("files/sounds/sfx/footsteps.mp3"),
+        teleport: new Audio("files/sounds/sfx/teleport.mp3"),
         goldenRobert: new Audio("files/sounds/sfx/goldenrobertscream.mp3"),
+        jumpSFX: new Audio(""),
         phoneCall: new Audio(""),
     },
     ambienceSounds: {
@@ -326,13 +338,12 @@ let gameSpeed = 1;
 let gameTime = 0;
 let power = 1000;
 let powerUsage = 1;
-let officePos = 50;
 let currentNight = 0;
+let cameraFloor = 0;
+let officePos = 50;
 let secretCount = 0;
 let picCount = 0;
-let volume = 1;
 let easterEgg = 2067;
-let cameraFloor = 0;
 
 let allAudio = []
 let movementInterval = []
@@ -369,13 +380,13 @@ let callSFX
 
 const doSoundPlay = (category, sound, type, isLoop) => {
     let audio = soundEffects[category][sound]
-    let master = volumeControl.masterVolume.value
+    let master = settingsMenu.volumeControl.masterVolume.value
     if(category == "gameSounds"){
-        audio.volume = volumeControl.gameVolume.value * master
+        audio.volume = settingsMenu.volumeControl.gameVolume.value * master
     }else if(category == "characterSounds"){
-        audio.volume = volumeControl.characterVolume.value * master
+        audio.volume = settingsMenu.volumeControl.characterVolume.value * master
     }else if(category == "ambienceSounds"){
-        audio.volume = volumeControl.ambienceVolume.value * master
+        audio.volume = settingsMenu.volumeControl.ambienceVolume.value * master
     }
     if(type == "play"){
         audio.play()
@@ -383,8 +394,8 @@ const doSoundPlay = (category, sound, type, isLoop) => {
         audio.load()
         audio.play()
     }else if(type == "stop"){
-        audio.currentTime = 0
         audio.pause()
+        audio.currentTime = 0
     }else if(type == "pause"){
         audio.pause()
     }
@@ -416,8 +427,11 @@ const clearMain = () => {
     if(powerOutage){
         powerOutage = false
     }
-    if(soundEffects.characterSounds.phoneCall !== new Audio(``)){
-        soundEffects.characterSounds.phoneCall = new Audio(``)
+    if(soundEffects.characterSounds.jumpSFX !== new Audio("")){
+        soundEffects.characterSounds.jumpSFX = new Audio("")
+    }
+    if(soundEffects.characterSounds.phoneCall !== new Audio("")){
+        soundEffects.characterSounds.phoneCall = new Audio("")
     }
     gameSpeed = 1
     gameTime = 0
@@ -680,8 +694,8 @@ const doOffice = () => {
 
         document.querySelector(".call-button").addEventListener("click", () => {
             document.querySelector(".call-button").style.display = `none`
-            soundEffects.characterSounds.phoneCall = new Audio("")
             doSoundPlay("characterSounds", "phoneCall", "stop")
+            soundEffects.characterSounds.phoneCall = new Audio("")
         });
     }
     if(twentyMode){
@@ -871,7 +885,6 @@ const doGameOver = () => {
         </div>`
     tabName.innerHTML = `Game Over`
     setTimeout(() => {
-        clearMain()
         gamePlay.innerHTML = `<div class="gameOver"></div>`
         tabName.innerHTML = `GAME OVER`
     }, 2000);
@@ -949,33 +962,33 @@ const doSettings = () => {
 const doVolumeSlider = (div) => {
     div.innerHTML += `<div class="volume-slider-master"></div>`
         document.querySelector(`.volume-slider-master`).innerHTML += `
-        <div class="volume-main ${Object.keys(volumeControl)[0]}">
-                <p>${volumeControl[Object.keys(volumeControl)[0]].text}</p>
-                <input type="number" id="volume-input-${Object.keys(volumeControl)[0]}" min="0"/><p>%</p>
+        <div class="volume-main ${Object.keys(settingsMenu.volumeControl)[0]}">
+                <p>${settingsMenu.volumeControl[Object.keys(settingsMenu.volumeControl)[0]].text}</p>
+                <input type="number" id="volume-input-${Object.keys(settingsMenu.volumeControl)[0]}" min="0"/><p>%</p>
                 <p class="volume-button volume-add">+</p>
                 <p class="volume-button volume-remove">-</p>
         </div>`
     div.innerHTML += `<div class="volume-slider"></div>`
-    for(let i = 1; i < Object.keys(volumeControl).length; i++){
+    for(let i = 1; i < Object.keys(settingsMenu.volumeControl).length; i++){
         document.querySelector(`.volume-slider`).innerHTML += `
-            <div class="volume-main ${Object.keys(volumeControl)[i]}">
-                    <p>${volumeControl[Object.keys(volumeControl)[i]].text}</p>
-                    <input type="number" id="volume-input-${Object.keys(volumeControl)[i]}" min="0"/><p>%</p>
+            <div class="volume-main ${Object.keys(settingsMenu.volumeControl)[i]}">
+                    <p>${settingsMenu.volumeControl[Object.keys(settingsMenu.volumeControl)[i]].text}</p>
+                    <input type="number" id="volume-input-${Object.keys(settingsMenu.volumeControl)[i]}" min="0"/><p>%</p>
                     <p class="volume-button volume-add">+</p>
                     <p class="volume-button volume-remove">-</p>
             </div>`
     }
 
-    for(let i = 0; i < Object.keys(volumeControl).length; i++){
-        doVolumeChange("start", `${Object.keys(volumeControl)[i]}`, volumeControl[Object.keys(volumeControl)[i]].value)
+    for(let i = 0; i < Object.keys(settingsMenu.volumeControl).length; i++){
+        doVolumeChange("start", `${Object.keys(settingsMenu.volumeControl)[i]}`, settingsMenu.volumeControl[Object.keys(settingsMenu.volumeControl)[i]].value)
 
-        document.querySelector(`.${Object.keys(volumeControl)[i]}`).addEventListener("input", () => {
-            doVolumeChange("typein", Object.keys(volumeControl)[i], volumeControl[Object.keys(volumeControl)[i]].value)
+        document.querySelector(`.${Object.keys(settingsMenu.volumeControl)[i]}`).addEventListener("input", () => {
+            doVolumeChange("typein", Object.keys(settingsMenu.volumeControl)[i], settingsMenu.volumeControl[Object.keys(settingsMenu.volumeControl)[i]].value)
         });
 
-        document.querySelectorAll(`.${Object.keys(volumeControl)[i]} .volume-button`).forEach(btn => {
+        document.querySelectorAll(`.${Object.keys(settingsMenu.volumeControl)[i]} .volume-button`).forEach(btn => {
             btn.addEventListener("click", () => {
-                doVolumeChange(btn.textContent, Object.keys(volumeControl)[i], volumeControl[Object.keys(volumeControl)[i]].value)
+                doVolumeChange(btn.textContent, Object.keys(settingsMenu.volumeControl)[i], settingsMenu.volumeControl[Object.keys(settingsMenu.volumeControl)[i]].value)
             });
         });
     }
@@ -1002,7 +1015,7 @@ const doVolumeChange = (type, classVolume, value) => {
     }
     tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
     document.querySelector(`.${classVolume} #volume-input-${classVolume}`).value = tempValue
-    volumeControl[classVolume].value = tempValue / 100
+    settingsMenu.volumeControl[classVolume].value = tempValue / 100
     doSoundPlay("gameSounds", "click", "loadPlay")
     if(classVolume !== "masterVolume"){
         for(let i = 0; i < Object.keys(soundEffects[`${classVolume.split("Volume")[0]}Sounds`]).length; i++){
@@ -1018,7 +1031,27 @@ const doVolumeChange = (type, classVolume, value) => {
 }
 
 const doGameplayChange = (div) => {
-    console.log("wip")
+    div.innerHTML += `<div class="gpSettings-master"></div>`
+    for(let i = 0; i < Object.keys(settingsMenu.gameplayControl).length; i++){
+        document.querySelector(`.gpSettings-master`).innerHTML += `
+            <div class="gpSetting ${Object.keys(settingsMenu.gameplayControl)[i]}">
+                    <p>${settingsMenu.gameplayControl[Object.keys(settingsMenu.gameplayControl)[i]].text}</p><div class="switch"></div>
+            </div>`
+        if(settingsMenu.gameplayControl[Object.keys(settingsMenu.gameplayControl)[i]].value){
+            document.querySelector(`.${Object.keys(settingsMenu.gameplayControl)[i]} .switch`).classList.add("enabled")
+        }
+    }
+    document.querySelectorAll(`.gpSettings-master .gpSetting`).forEach(btn => {
+        btn.addEventListener("click", (event) => {
+            doGPSwitch(event.currentTarget.classList[1])
+        });
+    });
+}
+
+const doGPSwitch = (classDiv) => {
+    settingsMenu.gameplayControl[classDiv].value = !settingsMenu.gameplayControl[classDiv].value
+    document.querySelector(`.${classDiv} .switch`).classList.toggle("enabled")
+    doSoundPlay("gameSounds", "click", "loadPlay")
 }
 
 //OFFICE FUNCTIONS
@@ -1083,7 +1116,7 @@ const doDoorClose = (type, door, button) => {
 const doJumpscare = (char) => {
     stopMoveTimeout()
     let time = 50
-    jumpSFX = new Audio(`${char.jumpScareSFX}`)
+    soundEffects.characterSounds.jumpSFX = new Audio(`${char.jumpScareSFX}`)
     if(camSEnable){
         enableCams()
         camTabOpen = !camTabOpen
@@ -1111,13 +1144,17 @@ const doJumpscare = (char) => {
             jumpScareTimeout = setTimeout(() => {
                 div.style.rotate = `15deg`
                 div.style.backgroundSize = `75% 75%`
-                gamePlay.style.filter = `contrast(5) brightness(5) invert(1)`
+                if(!settingsMenu.gameplayControl.reduceFL.value){
+                    gamePlay.style.filter = `contrast(5) brightness(5) invert(1)`
+                }
             }, i * time);
         }else{
             jumpScareTimeout = setTimeout(() => {
                 div.style.rotate = `-15deg`
                 div.style.backgroundSize = `50% 50%`
-                gamePlay.style.filter = `contrast(1) brightness(0.2) invert(0)`
+                if(!settingsMenu.gameplayControl.reduceFL.value){
+                    gamePlay.style.filter = `contrast(1) brightness(0.2) invert(0)`
+                }
             }, i * time);
         }
     }
@@ -1211,7 +1248,7 @@ const changeCam = (cam) => {
     document.querySelector(".cam-change").style.display = `block`
     camEffect = setTimeout(() => {
         document.querySelector(".cam-change").style.display = `none`
-        document.querySelector(".screen").style.background = `url(files/images/camera/${cam}.png)`
+        document.querySelector(".screen").style.background = `url(files/images/camera/images/${cam}.png)`
         document.querySelector(".screen").style.backgroundSize = `100% 100%`
         animCamera()
     }, 50);
@@ -1285,13 +1322,10 @@ const doAnimPath = (num) => {
         }else if(Object.values(characters[num].pathFind)[characters[num].path].pos == "right" && !rightDoorClose){
             doJumpscare(characters[num])
         }else{
-            let randomTaunt = Math.floor(Math.random() * characters[num].tauntSFX.length);
-            let audio = new Audio(`${characters[num].tauntSFX[randomTaunt]}`)
             characters[num].path = 0
             animOffice(num, "first")
             document.querySelector(`.${characters[num].name}-office`).remove()
-            audio.volume = volume
-            audio.play()
+            doSoundPlay("characterSounds", "teleport", "play")
         }
     }else{
         let rng = Math.floor(Math.random() * 100) + 1;
@@ -1318,6 +1352,7 @@ const doAnimPath = (num) => {
                 }
             }
             animOffice(num, "first")
+            doSoundPlay("characterSounds", "footsteps", "play")
         }
     }else{
         if(characters[num].isProgressive){
@@ -1835,5 +1870,5 @@ document.addEventListener("keydown", function(event) {
     konamiFunc(konamiCode, event.key)
 })
 
-doMenu()
-doSettings()
+// doMenu()
+// doSettings()
