@@ -521,7 +521,7 @@ footer{
     display: flex;
     position: absolute;
     justify-content: space-between;
-    width: 50%;
+    width: 80%;
     bottom: 0;
 }
 
@@ -754,6 +754,8 @@ footer p{
 }
 
 .arrow{
+    filter: brightness(0.5);
+    transition: filter 0.125s;
     width: auto;
     height: 3vmax;
     padding: 1%;
@@ -765,6 +767,10 @@ footer p{
     margin: 2%;
     z-index: 1;
     top: 15%;
+}
+
+.arrow:hover{
+    filter: brightness(1)
 }
 
 .arrow-left{
@@ -963,7 +969,7 @@ footer p{
 }
 
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{-webkit-appearance: none}
-input[type=number]{-moz-appearance: textfield}
+/* input[type=number]{-moz-appearance: textfield} */
 
 .text:hover, .gpSetting:hover, .button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .character-img:hover, .door-button-left:hover, .door-button-right:hover, .light-div:hover, .pause-button:hover, .change-floor-button:hover, .call-button:hover, .volume-button:hover{
     cursor: pointer;

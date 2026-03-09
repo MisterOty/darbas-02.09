@@ -183,12 +183,6 @@ let characters = [
     }
 ]
 
-let pictures = []
-
-let characterPic = []
-
-let scenePic = [ "files/images/office/office_front.png", "files/images/camera/radar0.png", "files/images/camera/radar1.png"]
-
 let cameras = {
     first: {
         a1: "Hallway A1",
@@ -210,16 +204,20 @@ let cameras = {
     },
 }
 
+let characterPic = []
+
+let scenePic = [ "files/images/office/office_front.png", "files/images/camera/radar0.png", "files/images/camera/radar1.png"]
+
 for(let i = 0;i < characters.length; i++){
     characterPic.push(characters[i].mMImage)
 }
 
 for(let i = 0;i < Object.keys(cameras.first).length; i++){
-    scenePic.push(`files/images/camera/${Object.keys(Object.values(cameras)[0])[i]}.png`)
+    scenePic.push(`files/images/camera/images/${Object.keys(Object.values(cameras)[0])[i]}.png`)
 }
 
 for(let i = 0;i < Object.keys(cameras.second).length; i++){
-    scenePic.push(`files/images/camera/${Object.keys(Object.values(cameras)[1])[i]}.png`)
+    scenePic.push(`files/images/camera/images/${Object.keys(Object.values(cameras)[1])[i]}.png`)
 }
 
 let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
@@ -289,10 +287,6 @@ let extras = {
     {
         name: "Cheats",
         class: "CHT",
-    },
-    {
-        name: "Exit",
-        class: "EXT",
     }],
     cheats: [{
         text: "Faster Nights",
@@ -343,6 +337,7 @@ let officePos = 50;
 let secretCount = 0;
 let picCount = 0;
 let settingCount = 0;
+let extraSelectCount = 0;
 let extraCount = 0;
 let easterEgg = 2067;
 
@@ -1570,16 +1565,19 @@ const doExtra = () => {
             </div>
         <div class="scene-show"></div>`
 
-    for(let i = 0; i < extras.extraOp.length; i++){
-        document.querySelector(".nav-selector").innerHTML += `<p class="${extras.extraOp[i].class} text">${extras.extraOp[i].name}</p>`
+    for(let i = 0; i <= extras.extraOp.length; i++){
+        if(i !== extras.extraOp.length){
+            document.querySelector(".nav-selector").innerHTML += `<p class="${extras.extraOp[i].class} text">${extras.extraOp[i].name}</p>`
+        }else{
+            document.querySelector(".nav-selector").innerHTML += `<p class="Exit text">Exit</p>`
+        }
     }
 
     gamePlay.style.background = `url(files/images/camera/static.gif)`
     gamePlay.style.backgroundSize = `100% 100%`
 
-    doEXTOpt(characterPic, "Characters")
-    changeEXTPic("early", pictures)
-    doSoundPlay("ambienceSounds", "extTheme", "play")
+    doExtraSelect(extraSelectCount)
+    doSoundPlay("ambienceSounds", "extTheme", "play", true)
 
     document.querySelectorAll(".text").forEach(btn => {
         btn.addEventListener("mouseover", () => {
@@ -1587,44 +1585,50 @@ const doExtra = () => {
         });
     });
 
-    document.querySelector(".CHR").addEventListener("click", (event) => {
-        doEXTOpt(characterPic, event.currentTarget.textContent)
-        changeEXTPic("early", pictures)
-    });
-
-    document.querySelector(".SCN").addEventListener("click", (event) => {
-        doEXTOpt(scenePic, event.currentTarget.textContent)
-        changeEXTPic("early", pictures)
-    });
-
-    document.querySelector(".CTN").addEventListener("click", (event) => {
-        doEXTOpt(scenePic, event.currentTarget.textContent)
-        changeCTN()
-    });
-
-    document.querySelector(".CHT").addEventListener("click", (event) => {
-        doEXTOpt(scenePic, event.currentTarget.textContent)
-        changeCHT()
-    });
-
-    document.querySelector(".EXT").addEventListener("click", () => {
-        doMenu()
+    document.querySelector(".nav-selector").addEventListener("click", (event) => {
+        let children = document.querySelector(".nav-selector").children
+        let number = Array.from(children).indexOf(event.target)
+        doExtraSelect(number)
     });
 }
 
-const doEXTOpt = (type, name) => {
-    picCount = 0
-    pictures = type
-    for(let i = 0; i < extras.extraOp.length; i++){
-        if(name == extras.extraOp[i].name){
-            extraText = extras.extraOp[i].name
-            tabName.innerHTML = extras.extraOp[i].name
+const doExtraSelect = (num) => {
+    if(extras.extraOp.length > num){
+        let child = Array.from(document.querySelector(".nav-selector").children)
+        for(let i = 0; i < extras.extraOp.length; i++){
+            if(child[i].classList.contains("enabled")){
+                child[i].classList.toggle("enabled")
+                child[i].classList.toggle("text")
+            }
         }
+        extraSelectCount = num
+        child[num].classList.toggle("enabled")
+        child[num].classList.toggle("text")
+        extraText = Object.values(extras.extraOp)[num].name
+        tabName.innerHTML = Object.values(extras.extraOp)[num].name
+    }
+    switch(num){
+        case 0:
+            changeEXTPic("early", characterPic)
+            break
+        case 1:
+            changeEXTPic("early", scenePic)
+            break
+        case 2:
+            changeCTN()
+            break
+        case 3:
+            changeCHT()
+            break
+        default:
+        doMenu()
     }
 }
 
 const changeEXTPic = (type, pic) => {
     if(type == "early"){
+        picCount = 0
+        pictures = pic
         document.querySelector(".scene-show").innerHTML = `
             <div class="top-bar">
                 <div class="scene-num"></div>
@@ -1637,11 +1641,11 @@ const changeEXTPic = (type, pic) => {
             </div>`
         
         document.querySelector(".arrow-left").addEventListener("click", () => {
-            changeEXTPic("left", pictures)
+            changeEXTPic("left")
         });
 
         document.querySelector(".arrow-right").addEventListener("click", () => {
-            changeEXTPic("right", pictures)
+            changeEXTPic("right")
         });
     }else{
         doSoundPlay("gameSounds", "click", "loadPlay")
@@ -1652,21 +1656,21 @@ const changeEXTPic = (type, pic) => {
         picCount++
     }
     if(picCount == -1){
-        picCount = pic.length - 1
-    }else if(picCount == pic.length){
+        picCount = pictures.length - 1
+    }else if(picCount == pictures.length){
         picCount = 0
     }
-    document.querySelector(".scene-container").innerHTML = `<a target="_blank" href="${pic[picCount]}"><div class="scene"></div></a>`
+    document.querySelector(".scene-container").innerHTML = `<a target="_blank" href="${pictures[picCount]}"><div class="scene"></div></a>`
     if(extraText == "Characters"){
-        document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pic.length} - ${characters[picCount].name}`
+        document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pictures.length} - ${characters[picCount].name}`
     }else{
         let splitTitle = pic[picCount].split("/")
         let splitName = splitTitle[splitTitle.length - 1]
         splitName = splitName.split(".")
         let name = splitName[0]
-        document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pic.length} - ${name}`
+        document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pictures.length} - ${name}`
     }
-    document.querySelector(".scene").style.background = `url(${pic[picCount]})`
+    document.querySelector(".scene").style.background = `url(${pictures[picCount]})`
     document.querySelector(".scene").style.backgroundSize = `contain`
     document.querySelector(".scene").style.backgroundPosition = `center`
     document.querySelector(".scene").style.backgroundRepeat = `no-repeat`
@@ -1896,7 +1900,4 @@ document.addEventListener("keydown", function(event) {
     konamiFunc(konamiCode, event.key)
 })
 
-// doMenu()
-doOffice()
-doPause()
-doSettings()
+doMenu()
