@@ -183,54 +183,6 @@ let characters = [
     }
 ]
 
-let extras = [{
-    extraOp: [{
-        name: "Characters",
-        class: "CHR",
-    },
-    {
-        name: "Scenes",
-        class: "SCN",
-    },
-    {
-        name: "Custom Night",
-        class: "CTN",
-    },
-    {
-        name: "Cheats",
-        class: "CHT",
-    },
-    {
-        name: "Exit",
-        class: "EXT",
-    }],
-    cheats: [{
-        text: "Faster Nights",
-        class: "fstngt",
-        enable: false
-    },
-    {
-        text: "Unlimited Power",
-        class: "unltpw",
-        enable: false
-    }]
-}]
-
-let settings = [
-    {
-        name: "Gameplay",
-        class: "CHR",
-    },
-    {
-        name: "Audio",
-        class: "SCN",
-    },
-    {
-        name: "Exit",
-        class: "EXT",
-    }
-]
-
 let pictures = []
 
 let characterPic = []
@@ -286,7 +238,7 @@ let settingsMenu = [
             reduceFL: {
                 text: "Reduce Flashing Lights",
                 value: false
-            }
+            },
         }
     },
     {
@@ -310,10 +262,49 @@ let settingsMenu = [
                 value: 1
             }
         }
-    }
+    },
+    {
+        name: "Credits",
+        class: "CRD",
+        creditControl: {
+            name: "Oskaras Venzlauskas",
+            class: "GJSM23"
+        }
+    },
 ]
 
-settingsMenu[1].volumeControl.masterVolume.value = 0.1
+let extras = {
+    extraOp: [{
+        name: "Characters",
+        class: "CHR",
+    },
+    {
+        name: "Scenes",
+        class: "SCN",
+    },
+    {
+        name: "Custom Night",
+        class: "CTN",
+    },
+    {
+        name: "Cheats",
+        class: "CHT",
+    },
+    {
+        name: "Exit",
+        class: "EXT",
+    }],
+    cheats: [{
+        text: "Faster Nights",
+        class: "fstngt",
+        enable: false
+    },
+    {
+        text: "Unlimited Power",
+        class: "unltpw",
+        enable: false
+    }]
+}
 
 let soundEffects = {
     gameSounds: {
@@ -351,6 +342,8 @@ let cameraFloor = 0;
 let officePos = 50;
 let secretCount = 0;
 let picCount = 0;
+let settingCount = 0;
+let extraCount = 0;
 let easterEgg = 2067;
 
 let allAudio = []
@@ -387,14 +380,15 @@ let jumpSFX
 let callSFX
 
 const doSoundPlay = (category, sound, type, isLoop) => {
+    let audioObject = settingsMenu.findIndex(item => item.name == "Audio");
     let audio = soundEffects[category][sound]
-    let master = settingsMenu[1].volumeControl.masterVolume.value
+    let master = settingsMenu[audioObject].volumeControl.masterVolume.value
     if(category == "gameSounds"){
-        audio.volume = settingsMenu[1].volumeControl.gameVolume.value * master
+        audio.volume = settingsMenu[audioObject].volumeControl.gameVolume.value * master
     }else if(category == "characterSounds"){
-        audio.volume = settingsMenu[1].volumeControl.characterVolume.value * master
+        audio.volume = settingsMenu[audioObject].volumeControl.characterVolume.value * master
     }else if(category == "ambienceSounds"){
-        audio.volume = settingsMenu[1].volumeControl.ambienceVolume.value * master
+        audio.volume = settingsMenu[audioObject].volumeControl.ambienceVolume.value * master
     }
     if(type == "play"){
         audio.play()
@@ -596,12 +590,12 @@ const doTwentyCheck = () => {
             twentyModeCheck++
         }
     }
-    for(let i = 0; i < extras[0].cheats.length; i++){
-        if(!extras[0].cheats[i].enable){
+    for(let i = 0; i < extras.cheats.length; i++){
+        if(!extras.cheats[i].enable){
             cheatCheck++
         }
     }
-    if(twentyModeCheck == characters.length && cheatCheck == extras[0].cheats.length){
+    if(twentyModeCheck == characters.length && cheatCheck == extras.cheats.length){
         twentyMode = true
     }
 }
@@ -668,10 +662,10 @@ const doOffice = () => {
             </div>
         </div>`
     
-    if(extras[0].cheats[0].enable){
+    if(extras.cheats[0].enable){
         gameSpeed = 0.5
     }
-    if(extras[0].cheats[1].enable){
+    if(extras.cheats[1].enable){
         power = Infinity;
         document.querySelector(".power-number").innerHTML = `∞%`
     }
@@ -942,24 +936,17 @@ const doSettings = () => {
             }
         }
 
-        doGameplayChange(0)
+        doGameplayChange(settingCount)
 
         document.querySelectorAll(".text").forEach(btn => {
             btn.addEventListener("mouseover", () => {
                 doSoundPlay("gameSounds", "click", "loadPlay")
             });
         });
-        //MAKE IT COME FROM PARENT
-        document.querySelectorAll(".text").forEach(btn => {
-            btn.addEventListener("click", (event) => {
-                if(event.target.textContent == "Gameplay"){
-                    doGameplayChange(0)
-                }else if(event.target.textContent == "Audio"){
-                    doGameplayChange(1)
-                }else if(event.target.textContent == "Exit"){
-                    doSettings()
-                }
-            });
+        document.querySelector(".settings-selector").addEventListener("click", (event) => {
+            let children = document.querySelector(".settings-selector").children
+            let number = Array.from(children).indexOf(event.target)
+            doGameplayChange(number)
         });
     }else{
         settingsView = !settingsView
@@ -968,36 +955,65 @@ const doSettings = () => {
     }
 }
 
+const doGameplayChange = (num) => {
+    if(settingsMenu.length > num){
+        let child = Array.from(document.querySelector(".settings-selector").children)
+        for(let i = 0; i < settingsMenu.length; i++){
+            if(child[i].classList.contains("enabled")){
+                child[i].classList.toggle("enabled")
+                child[i].classList.toggle("text")
+            }
+        }
+        document.querySelector(".settings-show").innerHTML = `<h1>${settingsMenu[num].name}</h1>`
+        settingCount = num
+        child[num].classList.toggle("enabled")
+        child[num].classList.toggle("text")
+    }
+    switch(num){
+        case 0:
+            doGPSChange()
+            break
+        case 1:
+            doVolumeSlider()
+            break
+        case 2:
+            doCredits()
+            break
+        default:
+            doSettings()
+    }
+}
+
 const doVolumeSlider = () => {
     document.querySelector(".settings-show").innerHTML += `<div class="volume-slider-master"></div>`
         document.querySelector(`.volume-slider-master`).innerHTML += `
-        <div class="volume-main ${Object.keys(settingsMenu[1].volumeControl)[0]}">
-                <p>${settingsMenu[1].volumeControl[Object.keys(settingsMenu[1].volumeControl)[0]].text}</p>
-                <input type="number" id="volume-input-${Object.keys(settingsMenu[1].volumeControl)[0]}" min="0"/><p>%</p>
+        <div class="volume-main ${Object.keys(settingsMenu[settingCount].volumeControl)[0]}">
+                <p>${settingsMenu[settingCount].volumeControl[Object.keys(settingsMenu[settingCount].volumeControl)[0]].text}</p>
+                <input type="number" id="volume-input-${Object.keys(settingsMenu[settingCount].volumeControl)[0]}" min="0"/><p>%</p>
                 <p class="volume-button volume-add">+</p>
                 <p class="volume-button volume-remove">-</p>
         </div>`
     document.querySelector(".settings-show").innerHTML += `<div class="volume-slider"></div>`
-    for(let i = 1; i < Object.keys(settingsMenu[1].volumeControl).length; i++){
+    for(let i = 1; i < Object.keys(settingsMenu[settingCount].volumeControl).length; i++){
         document.querySelector(`.volume-slider`).innerHTML += `
-            <div class="volume-main ${Object.keys(settingsMenu[1].volumeControl)[i]}">
-                    <p>${settingsMenu[1].volumeControl[Object.keys(settingsMenu[1].volumeControl)[i]].text}</p>
-                    <input type="number" id="volume-input-${Object.keys(settingsMenu[1].volumeControl)[i]}" min="0"/><p>%</p>
+            <div class="volume-main ${Object.keys(settingsMenu[settingCount].volumeControl)[i]}">
+                    <p>${settingsMenu[settingCount].volumeControl[Object.keys(settingsMenu[settingCount].volumeControl)[i]].text}</p>
+                    <input type="number" id="volume-input-${Object.keys(settingsMenu[settingCount].volumeControl)[i]}" min="0"/><p>%</p>
                     <p class="volume-button volume-add">+</p>
                     <p class="volume-button volume-remove">-</p>
             </div>`
     }
 
-    for(let i = 0; i < Object.keys(settingsMenu[1].volumeControl).length; i++){
-        doVolumeChange("start", `${Object.keys(settingsMenu[1].volumeControl)[i]}`, settingsMenu[1].volumeControl[Object.keys(settingsMenu[1].volumeControl)[i]].value)
+    for(let i = 0; i < Object.keys(settingsMenu[settingCount].volumeControl).length; i++){
+        doVolumeChange("start", `${Object.keys(settingsMenu[settingCount].volumeControl)[i]}`, settingsMenu[settingCount].volumeControl[Object.keys(settingsMenu[settingCount].volumeControl)[i]].value)
 
-        document.querySelector(`.${Object.keys(settingsMenu[1].volumeControl)[i]}`).addEventListener("input", () => {
-            doVolumeChange("typein", Object.keys(settingsMenu[1].volumeControl)[i], settingsMenu[1].volumeControl[Object.keys(settingsMenu[1].volumeControl)[i]].value)
+        document.querySelector(`.${Object.keys(settingsMenu[settingCount].volumeControl)[i]}`).addEventListener("input", () => {
+            doVolumeChange("typein", Object.keys(settingsMenu[settingCount].volumeControl)[i], settingsMenu[settingCount].volumeControl[Object.keys(settingsMenu[settingCount].volumeControl)[i]].value)
         });
 
-        document.querySelectorAll(`.${Object.keys(settingsMenu[1].volumeControl)[i]} .volume-button`).forEach(btn => {
+        document.querySelectorAll(`.${Object.keys(settingsMenu[settingCount].volumeControl)[i]} .volume-button`).forEach(btn => {
             btn.addEventListener("click", () => {
-                doVolumeChange(btn.textContent, Object.keys(settingsMenu[1].volumeControl)[i], settingsMenu[1].volumeControl[Object.keys(settingsMenu[1].volumeControl)[i]].value)
+                doVolumeChange(btn.textContent, Object.keys(settingsMenu[settingCount].volumeControl)[i], settingsMenu[settingCount].volumeControl[Object.keys(settingsMenu[settingCount].volumeControl)[i]].value)
             });
         });
     }
@@ -1024,7 +1040,7 @@ const doVolumeChange = (type, classVolume, value) => {
     }
     tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
     document.querySelector(`.${classVolume} #volume-input-${classVolume}`).value = tempValue
-    settingsMenu[1].volumeControl[classVolume].value = tempValue / 100
+    settingsMenu[settingCount].volumeControl[classVolume].value = tempValue / 100
     doSoundPlay("gameSounds", "click", "loadPlay")
     if(classVolume !== "masterVolume"){
         for(let i = 0; i < Object.keys(soundEffects[`${classVolume.split("Volume")[0]}Sounds`]).length; i++){
@@ -1039,37 +1055,30 @@ const doVolumeChange = (type, classVolume, value) => {
     }
 }
 
-const doGameplayChange = (num) => {
-    document.querySelector(".settings-show").innerHTML = `<h1>${settingsMenu[num].name}</h1>`
-    switch(num){
-        case 0:
-            doGPSChange()
-            break
-        case 1:
-            doVolumeSlider()
-            break
-    }
-}
-
 const doGPSChange = () => {
     document.querySelector(".settings-show").innerHTML += `<div class="gpSettings-master"></div>`
-    for(let i = 0; i < Object.keys(settingsMenu[0].gameplayControl).length; i++){
+    for(let i = 0; i < Object.keys(settingsMenu[settingCount].gameplayControl).length; i++){
         document.querySelector(`.gpSettings-master`).innerHTML += `
-            <div class="gpSetting ${Object.keys(settingsMenu[0].gameplayControl)[i]}">
-                    <p>${settingsMenu[0].gameplayControl[Object.keys(settingsMenu[0].gameplayControl)[i]].text}</p><div class="switch"></div>
+            <div class="gpSetting ${Object.keys(settingsMenu[settingCount].gameplayControl)[i]}">
+                    <p>${settingsMenu[settingCount].gameplayControl[Object.keys(settingsMenu[settingCount].gameplayControl)[i]].text}</p><div class="switch"></div>
             </div>`
-        if(settingsMenu[0].gameplayControl[Object.keys(settingsMenu[0].gameplayControl)[i]].value){
-            document.querySelector(`.${Object.keys(settingsMenu[0].gameplayControl)[i]} .switch`).classList.add("enabled")
+        if(settingsMenu[settingCount].gameplayControl[Object.keys(settingsMenu[settingCount].gameplayControl)[i]].value){
+            document.querySelector(`.${Object.keys(settingsMenu[settingCount].gameplayControl)[i]} .switch`).classList.add("enabled")
         }
     }
     document.querySelectorAll(`.gpSettings-master .gpSetting`).forEach(btn => {
         btn.addEventListener("click", (event) => {
             let classDiv = event.currentTarget.classList[1]
-            settingsMenu[0].gameplayControl[classDiv].value = !settingsMenu[0].gameplayControl[classDiv].value
+            settingsMenu[settingCount].gameplayControl[classDiv].value = !settingsMenu[settingCount].gameplayControl[classDiv].value
             document.querySelector(`.${classDiv} .switch`).classList.toggle("enabled")
             doSoundPlay("gameSounds", "click", "loadPlay")
         });
     });
+}
+
+const doCredits = () => {
+    document.querySelector(".settings-show").innerHTML += `<div class="gpSettings-master"></div>`
+    document.querySelector(`.gpSettings-master`).innerHTML += `<div class="${settingsMenu[settingCount].class}"><p>${settingsMenu[settingCount].creditControl.name} ${settingsMenu[settingCount].creditControl.class}</p></div>`
 }
 
 //OFFICE FUNCTIONS
@@ -1162,7 +1171,7 @@ const doJumpscare = (char) => {
             jumpScareTimeout = setTimeout(() => {
                 div.style.rotate = `15deg`
                 div.style.backgroundSize = `75% 75%`
-                if(!settingsMenu[0].gameplayControl.reduceFL.value){
+                if(!settingsMenu[settingCount].gameplayControl.reduceFL.value){
                     gamePlay.style.filter = `contrast(5) brightness(5) invert(1)`
                 }
             }, i * time);
@@ -1170,7 +1179,7 @@ const doJumpscare = (char) => {
             jumpScareTimeout = setTimeout(() => {
                 div.style.rotate = `-15deg`
                 div.style.backgroundSize = `50% 50%`
-                if(!settingsMenu[0].gameplayControl.reduceFL.value){
+                if(!settingsMenu[settingCount].gameplayControl.reduceFL.value){
                     gamePlay.style.filter = `contrast(1) brightness(0.2) invert(0)`
                 }
             }, i * time);
@@ -1561,8 +1570,8 @@ const doExtra = () => {
             </div>
         <div class="scene-show"></div>`
 
-    for(let i = 0; i < extras[0].extraOp.length; i++){
-        document.querySelector(".nav-selector").innerHTML += `<p class="${extras[0].extraOp[i].class} text">${extras[0].extraOp[i].name}</p>`
+    for(let i = 0; i < extras.extraOp.length; i++){
+        document.querySelector(".nav-selector").innerHTML += `<p class="${extras.extraOp[i].class} text">${extras.extraOp[i].name}</p>`
     }
 
     gamePlay.style.background = `url(files/images/camera/static.gif)`
@@ -1598,7 +1607,6 @@ const doExtra = () => {
         changeCHT()
     });
 
-
     document.querySelector(".EXT").addEventListener("click", () => {
         doMenu()
     });
@@ -1607,10 +1615,10 @@ const doExtra = () => {
 const doEXTOpt = (type, name) => {
     picCount = 0
     pictures = type
-    for(let i = 0; i < extras[0].extraOp.length; i++){
-        if(name == extras[0].extraOp[i].name){
-            extraText = extras[0].extraOp[i].name
-            tabName.innerHTML = extras[0].extraOp[i].name
+    for(let i = 0; i < extras.extraOp.length; i++){
+        if(name == extras.extraOp[i].name){
+            extraText = extras.extraOp[i].name
+            tabName.innerHTML = extras.extraOp[i].name
         }
     }
 }
@@ -1813,19 +1821,19 @@ const changeCHT = () => {
                 <div class="cheats"></div>
             </div>`
 
-    for(let i = 0;i < extras[0].cheats.length; i++){
+    for(let i = 0;i < extras.cheats.length; i++){
         document.querySelector(".cheats").innerHTML += `
-                <div class="row ${extras[0].cheats[i].class} row-hover">
-                    <div class="switch"></div><p class="cheat-text">${extras[0].cheats[i].text}</p>
+                <div class="row ${extras.cheats[i].class} row-hover">
+                    <div class="switch"></div><p class="cheat-text">${extras.cheats[i].text}</p>
                 </div>`
-        if(extras[0].cheats[i].enable){
-            document.querySelector(`.${extras[0].cheats[i].class}`).classList.add("enabled")
+        if(extras.cheats[i].enable){
+            document.querySelector(`.${extras.cheats[i].class}`).classList.add("enabled")
         }
     }
 
     document.querySelector(".tgl-cheats").addEventListener("click", () => {
-        for(let i = 0; i < extras[0].cheats.length; i++){
-            changeCHTEnable(extras[0].cheats[i].class, i)
+        for(let i = 0; i < extras.cheats.length; i++){
+            changeCHTEnable(extras.cheats[i].class, i)
         }
     });
 
@@ -1841,7 +1849,7 @@ const changeCHT = () => {
 const changeCHTEnable = (cl, num) => {
     doSoundPlay("gameSounds", "click", "loadPlay")
     document.querySelector(`.${cl}`).classList.toggle("enabled")
-    extras[0].cheats[num].enable = !extras[0].cheats[num].enable
+    extras.cheats[num].enable = !extras.cheats[num].enable
 }
 
 const konamiFunc = (word, event) => {

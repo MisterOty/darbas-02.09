@@ -802,6 +802,8 @@ footer p{
 }
 
 .enabled{
+    color: rgb(255, 0, 255);
+    text-shadow: rgb(255, 0, 255) 0 0 1vmax;
     filter: hue-rotate(90deg)
 }
 
@@ -905,10 +907,16 @@ footer p{
 }
 
 .volume-button{
+    filter: brightness(0.5);
+    transition: filter 0.125s;
     background: rgba(128, 128, 128, 1);
     width: 10%;
     margin: 1%;
     border-radius: 0.5vmax;
+}
+
+.volume-button:hover{
+    filter: brightness(1)
 }
 
 .volume-main input{
@@ -948,9 +956,14 @@ footer p{
     align-content: center;
 }
 
-input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
+.CRD p{
+    padding: 1%;
+    text-align: center;
+    font-size: 3vmax;
 }
+
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{-webkit-appearance: none}
+input[type=number]{-moz-appearance: textfield}
 
 .text:hover, .gpSetting:hover, .button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .character-img:hover, .door-button-left:hover, .door-button-right:hover, .light-div:hover, .pause-button:hover, .change-floor-button:hover, .call-button:hover, .volume-button:hover{
     cursor: pointer;
