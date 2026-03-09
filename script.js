@@ -278,34 +278,42 @@ const gamePlay = document.querySelector("main")
 const copyRight = document.querySelector("footer")
 const pauseDiv = document.querySelector(".pause-div")
 
-let settingsMenu = {
-    gameplayControl: {
-        reduceFL: {
-            text: "Reduce Flashing Lights",
-            value: false
+let settingsMenu = [
+    {
+        name: "Gameplay",
+        class: "CHR",
+        gameplayControl: {
+            reduceFL: {
+                text: "Reduce Flashing Lights",
+                value: false
+            }
         }
     },
-    volumeControl: {
-        masterVolume: {
-            text: "Master Volume",
-            value: 1
-        },
-        gameVolume: {
-            text: "Game Volume",
-            value: 1
-        },
-        characterVolume: {
-            text: "Character Volume",
-            value: 1
-        },
-        ambienceVolume: {
-            text: "Ambience Volume",
-            value: 1
+    {
+        name: "Audio",
+        class: "SCN",
+        volumeControl: {
+            masterVolume: {
+                text: "Master Volume",
+                value: 1
+            },
+            gameVolume: {
+                text: "Game Volume",
+                value: 1
+            },
+            characterVolume: {
+                text: "Character Volume",
+                value: 1
+            },
+            ambienceVolume: {
+                text: "Ambience Volume",
+                value: 1
+            }
         }
     }
-}
+]
 
-settingsMenu.volumeControl.masterVolume.value = 0.1
+settingsMenu[1].volumeControl.masterVolume.value = 0.1
 
 let soundEffects = {
     gameSounds: {
@@ -380,13 +388,13 @@ let callSFX
 
 const doSoundPlay = (category, sound, type, isLoop) => {
     let audio = soundEffects[category][sound]
-    let master = settingsMenu.volumeControl.masterVolume.value
+    let master = settingsMenu[1].volumeControl.masterVolume.value
     if(category == "gameSounds"){
-        audio.volume = settingsMenu.volumeControl.gameVolume.value * master
+        audio.volume = settingsMenu[1].volumeControl.gameVolume.value * master
     }else if(category == "characterSounds"){
-        audio.volume = settingsMenu.volumeControl.characterVolume.value * master
+        audio.volume = settingsMenu[1].volumeControl.characterVolume.value * master
     }else if(category == "ambienceSounds"){
-        audio.volume = settingsMenu.volumeControl.ambienceVolume.value * master
+        audio.volume = settingsMenu[1].volumeControl.ambienceVolume.value * master
     }
     if(type == "play"){
         audio.play()
@@ -926,27 +934,28 @@ const doSettings = () => {
             </div>
             <div class="settings-show"></div>`
 
-        for(let i = 0; i < settings.length; i++){
-            document.querySelector(".settings-selector").innerHTML += `<p class="${settings[i].class} text">${settings[i].name}</p>`
+        for(let i = 0; i <= settingsMenu.length; i++){
+            if(i !== settingsMenu.length){
+                document.querySelector(".settings-selector").innerHTML += `<p class="${settingsMenu[i].class} text">${settingsMenu[i].name}</p>`
+            }else{
+                document.querySelector(".settings-selector").innerHTML += `<p class="Exit text">Exit</p>`
+            }
         }
 
-        document.querySelector(".settings-show").innerHTML = `<h1>Gameplay</h1>`
-        doGameplayChange(document.querySelector(".settings-show"))
+        doGameplayChange(0)
 
         document.querySelectorAll(".text").forEach(btn => {
             btn.addEventListener("mouseover", () => {
                 doSoundPlay("gameSounds", "click", "loadPlay")
             });
         });
-
+        //MAKE IT COME FROM PARENT
         document.querySelectorAll(".text").forEach(btn => {
             btn.addEventListener("click", (event) => {
                 if(event.target.textContent == "Gameplay"){
-                    document.querySelector(".settings-show").innerHTML = `<h1>${event.target.textContent}</h1>`
-                    doGameplayChange(document.querySelector(".settings-show"))
+                    doGameplayChange(0)
                 }else if(event.target.textContent == "Audio"){
-                    document.querySelector(".settings-show").innerHTML = `<h1>${event.target.textContent}</h1>`
-                    doVolumeSlider(document.querySelector(".settings-show"))
+                    doGameplayChange(1)
                 }else if(event.target.textContent == "Exit"){
                     doSettings()
                 }
@@ -959,36 +968,36 @@ const doSettings = () => {
     }
 }
 
-const doVolumeSlider = (div) => {
-    div.innerHTML += `<div class="volume-slider-master"></div>`
+const doVolumeSlider = () => {
+    document.querySelector(".settings-show").innerHTML += `<div class="volume-slider-master"></div>`
         document.querySelector(`.volume-slider-master`).innerHTML += `
-        <div class="volume-main ${Object.keys(settingsMenu.volumeControl)[0]}">
-                <p>${settingsMenu.volumeControl[Object.keys(settingsMenu.volumeControl)[0]].text}</p>
-                <input type="number" id="volume-input-${Object.keys(settingsMenu.volumeControl)[0]}" min="0"/><p>%</p>
+        <div class="volume-main ${Object.keys(settingsMenu[1].volumeControl)[0]}">
+                <p>${settingsMenu[1].volumeControl[Object.keys(settingsMenu[1].volumeControl)[0]].text}</p>
+                <input type="number" id="volume-input-${Object.keys(settingsMenu[1].volumeControl)[0]}" min="0"/><p>%</p>
                 <p class="volume-button volume-add">+</p>
                 <p class="volume-button volume-remove">-</p>
         </div>`
-    div.innerHTML += `<div class="volume-slider"></div>`
-    for(let i = 1; i < Object.keys(settingsMenu.volumeControl).length; i++){
+    document.querySelector(".settings-show").innerHTML += `<div class="volume-slider"></div>`
+    for(let i = 1; i < Object.keys(settingsMenu[1].volumeControl).length; i++){
         document.querySelector(`.volume-slider`).innerHTML += `
-            <div class="volume-main ${Object.keys(settingsMenu.volumeControl)[i]}">
-                    <p>${settingsMenu.volumeControl[Object.keys(settingsMenu.volumeControl)[i]].text}</p>
-                    <input type="number" id="volume-input-${Object.keys(settingsMenu.volumeControl)[i]}" min="0"/><p>%</p>
+            <div class="volume-main ${Object.keys(settingsMenu[1].volumeControl)[i]}">
+                    <p>${settingsMenu[1].volumeControl[Object.keys(settingsMenu[1].volumeControl)[i]].text}</p>
+                    <input type="number" id="volume-input-${Object.keys(settingsMenu[1].volumeControl)[i]}" min="0"/><p>%</p>
                     <p class="volume-button volume-add">+</p>
                     <p class="volume-button volume-remove">-</p>
             </div>`
     }
 
-    for(let i = 0; i < Object.keys(settingsMenu.volumeControl).length; i++){
-        doVolumeChange("start", `${Object.keys(settingsMenu.volumeControl)[i]}`, settingsMenu.volumeControl[Object.keys(settingsMenu.volumeControl)[i]].value)
+    for(let i = 0; i < Object.keys(settingsMenu[1].volumeControl).length; i++){
+        doVolumeChange("start", `${Object.keys(settingsMenu[1].volumeControl)[i]}`, settingsMenu[1].volumeControl[Object.keys(settingsMenu[1].volumeControl)[i]].value)
 
-        document.querySelector(`.${Object.keys(settingsMenu.volumeControl)[i]}`).addEventListener("input", () => {
-            doVolumeChange("typein", Object.keys(settingsMenu.volumeControl)[i], settingsMenu.volumeControl[Object.keys(settingsMenu.volumeControl)[i]].value)
+        document.querySelector(`.${Object.keys(settingsMenu[1].volumeControl)[i]}`).addEventListener("input", () => {
+            doVolumeChange("typein", Object.keys(settingsMenu[1].volumeControl)[i], settingsMenu[1].volumeControl[Object.keys(settingsMenu[1].volumeControl)[i]].value)
         });
 
-        document.querySelectorAll(`.${Object.keys(settingsMenu.volumeControl)[i]} .volume-button`).forEach(btn => {
+        document.querySelectorAll(`.${Object.keys(settingsMenu[1].volumeControl)[i]} .volume-button`).forEach(btn => {
             btn.addEventListener("click", () => {
-                doVolumeChange(btn.textContent, Object.keys(settingsMenu.volumeControl)[i], settingsMenu.volumeControl[Object.keys(settingsMenu.volumeControl)[i]].value)
+                doVolumeChange(btn.textContent, Object.keys(settingsMenu[1].volumeControl)[i], settingsMenu[1].volumeControl[Object.keys(settingsMenu[1].volumeControl)[i]].value)
             });
         });
     }
@@ -1015,7 +1024,7 @@ const doVolumeChange = (type, classVolume, value) => {
     }
     tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
     document.querySelector(`.${classVolume} #volume-input-${classVolume}`).value = tempValue
-    settingsMenu.volumeControl[classVolume].value = tempValue / 100
+    settingsMenu[1].volumeControl[classVolume].value = tempValue / 100
     doSoundPlay("gameSounds", "click", "loadPlay")
     if(classVolume !== "masterVolume"){
         for(let i = 0; i < Object.keys(soundEffects[`${classVolume.split("Volume")[0]}Sounds`]).length; i++){
@@ -1030,28 +1039,37 @@ const doVolumeChange = (type, classVolume, value) => {
     }
 }
 
-const doGameplayChange = (div) => {
-    div.innerHTML += `<div class="gpSettings-master"></div>`
-    for(let i = 0; i < Object.keys(settingsMenu.gameplayControl).length; i++){
+const doGameplayChange = (num) => {
+    document.querySelector(".settings-show").innerHTML = `<h1>${settingsMenu[num].name}</h1>`
+    switch(num){
+        case 0:
+            doGPSChange()
+            break
+        case 1:
+            doVolumeSlider()
+            break
+    }
+}
+
+const doGPSChange = () => {
+    document.querySelector(".settings-show").innerHTML += `<div class="gpSettings-master"></div>`
+    for(let i = 0; i < Object.keys(settingsMenu[0].gameplayControl).length; i++){
         document.querySelector(`.gpSettings-master`).innerHTML += `
-            <div class="gpSetting ${Object.keys(settingsMenu.gameplayControl)[i]}">
-                    <p>${settingsMenu.gameplayControl[Object.keys(settingsMenu.gameplayControl)[i]].text}</p><div class="switch"></div>
+            <div class="gpSetting ${Object.keys(settingsMenu[0].gameplayControl)[i]}">
+                    <p>${settingsMenu[0].gameplayControl[Object.keys(settingsMenu[0].gameplayControl)[i]].text}</p><div class="switch"></div>
             </div>`
-        if(settingsMenu.gameplayControl[Object.keys(settingsMenu.gameplayControl)[i]].value){
-            document.querySelector(`.${Object.keys(settingsMenu.gameplayControl)[i]} .switch`).classList.add("enabled")
+        if(settingsMenu[0].gameplayControl[Object.keys(settingsMenu[0].gameplayControl)[i]].value){
+            document.querySelector(`.${Object.keys(settingsMenu[0].gameplayControl)[i]} .switch`).classList.add("enabled")
         }
     }
     document.querySelectorAll(`.gpSettings-master .gpSetting`).forEach(btn => {
         btn.addEventListener("click", (event) => {
-            doGPSwitch(event.currentTarget.classList[1])
+            let classDiv = event.currentTarget.classList[1]
+            settingsMenu[0].gameplayControl[classDiv].value = !settingsMenu[0].gameplayControl[classDiv].value
+            document.querySelector(`.${classDiv} .switch`).classList.toggle("enabled")
+            doSoundPlay("gameSounds", "click", "loadPlay")
         });
     });
-}
-
-const doGPSwitch = (classDiv) => {
-    settingsMenu.gameplayControl[classDiv].value = !settingsMenu.gameplayControl[classDiv].value
-    document.querySelector(`.${classDiv} .switch`).classList.toggle("enabled")
-    doSoundPlay("gameSounds", "click", "loadPlay")
 }
 
 //OFFICE FUNCTIONS
@@ -1144,7 +1162,7 @@ const doJumpscare = (char) => {
             jumpScareTimeout = setTimeout(() => {
                 div.style.rotate = `15deg`
                 div.style.backgroundSize = `75% 75%`
-                if(!settingsMenu.gameplayControl.reduceFL.value){
+                if(!settingsMenu[0].gameplayControl.reduceFL.value){
                     gamePlay.style.filter = `contrast(5) brightness(5) invert(1)`
                 }
             }, i * time);
@@ -1152,7 +1170,7 @@ const doJumpscare = (char) => {
             jumpScareTimeout = setTimeout(() => {
                 div.style.rotate = `-15deg`
                 div.style.backgroundSize = `50% 50%`
-                if(!settingsMenu.gameplayControl.reduceFL.value){
+                if(!settingsMenu[0].gameplayControl.reduceFL.value){
                     gamePlay.style.filter = `contrast(1) brightness(0.2) invert(0)`
                 }
             }, i * time);
@@ -1871,4 +1889,6 @@ document.addEventListener("keydown", function(event) {
 })
 
 // doMenu()
-// doSettings()
+doOffice()
+doPause()
+doSettings()
