@@ -30,9 +30,10 @@ let characters = [
         mMImage: "files/images/characters/justas.png",
         jumpScareSFX: "files/sounds/sfx/characters/justas/jumpscare.mp3",
         path: 0,
+        moveInt: 5,
         isProgressive: false,
         pathFind: {
-            r04: {
+            r21: {
                 image: "files/images/characters/justas.png",
                 pos: [50, 50]
             },
@@ -41,6 +42,10 @@ let characters = [
                 pos: [50, 30]
             },
             a1: {
+                image: "files/images/characters/justas.png",
+                pos: [50, 0]
+            },
+            r14: {
                 image: "files/images/characters/justas.png",
                 pos: [50, 0]
             },
@@ -72,17 +77,22 @@ let characters = [
         mMImage: "files/images/characters/kajus.png",
         jumpScareSFX: "files/sounds/sfx/characters/kajus/jumpscare.mp3",
         path: 0,
+        moveInt: 5,
         isProgressive: false,
         pathFind: {
-            r01: {
+            r24: {
                 image: "files/images/characters/kajus.png",
                 pos: [30, 25]
             },
-            r02: {
+            t1: {
                 image: "files/images/characters/kajus.png",
                 pos: [50, 30]
             },
-            r03: {
+            r11: {
+                image: "files/images/characters/kajus.png",
+                pos: [25, 20]
+            },
+            r12: {
                 image: "files/images/characters/kajus.png",
                 pos: [25, 20]
             },
@@ -110,23 +120,20 @@ let characters = [
         mMImage: "files/images/characters/saulius.png",
         jumpScareSFX: "files/sounds/sfx/characters/saulius/jumpscare.mp3",
         path: 0,
+        moveInt: 5,
         isProgressive: false,
         pathFind: {
-            r04: {
+            r23: {
                 image: "files/images/characters/saulius.png",
                 pos: [15, 50]
             },
-            b1: {
+            r22: {
                 image: "files/images/characters/saulius.png",
                 pos: [10, 35]
             },
-            b2: {
+            q1: {
                 image: "files/images/characters/saulius.png",
                 pos: [25, 20]
-            },
-            r06: {
-                image: "files/images/characters/saulius.png",
-                pos: [30, 40]
             },
             innerOffice: {
                 image: "files/images/characters/saulius.png",
@@ -148,21 +155,22 @@ let characters = [
         mMImage: "files/images/characters/giedrius.png",
         jumpScareSFX: "files/sounds/sfx/characters/giedrius/jumpscare.mp3",
         path: 0,
+        moveInt: 5,
         isProgressive: true,
         pathFind: {
-            r05_00: {
+            r13_00: {
                 image: "files/images/characters/giedrius.png",
                 pos: [0, 50]
             },
-            r05_01: {
+            r13_01: {
                 image: "files/images/characters/giedrius.png",
                 pos: [25, 50]
             },
-            r05_02: {
+            r13_02: {
                 image: "files/images/characters/giedrius.png",
                 pos: [50, 50]
             },
-            r05_03: {
+            r13_03: {
                 image: "files/images/characters/giedrius.png",
                 pos: [75, 50]
             },
@@ -200,7 +208,6 @@ let cameras = {
         r22: "Room 202",
         r23: "Room 203",
         r24: "Room 204",
-        r25: "Room 205",
     },
 }
 
@@ -342,8 +349,6 @@ let extraCount = 0;
 let easterEgg = 2067;
 
 let allAudio = []
-let movementInterval = []
-let movementTimeout = []
 
 let settingsView = false
 let cameraView = false
@@ -363,6 +368,7 @@ let rightDoorClose = false
 let officeLight = false
 let officeLightDelay = false
 
+let intervalId
 let timerInterval
 let moveInterval
 let powerInterval
@@ -405,13 +411,17 @@ const clearMain = () => {
     clearInterval(timerInterval)
     clearInterval(powerInterval)
     clearTimeout(jumpScareTimeout)
-    clearTimeout(movementTimeout)
+    clearInterval(intervalId)
     for(let i = 0; i < Object.keys(soundEffects).length; i++){
         for(let e = 0; e < Object.keys(soundEffects[Object.keys(soundEffects)[i]]).length; e++){
             doSoundPlay(Object.keys(soundEffects)[i], Object.keys(soundEffects[Object.keys(soundEffects)[i]])[e], "stop")
         }
     }
-    stopMoveTimeout()
+    for(let i = 0; i < characters.length; i++){
+        if(characters[i].moveInt !== 5){
+            characters[i].moveInt = 5
+        }
+    }
     body.style.background = ``
     gamePlay.style.background = ``
     gamePlay.style.filter = ``
@@ -474,7 +484,7 @@ const doMenu = () => {
     gamePlay.innerHTML = `
         <div class="stars"></div>
         <div class="MMenu">
-            <h1 class="title">Five Night"s at KITM</h1>
+            <h1 class="title">Five Night's at KITM</h1>
             <div class="MMenuCharacter"></div>
             <div class="MMSelector">
                 <p class="NG text">New Game</p>
@@ -483,7 +493,7 @@ const doMenu = () => {
         <div class="settings-button text">Settings</div>`
     copyRight.innerHTML = `
         <p class="Name">Oskaras Venzlauskas GJSM23</p>`
-    tabName.innerHTML = `Five Night"s at KITM`
+    tabName.innerHTML = `Five Night's at KITM`
 
     for(let i = 0; i < Object.values(gameData.stars).length; i++){
         if(gameData.stars[`star${i + 1}`]){
@@ -603,8 +613,8 @@ const doOffice = () => {
     }
     gamePlay.innerHTML = `
         <div class="timer">
-            <h3 class="time">${doTimerHour(gameTime)}:${doTimerSec(Math.floor(((gameTime * 6) % 360) / 6))} AM</h3>
-            <p class="night">Night ${currentNight}</p>
+            <h3 class="night">Night ${currentNight}</h3>
+            <p class="time">${doTimerHour(gameTime)}:${doTimerSec(Math.floor(((gameTime * 6) % 360) / 6))} AM</p>
         </div>
         <div class="power">
             <div class="power-text">
@@ -666,9 +676,7 @@ const doOffice = () => {
     }
     document.querySelector(".calender-day").style.background = `url(files/images/office/calender/0${currentNight}.png)`
     document.querySelector(".calender-day").style.backgroundSize = `200% 100%`
-    for(let i = 0; i < characters.length; i++){
-        doMoveInterval(i)
-    }
+    doMoveInterval()
     changeCamFloor()
     doFlash("officeMove")
     doDoorClose(leftDoorClose, "door-left", "door-button-left")
@@ -757,6 +765,7 @@ const doOffice = () => {
 
 const doPause = (type) => {
     pauseView = !pauseView
+    doMoveInterval()
     if(pauseView){
         if(!powerOutage){
             if(twentyMode){
@@ -801,9 +810,6 @@ const doPause = (type) => {
     }else{
         doRTimer()
         doPowerCount()
-        for(let i = 0; i < characters.length; i++){
-            doMoveInterval(i)
-        }
         pauseDiv.innerHTML = ``
         document.querySelector(".pause-button").style.display = `block`
         if(!powerOutage){
@@ -1136,7 +1142,6 @@ const doDoorClose = (type, door, button) => {
 }
 
 const doJumpscare = (char) => {
-    stopMoveTimeout()
     let time = 50
     soundEffects.characterSounds.jumpSFX = new Audio(`${char.jumpScareSFX}`)
     if(camSEnable){
@@ -1166,7 +1171,7 @@ const doJumpscare = (char) => {
             jumpScareTimeout = setTimeout(() => {
                 div.style.rotate = `15deg`
                 div.style.backgroundSize = `75% 75%`
-                if(!settingsMenu[settingCount].gameplayControl.reduceFL.value){
+                if(!settingsMenu[0].gameplayControl.reduceFL.value){
                     gamePlay.style.filter = `contrast(5) brightness(5) invert(1)`
                 }
             }, i * time);
@@ -1174,7 +1179,7 @@ const doJumpscare = (char) => {
             jumpScareTimeout = setTimeout(() => {
                 div.style.rotate = `-15deg`
                 div.style.backgroundSize = `50% 50%`
-                if(!settingsMenu[settingCount].gameplayControl.reduceFL.value){
+                if(!settingsMenu[0].gameplayControl.reduceFL.value){
                     gamePlay.style.filter = `contrast(1) brightness(0.2) invert(0)`
                 }
             }, i * time);
@@ -1301,37 +1306,26 @@ const doFlash = (type) => {
 
 //ANIMATRONICS MOVE
 
-const doMoveInterval = (num) => {
-    const intervalId = setInterval(() => {
-        let randomTime = Math.floor(Math.random() * (100 - 50)) + 50;
-        let characterTime = characters[num].difficulty[`night${currentNight}`];
-        let randomTimeout = Math.floor(Math.random() * (2500 - 250)) + 250;
-        if (characterTime !== 0) {
-            const timeoutDelay = Math.round(randomTimeout * (randomTime / characterTime));
-            const timeoutId = setTimeout(() => {
-                doAnimatronicMove(num)
-            }, timeoutDelay);
-            movementTimeout.push(timeoutId);
-        }
-    }, 5000);
-    movementInterval.push(intervalId);
-};
-
-const stopMoveTimeout = () => {
-    for(let i = 0; i < movementInterval.length; i++){
-        clearInterval(movementInterval[i])
-    }
-    for(let i = 0; i < movementTimeout.length; i++){
-        clearTimeout(movementTimeout[i])
-    }
-    movementInterval = []
-    movementTimeout = []
-}
-
-const doAnimatronicMove = (num) => {
-    let randomInt = Math.floor(Math.random() * 20) + 1;
-    if(characters[num].difficulty[`night${currentNight}`] >= randomInt){
-        doAnimPath(num)
+const doMoveInterval = () => {
+    if(pauseView){
+        clearInterval(intervalId)
+    }else{
+        intervalId = setInterval(() => {
+            for(let i = 0; i < characters.length; i++){
+                let chrMoveInt = characters[i].difficulty[`night${currentNight}`];
+                if(chrMoveInt !== 0){
+                    if(characters[i].moveInt == 0){
+                        characters[i].moveInt = 5
+                        let randomInt = Math.floor(Math.random() * 20) + 1;
+                        if(chrMoveInt >= randomInt){
+                            doAnimPath(i)
+                        }
+                    }else{
+                        characters[i].moveInt--
+                    }
+                }
+            }
+        }, 1000 * gameSpeed);
     }
 }
 
@@ -1469,7 +1463,6 @@ const doTimerSec = (time) => {
 const stopRT = (condition) => {
     clearInterval(timerInterval)
     clearInterval(powerInterval)
-    stopMoveTimeout()
     if(condition == "win"){
         do6am(tabName, gamePlay, gameData)
     }else if(condition == "lose"){
@@ -1664,7 +1657,7 @@ const changeEXTPic = (type, pic) => {
     if(extraText == "Characters"){
         document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pictures.length} - ${characters[picCount].name}`
     }else{
-        let splitTitle = pic[picCount].split("/")
+        let splitTitle = pictures[picCount].split("/")
         let splitName = splitTitle[splitTitle.length - 1]
         splitName = splitName.split(".")
         let name = splitName[0]
@@ -1899,5 +1892,3 @@ document.addEventListener("keydown", function(event) {
     }
     konamiFunc(konamiCode, event.key)
 })
-
-doMenu()
