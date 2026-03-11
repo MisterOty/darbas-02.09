@@ -28,7 +28,7 @@ let characters = [
     {
         name: "Speedster",
         mMImage: "files/images/characters/justas.png",
-        jumpScareSFX: "files/sounds/sfx/characters/justas/jumpscare.mp3",
+        jumpScareSFX: "files/sounds/sfx/jumpscare.mp3",
         path: 0,
         moveInt: 5,
         isProgressive: false,
@@ -75,7 +75,7 @@ let characters = [
     {
         name: "Bonepart",
         mMImage: "files/images/characters/kajus.png",
-        jumpScareSFX: "files/sounds/sfx/characters/kajus/jumpscare.mp3",
+        jumpScareSFX: "files/sounds/sfx/jumpscare.mp3",
         path: 0,
         moveInt: 5,
         isProgressive: false,
@@ -118,7 +118,7 @@ let characters = [
     {
         name: "BusinessMan",
         mMImage: "files/images/characters/saulius.png",
-        jumpScareSFX: "files/sounds/sfx/characters/saulius/jumpscare.mp3",
+        jumpScareSFX: "files/sounds/sfx/jumpscare.mp3",
         path: 0,
         moveInt: 5,
         isProgressive: false,
@@ -151,31 +151,31 @@ let characters = [
         }
     },
     {
-        name: "HelloWorld",
-        mMImage: "files/images/characters/giedrius.png",
-        jumpScareSFX: "files/sounds/sfx/characters/giedrius/jumpscare.mp3",
+        name: "Aidas",
+        mMImage: "files/images/characters/aidas/main.png",
+        jumpScareSFX: "files/sounds/sfx /jumpscare.mp3",
         path: 0,
         moveInt: 5,
         isProgressive: true,
         pathFind: {
             r13_00: {
-                image: "files/images/characters/giedrius.png",
-                pos: [0, 50]
-            },
-            r13_01: {
-                image: "files/images/characters/giedrius.png",
-                pos: [25, 50]
-            },
-            r13_02: {
-                image: "files/images/characters/giedrius.png",
-                pos: [50, 50]
-            },
-            r13_03: {
-                image: "files/images/characters/giedrius.png",
+                image: "files/images/characters/aidas/cameras/r13_00.png",
                 pos: [75, 50]
             },
+            r13_01: {
+                image: "files/images/characters/aidas/cameras/r13_01.png",
+                pos: [50, 50]
+            },
+            r13_02: {
+                image: "files/images/characters/aidas/cameras/r13_02.png",
+                pos: [25, 50]
+            },
+            r13_03: {
+                image: "files/images/characters/aidas/cameras/r13_03.png",
+                pos: [0, 50]
+            },
             innerOffice: {
-                image: "files/images/characters/giedrius.png",
+                image: "files/images/characters/aidas/main.png",
                 pos: "right"
             }
         },
@@ -211,22 +211,6 @@ let cameras = {
     },
 }
 
-let characterPic = []
-
-let scenePic = [ "files/images/office/office_front.png", "files/images/camera/radar0.png", "files/images/camera/radar1.png"]
-
-for(let i = 0;i < characters.length; i++){
-    characterPic.push(characters[i].mMImage)
-}
-
-for(let i = 0;i < Object.keys(cameras.first).length; i++){
-    scenePic.push(`files/images/camera/images/${Object.keys(Object.values(cameras)[0])[i]}.png`)
-}
-
-for(let i = 0;i < Object.keys(cameras.second).length; i++){
-    scenePic.push(`files/images/camera/images/${Object.keys(Object.values(cameras)[1])[i]}.png`)
-}
-
 let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
 
 const body = document.querySelector("body")
@@ -252,7 +236,7 @@ let settingsMenu = [
         volumeControl: {
             masterVolume: {
                 text: "Master Volume",
-                value: 1
+                value: 0.1
             },
             gameVolume: {
                 text: "Game Volume",
@@ -265,6 +249,32 @@ let settingsMenu = [
             ambienceVolume: {
                 text: "Ambience Volume",
                 value: 1
+            }
+        }
+    },
+    {
+        name: "Keybinds",
+        class: "KBNDS",
+        keyBindControl: {
+            pauseMenu: {
+                name: "Open Pause Menu/Close Menu",
+                bind: "Escape",
+            },
+            skipScene: {
+                name: "Skip Ending Screen",
+                bind: "Enter",
+            },
+            light: {
+                name: "Turn On/Off Office Light",
+                bind: "w",
+            },
+            leftDoor: {
+                name: "Close/Open Left Door",
+                bind: "a",
+            },
+            rightDoor: {
+                name: "Close/Open Right Door",
+                bind: "d",
             }
         }
     },
@@ -295,6 +305,10 @@ let extras = {
         name: "Cheats",
         class: "CHT",
     }],
+    extraPics: {
+        picCount: 0,
+        pictures: []
+    },
     cheats: [{
         text: "Faster Nights",
         class: "fstngt",
@@ -490,7 +504,7 @@ const doMenu = () => {
                 <p class="NG text">New Game</p>
             </div>
         </div>
-        <div class="settings-button text">Settings</div>`
+        <div class="settings-button">Settings</div>`
     copyRight.innerHTML = `
         <p class="Name">Oskaras Venzlauskas GJSM23</p>`
     tabName.innerHTML = `Five Night's at KITM`
@@ -858,23 +872,26 @@ const do6am = () => {
         document.querySelector(".timeText").style.transform = `scale(3)`
     }, 6300);
     setTimeout(() => {
-        if(currentNight == 7 && twentyMode){
-            let ending = 4
-            doEnding(ending)
-        }else if(currentNight == 7){
-            let ending = 3
-            doEnding(ending)
-        }else if(currentNight == 6){
-            let ending = 2
-            gameData.extraMenu = true
-            doEnding(ending)
-        }else if(currentNight == 5){
-            let ending = 1
-            gameData.nightSix = true
-            doEnding(ending)
-        }else if(currentNight <= 5){
-            gameData.night++
-            doMenu()
+        switch(currentNight){
+            case 7 && twentyMode:
+                if(twentyMode){
+                    doEnding(4)
+                }else{
+                    doEnding(3)
+                }
+                break
+            case 6:
+                gameData.extraMenu = true
+                doEnding(2)
+                break
+            case 5:
+                gameData.nightSix = true
+                doEnding(1)
+                break
+            default:
+                gameData.night++
+                doMenu()
+                break
         }
     }, 10000);
 }
@@ -903,8 +920,8 @@ const doEnding = (type) => {
         doMenu()
     }else{
         clearMain()
-        for(let i = 0; i < type; i++){
-            gameData.stars[`star${i + 1}`] = true
+        for(let i = 1; i <= type; i++){
+            gameData.stars[`star${i}`] = true
         }
         doSoundPlay("ambienceSounds", "endingMusic", "play")
         gamePlay.innerHTML = `<div class="ending"></div>`
@@ -944,7 +961,7 @@ const doSettings = () => {
                 doSoundPlay("gameSounds", "click", "loadPlay")
             });
         });
-        document.querySelector(".settings-selector").addEventListener("click", (event) => {
+        document.querySelector(".settings-selector").addEventListener("mouseup", (event) => {
             let children = document.querySelector(".settings-selector").children
             let number = Array.from(children).indexOf(event.target)
             doGameplayChange(number)
@@ -978,6 +995,9 @@ const doGameplayChange = (num) => {
             doVolumeSlider()
             break
         case 2:
+            doKeybinds()
+            break
+        case 3:
             doCredits()
             break
         default:
@@ -1075,6 +1095,13 @@ const doGPSChange = () => {
             doSoundPlay("gameSounds", "click", "loadPlay")
         });
     });
+}
+
+const doKeybinds = () => {
+    document.querySelector(".settings-show").innerHTML += `<div class="gpSettings-master"></div>`
+    for(let i = 0; i < Object.keys(settingsMenu[settingCount].keyBindControl).length; i++){
+        document.querySelector(`.gpSettings-master`).innerHTML += `<div class="keyBind"><p>${settingsMenu[settingCount].keyBindControl[Object.keys(settingsMenu[settingCount].keyBindControl)[i]].name}:</p><p class="keyBind-highlight">${settingsMenu[settingCount].keyBindControl[Object.keys(settingsMenu[settingCount].keyBindControl)[i]].bind}</p></div>`
+    }
 }
 
 const doCredits = () => {
@@ -1321,7 +1348,14 @@ const doMoveInterval = () => {
                             doAnimPath(i)
                         }
                     }else{
+                        let randomInt = Math.floor(Math.random() * 100) + 1;
+                        if(randomInt == 100){
+                            characters[i].moveInt--
+                        }
                         characters[i].moveInt--
+                        if(characters[i].moveInt <= -1){
+                            characters[i].moveInt = 0
+                        }
                     }
                 }
             }
@@ -1331,7 +1365,7 @@ const doMoveInterval = () => {
 
 const doAnimPath = (num) => {
     if(characters[num].path >= Object.keys(characters[num].pathFind).length){
-
+        console.log("Unknown>>")
     }else if(characters[num].path + 1 >= Object.keys(characters[num].pathFind).length){
         if(Object.values(characters[num].pathFind)[characters[num].path].pos == "left" && !leftDoorClose){
             doJumpscare(characters[num])
@@ -1578,7 +1612,7 @@ const doExtra = () => {
         });
     });
 
-    document.querySelector(".nav-selector").addEventListener("click", (event) => {
+    document.querySelector(".nav-selector").addEventListener("mouseup", (event) => {
         let children = document.querySelector(".nav-selector").children
         let number = Array.from(children).indexOf(event.target)
         doExtraSelect(number)
@@ -1602,10 +1636,10 @@ const doExtraSelect = (num) => {
     }
     switch(num){
         case 0:
-            changeEXTPic("early", characterPic)
+            changeEXTPic("early", "char")
             break
         case 1:
-            changeEXTPic("early", scenePic)
+            changeEXTPic("early", "scene")
             break
         case 2:
             changeCTN()
@@ -1620,8 +1654,20 @@ const doExtraSelect = (num) => {
 
 const changeEXTPic = (type, pic) => {
     if(type == "early"){
-        picCount = 0
-        pictures = pic
+        extras.extraPics.picCount = 0
+        extras.extraPics.pictures = []
+        if(pic == "char"){
+            for(let i = 0;i < characters.length; i++){
+                extras.extraPics.pictures.push(characters[i].mMImage)
+            }
+        }else{
+            extras.extraPics.pictures = ["files/images/office/office_front.png", "files/images/camera/radar0.png", "files/images/camera/radar1.png"]
+            for(let i = 0; i < Object.keys(cameras).length; i++){
+                for(let e = 0; e < Object.keys(Object.values(cameras)[i]).length; e++){
+                    extras.extraPics.pictures.push(`files/images/camera/images/${Object.keys(Object.values(cameras)[i])[e]}.png`)
+                }
+            }
+        }
         document.querySelector(".scene-show").innerHTML = `
             <div class="top-bar">
                 <div class="scene-num"></div>
@@ -1644,26 +1690,26 @@ const changeEXTPic = (type, pic) => {
         doSoundPlay("gameSounds", "click", "loadPlay")
     }
     if(type == "left"){
-        picCount--
+        extras.extraPics.picCount--
     }else if(type == "right"){
-        picCount++
+        extras.extraPics.picCount++
     }
-    if(picCount == -1){
-        picCount = pictures.length - 1
-    }else if(picCount == pictures.length){
-        picCount = 0
+    if(extras.extraPics.picCount == -1){
+        extras.extraPics.picCount = extras.extraPics.pictures.length - 1
+    }else if(extras.extraPics.picCount == extras.extraPics.pictures.length){
+        extras.extraPics.picCount = 0
     }
-    document.querySelector(".scene-container").innerHTML = `<a target="_blank" href="${pictures[picCount]}"><div class="scene"></div></a>`
+    document.querySelector(".scene-container").innerHTML = `<a target="_blank" href="${extras.extraPics.pictures[extras.extraPics.picCount]}"><div class="scene"></div></a>`
     if(extraText == "Characters"){
-        document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pictures.length} - ${characters[picCount].name}`
+        document.querySelector(".scene-num").innerHTML = `${extras.extraPics.picCount + 1}/${extras.extraPics.pictures.length} - ${characters[extras.extraPics.picCount].name}`
     }else{
-        let splitTitle = pictures[picCount].split("/")
+        let splitTitle = extras.extraPics.pictures[extras.extraPics.picCount].split("/")
         let splitName = splitTitle[splitTitle.length - 1]
         splitName = splitName.split(".")
         let name = splitName[0]
-        document.querySelector(".scene-num").innerHTML = `${picCount + 1}/${pictures.length} - ${name}`
+        document.querySelector(".scene-num").innerHTML = `${extras.extraPics.picCount + 1}/${extras.extraPics.pictures.length} - ${name}`
     }
-    document.querySelector(".scene").style.background = `url(${pictures[picCount]})`
+    document.querySelector(".scene").style.background = `url(${extras.extraPics.pictures[extras.extraPics.picCount]})`
     document.querySelector(".scene").style.backgroundSize = `contain`
     document.querySelector(".scene").style.backgroundPosition = `center`
     document.querySelector(".scene").style.backgroundRepeat = `no-repeat`
@@ -1676,7 +1722,6 @@ const changeCTN = () => {
                     <p class="cn-add set-0">Set 0 to all</p>
                     <p class="cn-add add-1">Add 1 to all</p>
                     <p class="cn-add add-5">Add 5 to all</p>
-                    <p class="cn-add add-10">Add 10 to all</p>
                     <p class="cn-add set-20">Set 20 to all</p>
                 </div>
                 <div class="extra-title"><p>${extraText}</p></div>
@@ -1706,60 +1751,31 @@ const changeCTN = () => {
     document.querySelector(".bottom-bar").innerHTML += `
         <div class="cn-begin"><p>Begin</p></div>`
     
+    document.querySelectorAll(`.cn-modes p`).forEach(btn => {
+        btn.addEventListener('click', (event) => {
+            for(let i = 0; i < characters.length; i++){
+                if(event.target.classList[1].split("-")[0] == "set"){
+                    characters[i].difficulty.night7 = Number(event.target.classList[1].split("-")[1])
+                }else{
+                    characters[i].difficulty.night7 += Number(event.target.classList[1].split("-")[1])
+                }
+                changeCTNValue(characters[i])
+            }
+            doSoundPlay("gameSounds", "click", "loadPlay")
+        })
+    });
+    
     characters.forEach(char => {
         document.querySelector(`.${char.name}-arLeft`).addEventListener("click", () => {
+            doSoundPlay("gameSounds", "click", "loadPlay")
             char.difficulty.night7--
             changeCTNValue(char)
         });
         document.querySelector(`.${char.name}-arRight`).addEventListener("click", () => {
+            doSoundPlay("gameSounds", "click", "loadPlay")
             char.difficulty.night7++
             changeCTNValue(char)
         });
-    });
-
-    characters.forEach(char => {
-        document.querySelector(`.${char.name}-img`).addEventListener("click", () => {
-            let randomTaunt = Math.floor(Math.random() * char.tauntSFX.length);
-            let audio = new Audio(`${char.tauntSFX[randomTaunt]}`)
-            audio.volume = volume
-            audio.play()
-        });
-    });
-
-    
-    document.querySelector(".set-0").addEventListener("click", () => {
-        for(let i = 0; i < characters.length; i++){
-            characters[i].difficulty.night7 = 0
-            changeCTNValue(characters[i])
-        }
-    });
-
-    document.querySelector(".add-1").addEventListener("click", () => {
-        for(let i = 0; i < characters.length; i++){
-            characters[i].difficulty.night7 += 1
-            changeCTNValue(characters[i])
-        }
-    });
-
-    document.querySelector(".add-5").addEventListener("click", () => {
-        for(let i = 0; i < characters.length; i++){
-            characters[i].difficulty.night7 += 5
-            changeCTNValue(characters[i])
-        }
-    });
-
-    document.querySelector(".add-10").addEventListener("click", () => {
-        for(let i = 0; i < characters.length; i++){
-            characters[i].difficulty.night7 += 10
-            changeCTNValue(characters[i])
-        }
-    });
-
-    document.querySelector(".set-20").addEventListener("click", () => {
-        for(let i = 0; i < characters.length; i++){
-            characters[i].difficulty.night7 = 20
-            changeCTNValue(characters[i])
-        }
     });
     
     document.querySelector(".cn-begin").addEventListener("click", () => {
@@ -1777,10 +1793,7 @@ const changeCTN = () => {
     });
 }
 
-const changeCTNValue = (data, type) => {
-    if(data.difficulty.night7 > Math.min(Math.max(data.difficulty.night7, 0), 20) || data.difficulty.night7 < Math.min(Math.max(data.difficulty.night7, 0), 20)){}else if(type == "early"){}else{
-        doSoundPlay("gameSounds", "click", "loadPlay")
-    }
+const changeCTNValue = (data) => {
     data.difficulty.night7 = Math.min(Math.max(data.difficulty.night7, 0), 20)
     document.querySelector(`.${data.name}-dif-text`).innerHTML = `${data.difficulty.night7}`
     if(data.difficulty.night7 == 0){
@@ -1863,32 +1876,30 @@ const konamiFunc = (word, event) => {
 }
 
 document.addEventListener("keydown", function(event) {
-    if(event.key == "Escape"){
+    if(event.key == settingsMenu[2].keyBindControl.pauseMenu.bind){
         if(settingsView){
             doSettings()
         }else if(officeView){
             doPause()
         }
     }
-    if(event.key == "Enter" && viewEnding){
+    if(event.key == settingsMenu[2].keyBindControl.skipScene.bind && viewEnding){
         doEnding("skip")
     }
     if(officeView){
         if(!pauseView){
-            if(event.key == "w" && officeView && !camSEnable && !officeLightDelay){
+            if(event.key == settingsMenu[2].keyBindControl.light.bind && officeView && !camSEnable && !officeLightDelay){
                 doFlash()
-            }else if(event.key == "a" && officePos <= 30){
+            }else if(event.key == settingsMenu[2].keyBindControl.leftDoor.bind && officePos <= 30){
                 leftDoorClose = !leftDoorClose
                 doDoorClose(leftDoorClose, "door-left", "door-button-left")
-            }else if(event.key == "d" && officePos >= 70){
+            }else if(event.key == settingsMenu[2].keyBindControl.rightDoor.bind && officePos >= 70){
                 rightDoorClose = !rightDoorClose
                 doDoorClose(rightDoorClose, "door-right", "door-button-right")
-            }
-        }else{
-            if(event.key == "-" || event.key == "=" || event.key == "+"){
-                doVolumeChange(event.key)
             }
         }
     }
     konamiFunc(konamiCode, event.key)
 })
+
+doMenu()
