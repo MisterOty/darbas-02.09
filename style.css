@@ -138,7 +138,7 @@ main{
 }
 
 .text{
-    transition: transform 0.125s, text-shadow 0.125s, font-weight 0.125s;
+    transition: transform 0.125s, text-shadow 0.125s, font-weight 0.125s, color 0.125s, filter 0.125s;
 }
 
 .text:hover{
@@ -616,7 +616,7 @@ footer p{
     justify-content: space-between;
     position: relative;
     width: 100%;
-    height: auto;
+    height: 10%;
 }
 
 .bottom-bar{
@@ -627,7 +627,7 @@ footer p{
     align-items: center;
     top: 0%;
     width: 100%;
-    height: 100%;
+    height: 90%;
 }
 
 .scene-num{
@@ -757,6 +757,13 @@ footer p{
 .scene-container{
     width: 80%;
     height: 90%;
+}
+
+.extra-container, .settings-container{
+    overflow-y: scroll;
+    overflow-x: hidden;
+    width: 100%;
+    height: 100%;
 }
 
 .scene-show, .settings-show{
@@ -1016,6 +1023,10 @@ footer p{
     font-size: 3vmax;
 }
 
+.extra-container::-webkit-scrollbar{display: none}
+.extra-container{-ms-overflow-style: none;scrollbar-width: none}
+.settings-container::-webkit-scrollbar{display: none}
+.settings-container{-ms-overflow-style: none;scrollbar-width: none}
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{-webkit-appearance: none}
 /* input[type=number]{-moz-appearance: textfield} */
 

@@ -153,7 +153,7 @@ let characters = [
     {
         name: "Aidas",
         mMImage: "files/images/characters/aidas/main.png",
-        jumpScareSFX: "files/sounds/sfx /jumpscare.mp3",
+        jumpScareSFX: "files/sounds/sfx/jumpscare.mp3",
         path: 0,
         moveInt: 5,
         isProgressive: true,
@@ -306,8 +306,14 @@ let extras = {
         class: "CHT",
     }],
     extraPics: {
-        picCount: 0,
-        pictures: []
+        char: {
+            picCount: 0,
+            pictures: []
+        },
+        scene: {
+            picCount: 0,
+            pictures: []
+        }
     },
     cheats: [{
         text: "Faster Nights",
@@ -390,6 +396,7 @@ let jumpScareTimeout
 let camTimeOut
 let camEffect
 let currentCam
+let settingText
 let extraText
 let jumpSFX
 let callSFX
@@ -943,7 +950,7 @@ const doSettings = () => {
             <div class="settings-text">
                 <div class="settings-selector"></div>
             </div>
-            <div class="settings-show"></div>`
+            <div class="settings-container"></div>`
 
         for(let i = 0; i <= settingsMenu.length; i++){
             if(i !== settingsMenu.length){
@@ -953,17 +960,38 @@ const doSettings = () => {
             }
         }
 
-        doGameplayChange(settingCount)
+        for(let i = 0; i < settingsMenu.length; i++){
+            settingText = settingsMenu[i].name
+            switch(i){
+                case 0:
+                    doGPSChange()
+                    break
+                case 1:
+                    doVolumeSlider()
+                    break
+                case 2:
+                    doKeybinds()
+                    break
+                case 3:
+                    doCredits()
+                    break
+            }
+        }
+
+        doSettingSelect(settingCount, true)
 
         document.querySelectorAll(".text").forEach(btn => {
             btn.addEventListener("mouseover", () => {
                 doSoundPlay("gameSounds", "click", "loadPlay")
             });
         });
+
+        window.addEventListener("wheel", doSetScrollFunc);
+
         document.querySelector(".settings-selector").addEventListener("mouseup", (event) => {
             let children = document.querySelector(".settings-selector").children
             let number = Array.from(children).indexOf(event.target)
-            doGameplayChange(number)
+            doSettingSelect(number)
         });
     }else{
         settingsView = !settingsView
@@ -972,68 +1000,85 @@ const doSettings = () => {
     }
 }
 
-const doGameplayChange = (num) => {
-    if(settingsMenu.length > num){
+const doSetScrollFunc = (event) => {
+    let container = document.querySelector(".settings-container");
+    let height = container.scrollHeight;
+    let pos = container.scrollTop;
+    let hCalc = height / extras.extraOp.length - 1;
+    let currentEvent = Math.floor(pos / hCalc);
+    let cEFwrd = Math.floor((pos + hCalc / 1.25) / hCalc);
+    if(currentEvent < cEFwrd && event.deltaY < 0){
+        doSettingSelect(cEFwrd - 1)
+    }else if(currentEvent < cEFwrd && event.deltaY > 0){
+        doSettingSelect(cEFwrd)
+    }
+}
+
+const doSettingSelect = (num, isFirst) => {
+    settingCount = Math.max(0, Math.min(settingCount, extras.extraOp.length - 1));
+    if(extras.extraOp.length > num){
         let child = Array.from(document.querySelector(".settings-selector").children)
-        for(let i = 0; i < settingsMenu.length; i++){
+        let classFind = Array.from(document.querySelector(".settings-container").children)[num].classList[1]
+        for(let i = 0; i < extras.extraOp.length; i++){
             if(child[i].classList.contains("enabled")){
                 child[i].classList.toggle("enabled")
                 child[i].classList.toggle("text")
             }
         }
-        document.querySelector(".settings-show").innerHTML = `<h1>${settingsMenu[num].name}</h1>`
         settingCount = num
         child[num].classList.toggle("enabled")
         child[num].classList.toggle("text")
+        tabName.innerHTML = Object.values(extras.extraOp)[num].name
+        if(!isFirst && isFirst !== "scroll"){
+            document.querySelector(`.${classFind}`).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }else if(isFirst && isFirst !== "scroll"){
+            document.querySelector(`.${classFind}`).scrollIntoView({});
+        }
+    }else{
+        doSettings()
+        window.removeEventListener("wheel", doSetScrollFunc);
     }
-    switch(num){
-        case 0:
-            doGPSChange()
-            break
-        case 1:
-            doVolumeSlider()
-            break
-        case 2:
-            doKeybinds()
-            break
-        case 3:
-            doCredits()
-            break
-        default:
-            doSettings()
-    }
+    console.log(settingCount)
 }
 
 const doVolumeSlider = () => {
-    document.querySelector(".settings-show").innerHTML += `<div class="volume-slider-master"></div>`
-        document.querySelector(`.volume-slider-master`).innerHTML += `
-        <div class="volume-main ${Object.keys(settingsMenu[settingCount].volumeControl)[0]}">
-                <p>${settingsMenu[settingCount].volumeControl[Object.keys(settingsMenu[settingCount].volumeControl)[0]].text}</p>
-                <input type="number" id="volume-input-${Object.keys(settingsMenu[settingCount].volumeControl)[0]}" min="0"/><p>%</p>
+    let newDiv = document.createElement("div");
+    newDiv.classList.add("settings-show", `doVolumeSlider`)
+    document.querySelector(".settings-container").appendChild(newDiv)
+    const audioSection = settingsMenu.find(section => section.name == "Audio");
+
+    document.querySelector(`.doVolumeSlider`).innerHTML += `<h1>${settingText}</h1>`
+    document.querySelector(`.doVolumeSlider`).innerHTML += `<div class="volume-slider-master"></div>`
+    document.querySelector(`.volume-slider-master`).innerHTML += `
+        <div class="volume-main ${Object.keys(audioSection.volumeControl)[0]}">
+                <p>${audioSection.volumeControl[Object.keys(audioSection.volumeControl)[0]].text}</p>
+                <input type="number" id="volume-input-${Object.keys(audioSection.volumeControl)[0]}" min="0"/><p>%</p>
                 <p class="volume-button volume-add">+</p>
                 <p class="volume-button volume-remove">-</p>
         </div>`
-    document.querySelector(".settings-show").innerHTML += `<div class="volume-slider"></div>`
-    for(let i = 1; i < Object.keys(settingsMenu[settingCount].volumeControl).length; i++){
+    document.querySelector(`.doVolumeSlider`).innerHTML += `<div class="volume-slider"></div>`
+    for(let i = 1; i < Object.keys(audioSection.volumeControl).length; i++){
         document.querySelector(`.volume-slider`).innerHTML += `
-            <div class="volume-main ${Object.keys(settingsMenu[settingCount].volumeControl)[i]}">
-                    <p>${settingsMenu[settingCount].volumeControl[Object.keys(settingsMenu[settingCount].volumeControl)[i]].text}</p>
-                    <input type="number" id="volume-input-${Object.keys(settingsMenu[settingCount].volumeControl)[i]}" min="0"/><p>%</p>
+            <div class="volume-main ${Object.keys(audioSection.volumeControl)[i]}">
+                    <p>${audioSection.volumeControl[Object.keys(audioSection.volumeControl)[i]].text}</p>
+                    <input type="number" id="volume-input-${Object.keys(audioSection.volumeControl)[i]}" min="0"/><p>%</p>
                     <p class="volume-button volume-add">+</p>
                     <p class="volume-button volume-remove">-</p>
             </div>`
     }
 
-    for(let i = 0; i < Object.keys(settingsMenu[settingCount].volumeControl).length; i++){
-        doVolumeChange("start", `${Object.keys(settingsMenu[settingCount].volumeControl)[i]}`, settingsMenu[settingCount].volumeControl[Object.keys(settingsMenu[settingCount].volumeControl)[i]].value)
+    for(let i = 0; i < Object.keys(audioSection.volumeControl).length; i++){
+        doVolumeChange("start", `${Object.keys(audioSection.volumeControl)[i]}`, audioSection.volumeControl[Object.keys(audioSection.volumeControl)[i]].value)
 
-        document.querySelector(`.${Object.keys(settingsMenu[settingCount].volumeControl)[i]}`).addEventListener("input", () => {
-            doVolumeChange("typein", Object.keys(settingsMenu[settingCount].volumeControl)[i], settingsMenu[settingCount].volumeControl[Object.keys(settingsMenu[settingCount].volumeControl)[i]].value)
+        document.querySelector(`.${Object.keys(audioSection.volumeControl)[i]}`).addEventListener("input", () => {
+            doVolumeChange("typein", Object.keys(audioSection.volumeControl)[i], audioSection.volumeControl[Object.keys(audioSection.volumeControl)[i]].value)
         });
 
-        document.querySelectorAll(`.${Object.keys(settingsMenu[settingCount].volumeControl)[i]} .volume-button`).forEach(btn => {
+        document.querySelectorAll(`.${Object.keys(audioSection.volumeControl)[i]} .volume-button`).forEach(btn => {
             btn.addEventListener("click", () => {
-                doVolumeChange(btn.textContent, Object.keys(settingsMenu[settingCount].volumeControl)[i], settingsMenu[settingCount].volumeControl[Object.keys(settingsMenu[settingCount].volumeControl)[i]].value)
+                doVolumeChange(btn.textContent, Object.keys(audioSection.volumeControl)[i], audioSection.volumeControl[Object.keys(audioSection.volumeControl)[i]].value)
             });
         });
     }
@@ -1041,6 +1086,7 @@ const doVolumeSlider = () => {
 
 const doVolumeChange = (type, classVolume, value) => {
     let tempValue
+    const audioSection = settingsMenu.find(section => section.name == "Audio");
     if(type == "start"){
         tempValue = value * 100
         tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
@@ -1060,7 +1106,7 @@ const doVolumeChange = (type, classVolume, value) => {
     }
     tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
     document.querySelector(`.${classVolume} #volume-input-${classVolume}`).value = tempValue
-    settingsMenu[settingCount].volumeControl[classVolume].value = tempValue / 100
+    audioSection.volumeControl[classVolume].value = tempValue / 100
     doSoundPlay("gameSounds", "click", "loadPlay")
     if(classVolume !== "masterVolume"){
         for(let i = 0; i < Object.keys(soundEffects[`${classVolume.split("Volume")[0]}Sounds`]).length; i++){
@@ -1076,36 +1122,54 @@ const doVolumeChange = (type, classVolume, value) => {
 }
 
 const doGPSChange = () => {
-    document.querySelector(".settings-show").innerHTML += `<div class="gpSettings-master"></div>`
-    for(let i = 0; i < Object.keys(settingsMenu[settingCount].gameplayControl).length; i++){
+    let newDiv = document.createElement("div");
+    newDiv.classList.add("settings-show", `set-${settingText}`)
+    document.querySelector(".settings-container").appendChild(newDiv)
+    const gameplaySection = settingsMenu.find(section => section.name == "Gameplay");
+
+    document.querySelector(`.set-${settingText}`).innerHTML += `<h1>${settingText}</h1>`
+    document.querySelector(`.set-${settingText}`).innerHTML += `<div class="gpSettings-master"></div>`
+    for(let i = 0; i < Object.keys(gameplaySection.gameplayControl).length; i++){
         document.querySelector(`.gpSettings-master`).innerHTML += `
-            <div class="gpSetting ${Object.keys(settingsMenu[settingCount].gameplayControl)[i]}">
-                    <p>${settingsMenu[settingCount].gameplayControl[Object.keys(settingsMenu[settingCount].gameplayControl)[i]].text}</p><div class="switch"></div>
+            <div class="gpSetting ${Object.keys(gameplaySection.gameplayControl)[i]}">
+                    <p>${gameplaySection.gameplayControl[Object.keys(gameplaySection.gameplayControl)[i]].text}</p><div class="switch"></div>
             </div>`
-        if(settingsMenu[settingCount].gameplayControl[Object.keys(settingsMenu[settingCount].gameplayControl)[i]].value){
-            document.querySelector(`.${Object.keys(settingsMenu[settingCount].gameplayControl)[i]} .switch`).classList.add("enabled")
+        if(gameplaySection.gameplayControl[Object.keys(gameplaySection.gameplayControl)[i]].value){
+            document.querySelector(`.${Object.keys(gameplaySection.gameplayControl)[i]} .switch`).classList.add("enabled")
         }
     }
     document.querySelectorAll(`.gpSettings-master .gpSetting`).forEach(btn => {
         btn.addEventListener("click", (event) => {
             let classDiv = event.currentTarget.classList[1]
-            settingsMenu[settingCount].gameplayControl[classDiv].value = !settingsMenu[settingCount].gameplayControl[classDiv].value
+            gameplaySection.gameplayControl[classDiv].value = !gameplaySection.gameplayControl[classDiv].value
             document.querySelector(`.${classDiv} .switch`).classList.toggle("enabled")
             doSoundPlay("gameSounds", "click", "loadPlay")
         });
     });
 }
 
-const doKeybinds = () => {
-    document.querySelector(".settings-show").innerHTML += `<div class="gpSettings-master"></div>`
-    for(let i = 0; i < Object.keys(settingsMenu[settingCount].keyBindControl).length; i++){
-        document.querySelector(`.gpSettings-master`).innerHTML += `<div class="keyBind"><p>${settingsMenu[settingCount].keyBindControl[Object.keys(settingsMenu[settingCount].keyBindControl)[i]].name}:</p><p class="keyBind-highlight">${settingsMenu[settingCount].keyBindControl[Object.keys(settingsMenu[settingCount].keyBindControl)[i]].bind}</p></div>`
+const doKeybinds = () => {  
+    let newDiv = document.createElement("div");
+    newDiv.classList.add("settings-show", `doKeybinds`)
+    document.querySelector(".settings-container").appendChild(newDiv)
+    const keybindsSection = settingsMenu.find(section => section.name == "Keybinds");
+
+    document.querySelector(`.doKeybinds`).innerHTML += `<h1>${settingText}</h1>`
+    document.querySelector(`.doKeybinds`).innerHTML += `<div class="gpSettings-master master-doKeybinds"></div>`
+    for(let i = 0; i < Object.keys(keybindsSection.keyBindControl).length; i++){
+        document.querySelector(`.master-doKeybinds`).innerHTML += `<div class="keyBind"><p>${keybindsSection.keyBindControl[Object.keys(keybindsSection.keyBindControl)[i]].name}:</p><p class="keyBind-highlight">${keybindsSection.keyBindControl[Object.keys(keybindsSection.keyBindControl)[i]].bind}</p></div>`
     }
 }
 
 const doCredits = () => {
-    document.querySelector(".settings-show").innerHTML += `<div class="gpSettings-master"></div>`
-    document.querySelector(`.gpSettings-master`).innerHTML += `<div class="${settingsMenu[settingCount].class}"><p>${settingsMenu[settingCount].creditControl.name} ${settingsMenu[settingCount].creditControl.class}</p></div>`
+    let newDiv = document.createElement("div");
+    newDiv.classList.add("settings-show", `doCredits`)
+    document.querySelector(".settings-container").appendChild(newDiv)
+    const creditsSection = settingsMenu.find(section => section.name == "Credits");
+    
+    document.querySelector(`.doCredits`).innerHTML += `<h1>${settingText}</h1>`
+    document.querySelector(`.doCredits`).innerHTML += `<div class="gpSettings-master master-doCredits"></div>`
+    document.querySelector(`.master-doCredits`).innerHTML += `<div class="${creditsSection.class}"><p>${creditsSection.creditControl.name} ${creditsSection.creditControl.class}</p></div>`
 }
 
 //OFFICE FUNCTIONS
@@ -1591,7 +1655,7 @@ const doExtra = () => {
             <div class="nav-text">
                 <div class="nav-selector"></div>
             </div>
-        <div class="scene-show"></div>`
+        <div class="extra-container"></div>`
 
     for(let i = 0; i <= extras.extraOp.length; i++){
         if(i !== extras.extraOp.length){
@@ -1603,8 +1667,7 @@ const doExtra = () => {
 
     gamePlay.style.background = `url(files/images/camera/static.gif)`
     gamePlay.style.backgroundSize = `100% 100%`
-
-    doExtraSelect(extraSelectCount)
+    
     doSoundPlay("ambienceSounds", "extTheme", "play", true)
 
     document.querySelectorAll(".text").forEach(btn => {
@@ -1613,6 +1676,28 @@ const doExtra = () => {
         });
     });
 
+    for(let i = 0; i < extras.extraOp.length; i++){
+        extraText = Object.values(extras.extraOp)[i].name
+        switch(i){
+            case 0:
+                changeEXTPic("early", "char")
+                break
+            case 1:
+                changeEXTPic("early", "scene")
+                break
+            case 2:
+                changeCTN()
+                break
+            case 3:
+                changeCHT()
+                break
+        }
+    }
+
+    doExtraSelect(extraCount, true)
+
+    window.addEventListener("wheel", doScrollFunc);
+
     document.querySelector(".nav-selector").addEventListener("mouseup", (event) => {
         let children = document.querySelector(".nav-selector").children
         let number = Array.from(children).indexOf(event.target)
@@ -1620,116 +1705,135 @@ const doExtra = () => {
     });
 }
 
-const doExtraSelect = (num) => {
+const doScrollFunc = (event) => {
+    let container = document.querySelector(".extra-container");
+    let height = container.scrollHeight;
+    let pos = container.scrollTop;
+    let hCalc = height / extras.extraOp.length - 1;
+    let currentEvent = Math.floor(pos / hCalc);
+    let cEFwrd = Math.floor((pos + hCalc / 1.25) / hCalc);
+    if(currentEvent < cEFwrd && event.deltaY < 0){
+        doExtraSelect(cEFwrd - 1)
+    }else if(currentEvent < cEFwrd && event.deltaY > 0){
+        doExtraSelect(cEFwrd)
+    }
+}
+
+const doExtraSelect = (num, isFirst) => {
+    extraCount = Math.max(0, Math.min(extraCount, extras.extraOp.length - 1));
     if(extras.extraOp.length > num){
         let child = Array.from(document.querySelector(".nav-selector").children)
+        let classFind = Array.from(document.querySelector(".extra-container").children)[num].classList[1]
         for(let i = 0; i < extras.extraOp.length; i++){
             if(child[i].classList.contains("enabled")){
                 child[i].classList.toggle("enabled")
                 child[i].classList.toggle("text")
             }
         }
-        extraSelectCount = num
+        extraCount = num
         child[num].classList.toggle("enabled")
         child[num].classList.toggle("text")
-        extraText = Object.values(extras.extraOp)[num].name
         tabName.innerHTML = Object.values(extras.extraOp)[num].name
-    }
-    switch(num){
-        case 0:
-            changeEXTPic("early", "char")
-            break
-        case 1:
-            changeEXTPic("early", "scene")
-            break
-        case 2:
-            changeCTN()
-            break
-        case 3:
-            changeCHT()
-            break
-        default:
+        if(!isFirst && isFirst !== "scroll"){
+            document.querySelector(`.${classFind}`).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }else if(isFirst && isFirst !== "scroll"){
+            document.querySelector(`.${classFind}`).scrollIntoView({});
+        }
+    }else{
         doMenu()
+        window.removeEventListener("wheel", doScrollFunc);
     }
 }
 
 const changeEXTPic = (type, pic) => {
+    let selector = extras.extraPics[`${pic}`]
     if(type == "early"){
-        extras.extraPics.picCount = 0
-        extras.extraPics.pictures = []
+        selector.picCount = 0
+        selector.pictures = []
         if(pic == "char"){
             for(let i = 0;i < characters.length; i++){
-                extras.extraPics.pictures.push(characters[i].mMImage)
+                selector.pictures.push(characters[i].mMImage)
             }
         }else{
-            extras.extraPics.pictures = ["files/images/office/office_front.png", "files/images/camera/radar0.png", "files/images/camera/radar1.png"]
+            selector.pictures = ["files/images/office/office_front.png", "files/images/camera/radar0.png", "files/images/camera/radar1.png"]
             for(let i = 0; i < Object.keys(cameras).length; i++){
                 for(let e = 0; e < Object.keys(Object.values(cameras)[i]).length; e++){
-                    extras.extraPics.pictures.push(`files/images/camera/images/${Object.keys(Object.values(cameras)[i])[e]}.png`)
+                    selector.pictures.push(`files/images/camera/images/${Object.keys(Object.values(cameras)[i])[e]}.png`)
                 }
             }
         }
-        document.querySelector(".scene-show").innerHTML = `
-            <div class="top-bar">
-                <div class="scene-num"></div>
-                <div class="extra-title"><p>${extraText}</p></div>
-            </div>
-            <div class="bottom-bar">
-                <div class="arrow-left arrow">&lt;&lt;</div>
-                <div class="arrow-right arrow">>></div>
-                <div class="scene-container"></div>
-            </div>`
+        let newDiv = document.createElement("div");
+        newDiv.classList.add("scene-show", `change${pic}`)
+        newDiv.innerHTML = `
+                <div class="top-bar">
+                    <div class="scene-num"></div>
+                    <div class="extra-title"><p>${extraText}</p></div>
+                </div>
+                <div class="bottom-bar">
+                    <div class="arrow-left arrow">&lt;&lt;</div>
+                    <div class="arrow-right arrow">>></div>
+                    <div class="scene-container"></div>
+                </div>`
         
-        document.querySelector(".arrow-left").addEventListener("click", () => {
-            changeEXTPic("left")
+        document.querySelector(".extra-container").appendChild(newDiv)
+
+        document.querySelector(`.change${pic} .arrow-left`).addEventListener("click", () => {
+            changeEXTPic("left", `${pic}`)
         });
 
-        document.querySelector(".arrow-right").addEventListener("click", () => {
-            changeEXTPic("right")
+        document.querySelector(`.change${pic} .arrow-right`).addEventListener("click", () => {
+            changeEXTPic("right", `${pic}`)
         });
     }else{
         doSoundPlay("gameSounds", "click", "loadPlay")
     }
     if(type == "left"){
-        extras.extraPics.picCount--
+        selector.picCount--
     }else if(type == "right"){
-        extras.extraPics.picCount++
+        selector.picCount++
     }
-    if(extras.extraPics.picCount == -1){
-        extras.extraPics.picCount = extras.extraPics.pictures.length - 1
-    }else if(extras.extraPics.picCount == extras.extraPics.pictures.length){
-        extras.extraPics.picCount = 0
+    if(selector.picCount == -1){
+        selector.picCount = selector.pictures.length - 1
+    }else if(selector.picCount == selector.pictures.length){
+        selector.picCount = 0
     }
-    document.querySelector(".scene-container").innerHTML = `<a target="_blank" href="${extras.extraPics.pictures[extras.extraPics.picCount]}"><div class="scene"></div></a>`
-    if(extraText == "Characters"){
-        document.querySelector(".scene-num").innerHTML = `${extras.extraPics.picCount + 1}/${extras.extraPics.pictures.length} - ${characters[extras.extraPics.picCount].name}`
+    document.querySelector(`.change${pic} .scene-container`).innerHTML = `<a target="_blank" href="${selector.pictures[selector.picCount]}"><div class="scene"></div></a>`
+    if(pic == "char"){
+        document.querySelector(".scene-num").innerHTML = `${selector.picCount + 1}/${selector.pictures.length} - ${characters[selector.picCount].name}`
     }else{
-        let splitTitle = extras.extraPics.pictures[extras.extraPics.picCount].split("/")
+        let splitTitle = selector.pictures[selector.picCount].split("/")
         let splitName = splitTitle[splitTitle.length - 1]
         splitName = splitName.split(".")
         let name = splitName[0]
-        document.querySelector(".scene-num").innerHTML = `${extras.extraPics.picCount + 1}/${extras.extraPics.pictures.length} - ${name}`
+        document.querySelector(`.change${pic} .scene-num`).innerHTML = `${selector.picCount + 1}/${selector.pictures.length} - ${name}`
     }
-    document.querySelector(".scene").style.background = `url(${extras.extraPics.pictures[extras.extraPics.picCount]})`
-    document.querySelector(".scene").style.backgroundSize = `contain`
-    document.querySelector(".scene").style.backgroundPosition = `center`
-    document.querySelector(".scene").style.backgroundRepeat = `no-repeat`
+    document.querySelector(`.change${pic} .scene`).style.background = `url(${selector.pictures[selector.picCount]})`
+    document.querySelector(`.change${pic} .scene`).style.backgroundSize = `contain`
+    document.querySelector(`.change${pic} .scene`).style.backgroundPosition = `center`
+    document.querySelector(`.change${pic} .scene`).style.backgroundRepeat = `no-repeat`
 }
 
 const changeCTN = () => {
-    document.querySelector(".scene-show").innerHTML = `
-            <div class="top-bar">
-                <div class="cn-modes">
-                    <p class="cn-add set-0">Set 0 to all</p>
-                    <p class="cn-add add-1">Add 1 to all</p>
-                    <p class="cn-add add-5">Add 5 to all</p>
-                    <p class="cn-add set-20">Set 20 to all</p>
-                </div>
-                <div class="extra-title"><p>${extraText}</p></div>
+    let newDiv = document.createElement("div");
+    newDiv.classList.add("scene-show", "changeCTN")
+    newDiv.innerHTML = `
+        <div class="top-bar">
+            <div class="cn-modes">
+                <p class="cn-add set-0">Set 0 to all</p>
+                <p class="cn-add add-1">Add 1 to all</p>
+                <p class="cn-add add-5">Add 5 to all</p>
+                <p class="cn-add set-20">Set 20 to all</p>
             </div>
-            <div class="bottom-bar">
-                <div class="characters"></div>
-            </div>`
+            <div class="extra-title"><p>${extraText}</p></div>
+        </div>
+        <div class="bottom-bar">
+            <div class="characters"></div>
+        </div>`
+
+    document.querySelector(".extra-container").appendChild(newDiv)
+
     for(let i = 0;i < characters.length; i++){
         document.querySelector(".characters").innerHTML += `
                 <div class="cn-character">
@@ -1749,7 +1853,7 @@ const changeCTN = () => {
         document.querySelector(`.${characters[i].name}-img`).style.backgroundPosition = `center top`
         changeCTNValue(characters[i], "early")
     }
-    document.querySelector(".bottom-bar").innerHTML += `
+    document.querySelector(".changeCTN .bottom-bar").innerHTML += `
         <div class="cn-begin"><p>Begin</p></div>`
     
     document.querySelectorAll(`.cn-modes p`).forEach(btn => {
@@ -1821,16 +1925,20 @@ const doGoldenRobertEG = () => {
 //CHEATS
 
 const changeCHT = () => {
-    document.querySelector(".scene-show").innerHTML = `
-            <div class="top-bar">
-                <div class="cn-modes">
-                    <p class="cn-add tgl-cheats">Toggle all Cheats</p>
-                </div>
-                <div class="extra-title"><p>${extraText}</p></div>
+    let newDiv = document.createElement("div");
+    newDiv.classList.add("scene-show", "changeCHT")
+    newDiv.innerHTML = `
+        <div class="top-bar">
+            <div class="cn-modes">
+                <p class="cn-add tgl-cheats">Toggle all Cheats</p>
             </div>
-            <div class="bottom-bar">
-                <div class="cheats"></div>
-            </div>`
+            <div class="extra-title"><p>${extraText}</p></div>
+        </div>
+        <div class="bottom-bar">
+            <div class="cheats"></div>
+        </div>`
+
+    document.querySelector(".extra-container").appendChild(newDiv)
 
     for(let i = 0;i < extras.cheats.length; i++){
         document.querySelector(".cheats").innerHTML += `
@@ -1842,7 +1950,7 @@ const changeCHT = () => {
         }
     }
 
-    document.querySelector(".tgl-cheats").addEventListener("click", () => {
+    document.querySelector(".tgl-cheats").addEventListener("click", (event) => {
         for(let i = 0; i < extras.cheats.length; i++){
             changeCHTEnable(extras.cheats[i].class, i)
         }
