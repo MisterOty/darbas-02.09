@@ -818,7 +818,6 @@ const doPause = (type) => {
             doMenu()
             doPause("menu")
         });
-
     }else if(type == "menu"){
         pauseDiv.innerHTML = ``
     }else{
@@ -1112,23 +1111,25 @@ const doCredits = () => {
 //OFFICE FUNCTIONS
 
 const changePosLeft = () => {
-    if(!mouseOver) return
-    officePos--
-    changePos()
-    requestAnimationFrame(changePosLeft)
+    if(mouseOver){
+        officePos--
+        changePos()
+        requestAnimationFrame(changePosLeft)
+    }
 }
 
 const changePosRight = () => {
-    if(!mouseOver) return
-    officePos++
-    changePos()
-    requestAnimationFrame(changePosRight)
+    if(mouseOver){
+        officePos++
+        changePos()
+        requestAnimationFrame(changePosRight)
+    }
 }
 
 const changePos = () => {
     if(officePos >= 30 && 70 >= officePos && !powerOutage){
         document.querySelector(".cam-hover").style.display = `block`
-    }else{
+    }else if(document.querySelector(".cam-hover").style.display = `block`){
         document.querySelector(".cam-hover").style.display = `none`
     }
     officePos = Math.min(100, Math.max(0, officePos));
@@ -1901,5 +1902,3 @@ document.addEventListener("keydown", function(event) {
     }
     konamiFunc(konamiCode, event.key)
 })
-
-doMenu()

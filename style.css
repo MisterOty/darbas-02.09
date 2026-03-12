@@ -60,7 +60,7 @@ body{
 }
 
 .playButton:hover{
-    transform: scale(2.5);
+    transform: scale(1.5);
 }
 
 .title{
@@ -93,6 +93,7 @@ main{
     right: 0%;
     top: 0%;
     z-index: 1;
+    filter: opacity(0.25);
 }
 
 .MMenuChr-img{
