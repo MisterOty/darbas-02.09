@@ -211,7 +211,9 @@ let cameras = {
     },
 }
 
-let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
+let konamiCode = ["ArrowUp", 
+    // "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"
+]
 
 const body = document.querySelector("body")
 const tabName = document.querySelector(".tab-title")
@@ -279,11 +281,12 @@ let settingsMenu = [
         }
     },
     {
-        name: "Credits",
-        class: "CRD",
-        creditControl: {
-            name: "Oskaras Venzlauskas",
-            class: "GJSM23"
+        name: "Game Data",
+        class: "GDT",
+        dataCheck: 0,
+        dataControl: {
+            name: "Reset Data",
+            text: ["Are You Sure?", "One more time"]
         }
     },
 ]
@@ -356,7 +359,7 @@ let soundEffects = {
 
 let gameSpeed = 1;
 let gameTime = 0;
-let power = 1000;
+let power = 700;
 let powerUsage = 1;
 let currentNight = 0;
 let cameraFloor = 0;
@@ -463,7 +466,7 @@ const clearMain = () => {
     }
     gameSpeed = 1
     gameTime = 0
-    power = 1000
+    power = 700
     powerUsage = 1
     officePos = 50
     cameraFloor = 0
@@ -477,7 +480,7 @@ const clearMain = () => {
 
 //CHANGE SCENE
 
-const newGame = (choose) => {
+const newGame = (choose) => {   
     if(choose == 0){
         newsPaperView = !newsPaperView
         gamePlay.innerHTML +=`
@@ -571,19 +574,21 @@ const doMenuImg = () => {
     let chrImgRight = 0
     let chrImgBottom = 0
     let zIndex = characters.length
-    for(let i = 0;i < characters.length; i++){
-        let character = `char${i}-img`
-        document.querySelector(".MMenuCharacter").innerHTML += `<div class="${character} MMenuChr-img"></div>`
-        document.querySelector(`.${character}`).style.background = `url(${characters[i].mMImage})`
-        document.querySelector(`.${character}`).style.backgroundPosition = `center top`
-        document.querySelector(`.${character}`).style.backgroundSize = `150% 150%`
-        document.querySelector(`.${character}`).style.filter = `brightness(${1 / (characters.length / zIndex)})`
-        document.querySelector(`.${character}`).style.bottom = `${chrImgBottom}%`
-        document.querySelector(`.${character}`).style.right = `${chrImgRight}%`
-        document.querySelector(`.${character}`).style.zIndex = `${zIndex}`
-        chrImgRight += 35 / zIndex
-        chrImgBottom -= 10 / zIndex
-        zIndex -= 1
+    for(let i = 0; i < characters.length; i++){
+        if(gameData.night > i + 1){
+            let character = `char${i}-img`
+            document.querySelector(".MMenuCharacter").innerHTML += `<div class="${character} MMenuChr-img"></div>`
+            document.querySelector(`.${character}`).style.background = `url(${characters[i].mMImage})`
+            document.querySelector(`.${character}`).style.backgroundPosition = `center top`
+            document.querySelector(`.${character}`).style.backgroundSize = `150% 150%`
+            document.querySelector(`.${character}`).style.filter = `brightness(${1 / (characters.length / zIndex)})`
+            document.querySelector(`.${character}`).style.bottom = `${chrImgBottom}%`
+            document.querySelector(`.${character}`).style.right = `${chrImgRight}%`
+            document.querySelector(`.${character}`).style.zIndex = `${zIndex}`
+            chrImgRight += 35 / zIndex
+            chrImgBottom -= 10 / zIndex
+            zIndex -= 1
+        }
     }
 }
 
@@ -879,7 +884,7 @@ const do6am = () => {
     }, 6300);
     setTimeout(() => {
         switch(currentNight){
-            case 7 && twentyMode:
+            case 7:
                 if(twentyMode){
                     doEnding(4)
                 }else{
@@ -973,7 +978,7 @@ const doSettings = () => {
                     doKeybinds()
                     break
                 case 3:
-                    doCredits()
+                    doGameData()
                     break
             }
         }
@@ -1047,38 +1052,38 @@ const doVolumeSlider = () => {
     let newDiv = document.createElement("div");
     newDiv.classList.add("settings-show", `doVolumeSlider`)
     document.querySelector(".settings-container").appendChild(newDiv)
-    const audioSection = settingsMenu.find(section => section.name == "Audio");
+    let section = settingsMenu.find(section => section.name == `${settingText}`);
 
     document.querySelector(`.doVolumeSlider`).innerHTML += `<h1>${settingText}</h1>`
     document.querySelector(`.doVolumeSlider`).innerHTML += `<div class="volume-slider-master"></div>`
     document.querySelector(`.volume-slider-master`).innerHTML += `
-        <div class="volume-main ${Object.keys(audioSection.volumeControl)[0]}">
-                <p>${audioSection.volumeControl[Object.keys(audioSection.volumeControl)[0]].text}</p>
-                <input type="number" id="volume-input-${Object.keys(audioSection.volumeControl)[0]}" min="0"/><p>%</p>
+        <div class="volume-main ${Object.keys(section.volumeControl)[0]}">
+                <p>${section.volumeControl[Object.keys(section.volumeControl)[0]].text}</p>
+                <input type="number" id="volume-input-${Object.keys(section.volumeControl)[0]}" min="0"/><p>%</p>
                 <p class="volume-button volume-add">+</p>
                 <p class="volume-button volume-remove">-</p>
         </div>`
     document.querySelector(`.doVolumeSlider`).innerHTML += `<div class="volume-slider"></div>`
-    for(let i = 1; i < Object.keys(audioSection.volumeControl).length; i++){
+    for(let i = 1; i < Object.keys(section.volumeControl).length; i++){
         document.querySelector(`.volume-slider`).innerHTML += `
-            <div class="volume-main ${Object.keys(audioSection.volumeControl)[i]}">
-                    <p>${audioSection.volumeControl[Object.keys(audioSection.volumeControl)[i]].text}</p>
-                    <input type="number" id="volume-input-${Object.keys(audioSection.volumeControl)[i]}" min="0"/><p>%</p>
+            <div class="volume-main ${Object.keys(section.volumeControl)[i]}">
+                    <p>${section.volumeControl[Object.keys(section.volumeControl)[i]].text}</p>
+                    <input type="number" id="volume-input-${Object.keys(section.volumeControl)[i]}" min="0"/><p>%</p>
                     <p class="volume-button volume-add">+</p>
                     <p class="volume-button volume-remove">-</p>
             </div>`
     }
 
-    for(let i = 0; i < Object.keys(audioSection.volumeControl).length; i++){
-        doVolumeChange("start", `${Object.keys(audioSection.volumeControl)[i]}`, audioSection.volumeControl[Object.keys(audioSection.volumeControl)[i]].value)
+    for(let i = 0; i < Object.keys(section.volumeControl).length; i++){
+        doVolumeChange("start", `${Object.keys(section.volumeControl)[i]}`, section.volumeControl[Object.keys(section.volumeControl)[i]].value)
 
-        document.querySelector(`.${Object.keys(audioSection.volumeControl)[i]}`).addEventListener("input", () => {
-            doVolumeChange("typein", Object.keys(audioSection.volumeControl)[i], audioSection.volumeControl[Object.keys(audioSection.volumeControl)[i]].value)
+        document.querySelector(`.${Object.keys(section.volumeControl)[i]}`).addEventListener("input", () => {
+            doVolumeChange("typein", Object.keys(section.volumeControl)[i], section.volumeControl[Object.keys(section.volumeControl)[i]].value)
         });
 
-        document.querySelectorAll(`.${Object.keys(audioSection.volumeControl)[i]} .volume-button`).forEach(btn => {
+        document.querySelectorAll(`.${Object.keys(section.volumeControl)[i]} .volume-button`).forEach(btn => {
             btn.addEventListener("click", () => {
-                doVolumeChange(btn.textContent, Object.keys(audioSection.volumeControl)[i], audioSection.volumeControl[Object.keys(audioSection.volumeControl)[i]].value)
+                doVolumeChange(btn.textContent, Object.keys(section.volumeControl)[i], section.volumeControl[Object.keys(section.volumeControl)[i]].value)
             });
         });
     }
@@ -1086,7 +1091,7 @@ const doVolumeSlider = () => {
 
 const doVolumeChange = (type, classVolume, value) => {
     let tempValue
-    const audioSection = settingsMenu.find(section => section.name == "Audio");
+    let section = settingsMenu.find(section => section.name == `${settingText}`);
     if(type == "start"){
         tempValue = value * 100
         tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
@@ -1106,7 +1111,7 @@ const doVolumeChange = (type, classVolume, value) => {
     }
     tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
     document.querySelector(`.${classVolume} #volume-input-${classVolume}`).value = tempValue
-    audioSection.volumeControl[classVolume].value = tempValue / 100
+    section.volumeControl[classVolume].value = tempValue / 100
     doSoundPlay("gameSounds", "click", "loadPlay")
     if(classVolume !== "masterVolume"){
         for(let i = 0; i < Object.keys(soundEffects[`${classVolume.split("Volume")[0]}Sounds`]).length; i++){
@@ -1125,23 +1130,23 @@ const doGPSChange = () => {
     let newDiv = document.createElement("div");
     newDiv.classList.add("settings-show", `set-${settingText}`)
     document.querySelector(".settings-container").appendChild(newDiv)
-    const gameplaySection = settingsMenu.find(section => section.name == "Gameplay");
+    let section = settingsMenu.find(section => section.name == `${settingText}`);
 
     document.querySelector(`.set-${settingText}`).innerHTML += `<h1>${settingText}</h1>`
     document.querySelector(`.set-${settingText}`).innerHTML += `<div class="gpSettings-master"></div>`
-    for(let i = 0; i < Object.keys(gameplaySection.gameplayControl).length; i++){
+    for(let i = 0; i < Object.keys(section.gameplayControl).length; i++){
         document.querySelector(`.gpSettings-master`).innerHTML += `
-            <div class="gpSetting ${Object.keys(gameplaySection.gameplayControl)[i]}">
-                    <p>${gameplaySection.gameplayControl[Object.keys(gameplaySection.gameplayControl)[i]].text}</p><div class="switch"></div>
+            <div class="gpSetting ${Object.keys(section.gameplayControl)[i]}">
+                    <p>${section.gameplayControl[Object.keys(section.gameplayControl)[i]].text}</p><div class="switch"></div>
             </div>`
-        if(gameplaySection.gameplayControl[Object.keys(gameplaySection.gameplayControl)[i]].value){
-            document.querySelector(`.${Object.keys(gameplaySection.gameplayControl)[i]} .switch`).classList.add("enabled")
+        if(section.gameplayControl[Object.keys(section.gameplayControl)[i]].value){
+            document.querySelector(`.${Object.keys(section.gameplayControl)[i]} .switch`).classList.add("enabled")
         }
     }
     document.querySelectorAll(`.gpSettings-master .gpSetting`).forEach(btn => {
         btn.addEventListener("click", (event) => {
             let classDiv = event.currentTarget.classList[1]
-            gameplaySection.gameplayControl[classDiv].value = !gameplaySection.gameplayControl[classDiv].value
+            section.gameplayControl[classDiv].value = !section.gameplayControl[classDiv].value
             document.querySelector(`.${classDiv} .switch`).classList.toggle("enabled")
             doSoundPlay("gameSounds", "click", "loadPlay")
         });
@@ -1152,24 +1157,41 @@ const doKeybinds = () => {
     let newDiv = document.createElement("div");
     newDiv.classList.add("settings-show", `doKeybinds`)
     document.querySelector(".settings-container").appendChild(newDiv)
-    const keybindsSection = settingsMenu.find(section => section.name == "Keybinds");
+    let section = settingsMenu.find(section => section.name == `${settingText}`);
 
     document.querySelector(`.doKeybinds`).innerHTML += `<h1>${settingText}</h1>`
     document.querySelector(`.doKeybinds`).innerHTML += `<div class="gpSettings-master master-doKeybinds"></div>`
-    for(let i = 0; i < Object.keys(keybindsSection.keyBindControl).length; i++){
-        document.querySelector(`.master-doKeybinds`).innerHTML += `<div class="keyBind"><p>${keybindsSection.keyBindControl[Object.keys(keybindsSection.keyBindControl)[i]].name}:</p><p class="keyBind-highlight">${keybindsSection.keyBindControl[Object.keys(keybindsSection.keyBindControl)[i]].bind}</p></div>`
+    for(let i = 0; i < Object.keys(section.keyBindControl).length; i++){
+        document.querySelector(`.master-doKeybinds`).innerHTML += `<div class="keyBind"><p>${section.keyBindControl[Object.keys(section.keyBindControl)[i]].name}:</p><p class="keyBind-highlight">${section.keyBindControl[Object.keys(section.keyBindControl)[i]].bind}</p></div>`
     }
 }
 
-const doCredits = () => {
+const doGameData = () => {
     let newDiv = document.createElement("div");
-    newDiv.classList.add("settings-show", `doCredits`)
+    newDiv.classList.add("settings-show", `doGameData`)
     document.querySelector(".settings-container").appendChild(newDiv)
-    const creditsSection = settingsMenu.find(section => section.name == "Credits");
+    let section = settingsMenu.find(section => section.name == `${settingText}`);
     
-    document.querySelector(`.doCredits`).innerHTML += `<h1>${settingText}</h1>`
-    document.querySelector(`.doCredits`).innerHTML += `<div class="gpSettings-master master-doCredits"></div>`
-    document.querySelector(`.master-doCredits`).innerHTML += `<div class="${creditsSection.class}"><p>${creditsSection.creditControl.name} ${creditsSection.creditControl.class}</p></div>`
+    document.querySelector(`.doGameData`).innerHTML += `<h1>${settingText}</h1>`
+    document.querySelector(`.doGameData`).innerHTML += `<div class="gpSettings-master master-doGameData"></div>`
+    document.querySelector(`.master-doGameData`).innerHTML += `<div class="${section.class}-reset"><p>>>${section.dataControl.name}<<</p></div>`
+
+    document.querySelector(`.${section.class}-reset`).addEventListener("click", () => {
+        if(section.dataCheck == section.dataControl.text.length){
+            section.dataCheck = 0
+            gameData.night = 0
+            gameData.nightSix = false
+            gameData.extraMenu = false
+            for(let i = 0; i < Object.values(gameData.stars).length; i++){
+                gameData.stars = false
+            }
+            document.querySelector(`.${section.class}-reset`).innerHTML = `<p>>>${section.dataControl.name}<<</p>`
+            doMenu()
+        }else{
+            document.querySelector(`.${section.class}-reset`).innerHTML = `<p>${section.dataControl.text[section.dataCheck]}</p>`
+            section.dataCheck++
+        }
+    });
 }
 
 //OFFICE FUNCTIONS
@@ -1972,7 +1994,7 @@ const changeCHTEnable = (cl, num) => {
 }
 
 const konamiFunc = (word, event) => {
-    if(officeView && !twentyMode){
+    if(officeView){
         if(event == word[secretCount] && secretCount == word.length - 1){
             do6am()
             secretCount = 0

@@ -587,18 +587,17 @@ footer p{
     position: relative;
     align-content: center;
     top: 0%;
-    width: 20%;
+    min-width: 15vmax;
     height: 100%;
     color: white;
 }
 
 .settings-text{
     background: rgb(0, 0, 0, 0.95);
-    border-right: 0.1vmax solid white;
     position: relative;
     align-content: center;
     top: 0%;
-    width: 15%;
+    min-width: 15vmax;
     height: 100%;
     color: white;
 }
@@ -777,6 +776,7 @@ footer p{
 
 .settings-show h1{
     text-align: center;
+    margin: 0;
 }
 
 .settings-button{
@@ -1017,7 +1017,7 @@ footer p{
     font-weight: 1000;
 }
 
-.CRD p{
+.GDT-reset p{
     padding: 1%;
     text-align: center;
     font-size: 3vmax;
@@ -1030,7 +1030,7 @@ footer p{
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{-webkit-appearance: none}
 /* input[type=number]{-moz-appearance: textfield} */
 
-.text:hover, .settings-button:hover, .gpSetting:hover, .button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .door-button-left:hover, .door-button-right:hover, .light-div:hover, .pause-button:hover, .change-floor-button:hover, .call-button:hover, .volume-button:hover{
+.text:hover, .GDT-reset:hover, .settings-button:hover, .gpSetting:hover, .button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .door-button-left:hover, .door-button-right:hover, .light-div:hover, .pause-button:hover, .change-floor-button:hover, .call-button:hover, .volume-button:hover{
     cursor: pointer;
 }
 
