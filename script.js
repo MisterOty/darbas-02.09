@@ -405,30 +405,30 @@ let jumpSFX
 let callSFX
 
 const doSoundPlay = (category, sound, type, isLoop) => {
-    let audioObject = settingsMenu.findIndex(item => item.name == "Audio");
-    let audio = soundEffects[category][sound]
-    let master = settingsMenu[audioObject].volumeControl.masterVolume.value
-    if(category == "gameSounds"){
-        audio.volume = settingsMenu[audioObject].volumeControl.gameVolume.value * master
-    }else if(category == "characterSounds"){
-        audio.volume = settingsMenu[audioObject].volumeControl.characterVolume.value * master
-    }else if(category == "ambienceSounds"){
-        audio.volume = settingsMenu[audioObject].volumeControl.ambienceVolume.value * master
-    }
-    if(type == "play"){
-        audio.play()
-    }else if(type == "loadPlay"){
-        audio.load()
-        audio.play()
-    }else if(type == "stop"){
-        audio.pause()
-        audio.currentTime = 0
-    }else if(type == "pause"){
-        audio.pause()
-    }
-    if(isLoop){
-        audio.loop = true
-    }
+    // let audioObject = settingsMenu.findIndex(item => item.name == "Audio");
+    // let audio = soundEffects[category][sound]
+    // let master = settingsMenu[audioObject].volumeControl.masterVolume.value
+    // if(category == "gameSounds"){
+    //     audio.volume = settingsMenu[audioObject].volumeControl.gameVolume.value * master
+    // }else if(category == "characterSounds"){
+    //     audio.volume = settingsMenu[audioObject].volumeControl.characterVolume.value * master
+    // }else if(category == "ambienceSounds"){
+    //     audio.volume = settingsMenu[audioObject].volumeControl.ambienceVolume.value * master
+    // }
+    // if(type == "play"){
+    //     audio.play()
+    // }else if(type == "loadPlay"){
+    //     audio.load()
+    //     audio.play()
+    // }else if(type == "stop"){
+    //     audio.pause()
+    //     audio.currentTime = 0
+    // }else if(type == "pause"){
+    //     audio.pause()
+    // }
+    // if(isLoop){
+    //     audio.loop = true
+    // }
 }
 
 const clearMain = () => {
@@ -645,7 +645,7 @@ const doOffice = () => {
         <div class="power">
             <div class="power-text">
                 <p>Power left:</p>
-                <p class="power-number">${Math.floor(power / 10)}%</p>
+                <p class="power-number">${Math.floor(power / 7)}%</p>
             </div>
             <div class="power-usage">
                 <p>Usage:</p>
@@ -1611,7 +1611,7 @@ const doPowerCount = () => {
     if(!powerOutage){
             powerInterval = setInterval(() => {
             if(power !== Infinity){
-                document.querySelector(".power-number").innerHTML = `${Math.floor(power / 10)}%`
+                document.querySelector(".power-number").innerHTML = `${Math.floor(power / 7)}%`
                 power--
                 if(power == 0){
                     doPowerOutage()
@@ -1858,7 +1858,7 @@ const changeCTN = () => {
 
     for(let i = 0;i < characters.length; i++){
         document.querySelector(".characters").innerHTML += `
-                <div class="cn-character">
+                <div class="cn-character cn-char-${characters[i].name}">
                     <p>${characters[i].name}</p>
                     <div class="${characters[i].name}-img character-img"></div>
                     <p>Difficulty</p>
@@ -1925,8 +1925,12 @@ const changeCTNValue = (data) => {
     document.querySelector(`.${data.name}-dif-text`).innerHTML = `${data.difficulty.night7}`
     if(data.difficulty.night7 == 0){
         document.querySelector(`.${data.name}-dif-text`).style.color = `hsl(0, 0%, 100%)`
+        document.querySelector(`.cn-char-${data.name}`).style.border = `0.25vmax solid hsla(0, 100%, 100%, 0.1)`
+        document.querySelector(`.cn-char-${data.name}`).style.backgroundColor = `hsla(0, 100%, 0%, 0.5)`
     }else{
         document.querySelector(`.${data.name}-dif-text`).style.color = `hsl(0, 100%, ${100 / (data.difficulty.night7 * 0.1)}%`
+        document.querySelector(`.cn-char-${data.name}`).style.border = `0.25vmax solid hsla(0, 100%, ${100 / (data.difficulty.night7 * 0.1)}%, 0.1)`
+        document.querySelector(`.cn-char-${data.name}`).style.backgroundColor = `hsla(0, 100%, ${Math.min(Math.max((data.difficulty.night7 - 10) / (20 - 10) * 50, 0), 50)}%, 0.1)`
     }
     if(data.difficulty.night7 >= 10){
         document.querySelector(`.${data.name}-img`).style.filter = `grayscale(${(data.difficulty.night7 - 10) * 10}%) contrast(${1 + (data.difficulty.night7 - 10) / 5})`
@@ -2032,3 +2036,5 @@ document.addEventListener("keydown", function(event) {
     }
     konamiFunc(konamiCode, event.key)
 })
+
+doExtra()

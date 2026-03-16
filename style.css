@@ -678,8 +678,6 @@ footer p{
     align-items: center;
     width: 15vmax;
     height: 25vmax;
-    background: rgba(0, 0, 0, 0.5);
-    border: 0.25vmax solid rgba(255, 255, 255, 0.1);
     margin: 1%;
     border-radius: 2vmax;
 }
@@ -687,7 +685,6 @@ footer p{
 .character-img{
     width: 90%;
     height: 90%;
-    background: red;
     border-radius: 1vmax;
 }
 
