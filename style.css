@@ -846,8 +846,8 @@ footer p{
 .doors *{
     position: absolute;
     transition: 0.5s bottom;
-    width: 25%;
-    height: 65%;
+    width: 35%;
+    height: 75%;
     background: url(files/images/office/door.png);
     background-size: 100% 100%;
     z-index: 4;

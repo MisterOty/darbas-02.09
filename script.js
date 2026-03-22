@@ -1,64 +1,83 @@
 // Minigame Web (Point and click game)
 
-let gameData = {
-    night: 0,
-    nightSix: false,
-    extraMenu: false,
-    stars: {
-        star1: false,
-        star2: false,
-        star3: false,
-        star4: false,
+const loadGame = (restart) => {
+    const data = localStorage.getItem("gameData");
+    if(data && !restart){
+        return JSON.parse(data);
+    }else{
+        return{
+            night: 0,
+            nightSix: false,
+            extraMenu: false,
+            stars: {
+                star1: false,
+                star2: false,
+                star3: false,
+                star4: false,
+            }
+        }
     }
 }
 
-gameData = {
-    night: 5,
-    nightSix: true,
-    extraMenu: true,
-    stars: {
-        star1: true,
-        star2: true,
-        star3: true,
-        star4: true,
+const saveGame = (data) => {
+    localStorage.setItem("gameData", JSON.stringify(data));
+}
+
+let gameData = loadGame();
+
+saveGame(gameData);
+
+const doMax = () => {
+    gameData = {
+        night: 5,
+        nightSix: true,
+        extraMenu: true,
+        stars: {
+            star1: true,
+            star2: true,
+            star3: true,
+            star4: true,
+        }
     }
+    saveGame(gameData);
+    doMenu()
 }
 
 let characters = [
     {
-        name: "Speedster",
-        mMImage: "files/images/characters/justas.png",
+        name: "Direktorius",
+        mMImage: "files/images/characters/direktorius/main.png",
         jumpScareSFX: "files/sounds/sfx/jumpscare.mp3",
         path: 0,
         moveInt: 5,
         isProgressive: false,
         pathFind: {
             r21: {
-                image: "files/images/characters/justas.png",
+                image: "files/images/characters/direktorius/r21.png",
                 pos: [50, 50]
             },
             b1: {
-                image: "files/images/characters/justas.png",
+                image: "files/images/characters/direktorius/b1.png",
                 pos: [50, 30]
             },
             a1: {
-                image: "files/images/characters/justas.png",
+                image: "files/images/characters/direktorius/a1.png",
                 pos: [50, 0]
             },
             r14: {
-                image: "files/images/characters/justas.png",
+                image: "files/images/characters/direktorius/r14.png",
                 pos: [50, 0]
             },
             a2: {
-                image: "files/images/characters/justas.png",
+                image: "files/images/characters/direktorius/a2.png",
                 pos: [50, 35]
             },
             office: {
-                image: "files/images/characters/justas.png",
+                image: "files/images/characters/direktorius/main.png",
                 pos: "center"
             },
             innerOffice: {
-                image: "files/images/characters/justas.png",
+                image: "files/images/characters/direktorius/main.png",
                 pos: "left"
             }
         },
@@ -73,35 +92,35 @@ let characters = [
         }
     },
     {
-        name: "Bonepart",
-        mMImage: "files/images/characters/kajus.png",
+        name: "Titas",
+        mMImage: "files/images/characters/titas/main.png",
         jumpScareSFX: "files/sounds/sfx/jumpscare.mp3",
         path: 0,
         moveInt: 5,
         isProgressive: false,
         pathFind: {
             r24: {
-                image: "files/images/characters/kajus.png",
+                image: "files/images/characters/titas/cameras/r24.png",
                 pos: [30, 25]
             },
             t1: {
-                image: "files/images/characters/kajus.png",
+                image: "files/images/characters/titas/cameras/t1.png",
                 pos: [50, 30]
             },
             r11: {
-                image: "files/images/characters/kajus.png",
+                image: "files/images/characters/titas/cameras/r11.png",
                 pos: [25, 20]
             },
             r12: {
-                image: "files/images/characters/kajus.png",
+                image: "files/images/characters/titas/cameras/r12.png",
                 pos: [25, 20]
             },
             office: {
-                image: "files/images/characters/kajus.png",
+                image: "files/images/characters/titas/main.png",
                 pos: "center"
             },
             innerOffice: {
-                image: "files/images/characters/kajus.png",
+                image: "files/images/characters/titas/main.png",
                 pos: "right"
             }
         },
@@ -116,27 +135,27 @@ let characters = [
         }
     },
     {
-        name: "BusinessMan",
-        mMImage: "files/images/characters/saulius.png",
+        name: "Mantas",
+        mMImage: "files/images/characters/mantas/main.png",
         jumpScareSFX: "files/sounds/sfx/jumpscare.mp3",
         path: 0,
         moveInt: 5,
         isProgressive: false,
         pathFind: {
             r23: {
-                image: "files/images/characters/saulius.png",
+                image: "files/images/characters/mantas/cameras/r23.png",
                 pos: [15, 50]
             },
             r22: {
-                image: "files/images/characters/saulius.png",
+                image: "files/images/characters/mantas/cameras/r22.png",
                 pos: [10, 35]
             },
             q1: {
-                image: "files/images/characters/saulius.png",
+                image: "files/images/characters/mantas/cameras/q1.png",
                 pos: [25, 20]
             },
             innerOffice: {
-                image: "files/images/characters/saulius.png",
+                image: "files/images/characters/mantas/main.png",
                 pos: "right"
             }
         },
@@ -211,9 +230,7 @@ let cameras = {
     },
 }
 
-let konamiCode = ["ArrowUp", 
-    // "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"
-]
+let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
 
 const body = document.querySelector("body")
 const tabName = document.querySelector(".tab-title")
@@ -405,33 +422,34 @@ let jumpSFX
 let callSFX
 
 const doSoundPlay = (category, sound, type, isLoop) => {
-    // let audioObject = settingsMenu.findIndex(item => item.name == "Audio");
-    // let audio = soundEffects[category][sound]
-    // let master = settingsMenu[audioObject].volumeControl.masterVolume.value
-    // if(category == "gameSounds"){
-    //     audio.volume = settingsMenu[audioObject].volumeControl.gameVolume.value * master
-    // }else if(category == "characterSounds"){
-    //     audio.volume = settingsMenu[audioObject].volumeControl.characterVolume.value * master
-    // }else if(category == "ambienceSounds"){
-    //     audio.volume = settingsMenu[audioObject].volumeControl.ambienceVolume.value * master
-    // }
-    // if(type == "play"){
-    //     audio.play()
-    // }else if(type == "loadPlay"){
-    //     audio.load()
-    //     audio.play()
-    // }else if(type == "stop"){
-    //     audio.pause()
-    //     audio.currentTime = 0
-    // }else if(type == "pause"){
-    //     audio.pause()
-    // }
-    // if(isLoop){
-    //     audio.loop = true
-    // }
+    let audioObject = settingsMenu.findIndex(item => item.name == "Audio");
+    let audio = soundEffects[category][sound]
+    let master = settingsMenu[audioObject].volumeControl.masterVolume.value
+    if(category == "gameSounds"){
+        audio.volume = settingsMenu[audioObject].volumeControl.gameVolume.value * master
+    }else if(category == "characterSounds"){
+        audio.volume = settingsMenu[audioObject].volumeControl.characterVolume.value * master
+    }else if(category == "ambienceSounds"){
+        audio.volume = settingsMenu[audioObject].volumeControl.ambienceVolume.value * master
+    }
+    if(type == "play"){
+        audio.play()
+    }else if(type == "loadPlay"){
+        audio.load()
+        audio.play()
+    }else if(type == "stop"){
+        audio.pause()
+        audio.currentTime = 0
+    }else if(type == "pause"){
+        audio.pause()
+    }
+    if(isLoop){
+        audio.loop = true
+    }
 }
 
 const clearMain = () => {
+    saveGame(gameData);
     clearInterval(timerInterval)
     clearInterval(powerInterval)
     clearTimeout(jumpScareTimeout)
@@ -1012,6 +1030,7 @@ const doSetScrollFunc = (event) => {
     let hCalc = height / extras.extraOp.length - 1;
     let currentEvent = Math.floor(pos / hCalc);
     let cEFwrd = Math.floor((pos + hCalc / 1.25) / hCalc);
+    console.log(currentEvent)
     if(currentEvent < cEFwrd && event.deltaY < 0){
         doSettingSelect(cEFwrd - 1)
     }else if(currentEvent < cEFwrd && event.deltaY > 0){
@@ -1179,13 +1198,9 @@ const doGameData = () => {
     document.querySelector(`.${section.class}-reset`).addEventListener("click", () => {
         if(section.dataCheck == section.dataControl.text.length){
             section.dataCheck = 0
-            gameData.night = 0
-            gameData.nightSix = false
-            gameData.extraMenu = false
-            for(let i = 0; i < Object.values(gameData.stars).length; i++){
-                gameData.stars = false
-            }
+            gameData = loadGame(true);
             document.querySelector(`.${section.class}-reset`).innerHTML = `<p>>>${section.dataControl.name}<<</p>`
+            doSettings()
             doMenu()
         }else{
             document.querySelector(`.${section.class}-reset`).innerHTML = `<p>${section.dataControl.text[section.dataCheck]}</p>`
@@ -1230,8 +1245,8 @@ const changePos = () => {
 }
 
 const doorPos = () => {
-    document.querySelector(`.door-left`).style.left = `${officePos * -1 + 5}%`
-    document.querySelector(`.door-right`).style.left = `${officePos * -1 + 170}%`
+    document.querySelector(`.door-left`).style.left = `${officePos * -1 + 4}%`
+    document.querySelector(`.door-right`).style.left = `${officePos * -1 + 165}%`
     document.querySelector(`.door-button-left`).style.left = `${officePos * -1 + 33}%`
     document.querySelector(`.door-button-right`).style.left = `${officePos * -1 + 161}%`
 }
@@ -2037,4 +2052,4 @@ document.addEventListener("keydown", function(event) {
     konamiFunc(konamiCode, event.key)
 })
 
-doExtra()
+doOffice()
