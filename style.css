@@ -396,13 +396,46 @@ main{
     background: rgb(150 168 8);
 }
 
+.music-box{
+    width: 25%;
+    z-index: 15;
+    position: absolute;
+    top: 75%;
+    left: 5%;
+    display: none;
+    padding: 1%;
+    gap: 5%;
+}
+
+.circle{
+    background: conic-gradient(rgba(255, 255, 255, 1) 0deg 360deg,rgba(255, 255, 255, 0) 0deg 360deg);
+    width: 10vmax;
+    height: 10vmax;
+    border-radius: 5vmax;
+}
+
+.music-button{
+    border: 0.25vmax solid rgb(0, 125, 0);
+    margin: auto;
+    background: gray;
+    width: 50%;
+    height: 100%;
+    padding: 5%;
+    text-align: center;
+}
+
+.music-button:hover{
+    cursor: pointer;
+    border: 0.25vmax solid rgb(0, 255, 0);
+}
+
 .a1{
     left: 45%;
     top: 45%;
 }
 
 .a2{
-    left: 50%;
+    left: 40%;
     top: 55%;
 }
 

@@ -357,10 +357,10 @@ let soundEffects = {
         powerOutageDoorSFX: new Audio("files/sounds/sfx/disabledclick.mp3"),
         gameOver: new Audio("files/sounds/sfx/gameover.mp3"),
         sixAM: new Audio("files/sounds/sfx/6am.mp3"),
+        shortcircuit: new Audio("files/sounds/sfx/shortcircuit.mp3"),
     },
     characterSounds: {
         footsteps: new Audio("files/sounds/sfx/footsteps.mp3"),
-        teleport: new Audio("files/sounds/sfx/teleport.mp3"),
         goldenRobert: new Audio("files/sounds/sfx/goldenrobertscream.mp3"),
         jumpSFX: new Audio(""),
         phoneCall: new Audio(""),
@@ -387,6 +387,7 @@ let settingCount = 0;
 let extraSelectCount = 0;
 let extraCount = 0;
 let easterEgg = 2067;
+let boxWind = 90;
 
 let allAudio = []
 
@@ -407,11 +408,15 @@ let leftDoorClose = false
 let rightDoorClose = false
 let officeLight = false
 let officeLightDelay = false
+let chargingBox = false
+let holdingDown = false
+let boxFlash = false
 
 let intervalId
 let timerInterval
 let moveInterval
 let powerInterval
+let boxInterval
 let jumpScareTimeout
 let camTimeOut
 let camEffect
@@ -452,6 +457,7 @@ const clearMain = () => {
     saveGame(gameData);
     clearInterval(timerInterval)
     clearInterval(powerInterval)
+    clearInterval(boxInterval)
     clearTimeout(jumpScareTimeout)
     clearInterval(intervalId)
     for(let i = 0; i < Object.keys(soundEffects).length; i++){
@@ -730,6 +736,7 @@ const doOffice = () => {
     doRTimer()
     changePos()
     changeCam(Object.keys(Object.values(cameras)[cameraFloor])[0])
+    doBox()
 
     if(currentNight <= 5){
         document.querySelector(".office").innerHTML += `<div class="call-button">MUTE CALL</div>`
@@ -807,6 +814,60 @@ const doOffice = () => {
     });
 }
 
+const doBox = () => {
+    boxInterval = setInterval(() => {
+        if(chargingBox && holdingDown){
+            document.querySelector('.music-button').filter = `invert()`
+            boxWind += 5;
+        }else{
+            document.querySelector('.music-button').filter = ``
+            boxWind--;
+        }
+        if(boxWind >= 90) {
+            boxWind = 90;
+        }else if(boxWind == 0){
+            doSoundPlay("gameSounds", "shortcircuit", "play")
+            power -= 400
+            boxWind = 90;
+        }else if(boxWind <= 15){
+            boxFlash = !boxFlash
+            if(boxFlash){
+                if(cameraFloor == 0){
+                    document.querySelector('.change-floor-button').style.border = `0.2vmax solid red`
+                }
+                if(currentCam !== `r22` && camSEnable){
+                    document.querySelector('.r22').style.border = `0.2vmax solid red`
+                }
+                if(!camSEnable){
+                    document.querySelector('.cam-hover').style.filter = `opacity(0.5) saturate(2) brightness(1)`
+                }
+            }else{
+                document.querySelector('.change-floor-button').style.border = `0.2vmax solid white`
+                document.querySelector('.cam-hover').style.filter = `opacity(0.5) saturate(0) brightness(5)`
+                document.querySelector('.r22').style.border = `0.2vmax solid white`
+            }
+        }
+        document.querySelector('.circle').style.background = `conic-gradient(rgba(255, 255, 255, 1) 0deg ${boxWind * 4}deg, rgba(255, 255, 255, 0) 0deg 360deg)`;
+    }, 500);
+    if(!officeView){
+        document.querySelector('.music-button').addEventListener("mousedown", () => {
+            holdingDown = true
+        })
+
+        document.querySelector('.music-button').addEventListener("mouseup", () => {
+            holdingDown = false
+        })
+
+        document.querySelector('.music-button').addEventListener("mouseleave", () => {
+            chargingBox = false
+        })
+
+        document.querySelector('.music-button').addEventListener("mouseenter", () => {
+            chargingBox = true
+        })
+    }
+}
+
 const doPause = (type) => {
     pauseView = !pauseView
     doMoveInterval()
@@ -853,6 +914,7 @@ const doPause = (type) => {
     }else{
         doRTimer()
         doPowerCount()
+        doBox()
         pauseDiv.innerHTML = ``
         document.querySelector(".pause-button").style.display = `block`
         if(!powerOutage){
@@ -1237,7 +1299,9 @@ const changePos = () => {
     document.querySelector(".calender-day").style.backgroundPosition = `${officePos}%`
     document.querySelector(".office-front-calendar").style.backgroundPosition = `${officePos}%`
     document.querySelector(".office-front").style.backgroundPosition = `${officePos}%`
-    document.querySelector(".office-back").style.backgroundPosition = `${officePos}%`
+    if(officeLight){
+        document.querySelector(".office-back").style.backgroundPosition = `${officePos}%`
+    }
     for(let i = 0; i < characters.length; i++){
         animOffice(i)
     }
@@ -1350,6 +1414,7 @@ const enableCamScreen = () => {
         changeCam(currentCam)
     }else{
         document.querySelector(".cam-screen").style.display = `none`
+        document.querySelector('.music-box').style.display = `none`
     }
 }
 
@@ -1401,6 +1466,11 @@ const changeCam = (cam) => {
         document.querySelector(`.${currentCam}`).classList.add("button-clicked")
         document.querySelector(`.current-cam-text`).innerHTML = `${Object.values(cameras)[cameraFloor][`${currentCam}`]}`
     }
+    if(currentCam == `r22` && camTabOpen){
+        document.querySelector('.music-box').style.display = `flex`
+    }else{
+        document.querySelector('.music-box').style.display = `none`
+    }
     document.querySelector(".cam-change").style.display = `block`
     camEffect = setTimeout(() => {
         document.querySelector(".cam-change").style.display = `none`
@@ -1429,6 +1499,7 @@ const doFlash = (type) => {
                 document.querySelector(".light-div").style.filter = ``
                 doPower()
             }
+            changePos()
         }
     }
 }
@@ -1467,7 +1538,7 @@ const doMoveInterval = () => {
 
 const doAnimPath = (num) => {
     if(characters[num].path >= Object.keys(characters[num].pathFind).length){
-        console.log("Unknown>>")
+        console.log("Unknown")
     }else if(characters[num].path + 1 >= Object.keys(characters[num].pathFind).length){
         if(Object.values(characters[num].pathFind)[characters[num].path].pos == "left" && !leftDoorClose){
             doJumpscare(characters[num])
@@ -1477,7 +1548,7 @@ const doAnimPath = (num) => {
             characters[num].path = 0
             animOffice(num, "first")
             document.querySelector(`.${characters[num].name}-office`).remove()
-            doSoundPlay("characterSounds", "teleport", "play")
+            doSoundPlay("characterSounds", "footsteps", "play")
         }
     }else{
         let rng = Math.floor(Math.random() * 100) + 1;
@@ -1599,6 +1670,7 @@ const doTimerSec = (time) => {
 const stopRT = (condition) => {
     clearInterval(timerInterval)
     clearInterval(powerInterval)
+    clearInterval(boxInterval)
     if(condition == "win"){
         do6am(tabName, gamePlay, gameData)
     }else if(condition == "lose"){
@@ -1628,7 +1700,7 @@ const doPowerCount = () => {
             if(power !== Infinity){
                 document.querySelector(".power-number").innerHTML = `${Math.floor(power / 7)}%`
                 power--
-                if(power == 0){
+                if(power <= 0){
                     doPowerOutage()
                     return
                 }
