@@ -27,21 +27,21 @@ let gameData = loadGame();
 
 saveGame(gameData);
 
-const doMax = () => {
-    gameData = {
-        night: 5,
-        nightSix: true,
-        extraMenu: true,
-        stars: {
-            star1: true,
-            star2: true,
-            star3: true,
-            star4: true,
-        }
-    }
-    saveGame(gameData);
-    doMenu()
-}
+// const doMax = () => {
+//     gameData = {
+//         night: 5,
+//         nightSix: true,
+//         extraMenu: true,
+//         stars: {
+//             star1: true,
+//             star2: true,
+//             star3: true,
+//             star4: true,
+//         }
+//     }
+//     saveGame(gameData);
+//     doMenu()
+// }
 
 let characters = [
     {
@@ -53,23 +53,23 @@ let characters = [
         isProgressive: false,
         pathFind: {
             r21: {
-                image: "files/images/characters/direktorius/r21.png",
-                pos: [50, 50]
+                image: "files/images/characters/direktorius/cameras/r21.png",
+                pos: [25, 50]
             },
             b1: {
-                image: "files/images/characters/direktorius/b1.png",
+                image: "files/images/characters/direktorius/cameras/b1.png",
                 pos: [50, 30]
             },
             a1: {
-                image: "files/images/characters/direktorius/a1.png",
-                pos: [50, 0]
+                image: "files/images/characters/direktorius/cameras/a1.png",
+                pos: [15, 50]
             },
             r14: {
-                image: "files/images/characters/direktorius/r14.png",
-                pos: [50, 0]
+                image: "files/images/characters/direktorius/cameras/r14.png",
+                pos: [25, 35]
             },
             a2: {
-                image: "files/images/characters/direktorius/a2.png",
+                image: "files/images/characters/direktorius/cameras/a2.png",
                 pos: [50, 35]
             },
             office: {
@@ -101,7 +101,7 @@ let characters = [
         pathFind: {
             r24: {
                 image: "files/images/characters/titas/cameras/r24.png",
-                pos: [30, 25]
+                pos: [15, 35]
             },
             t1: {
                 image: "files/images/characters/titas/cameras/t1.png",
@@ -148,7 +148,7 @@ let characters = [
             },
             r22: {
                 image: "files/images/characters/mantas/cameras/r22.png",
-                pos: [10, 35]
+                pos: [20, 35]
             },
             q1: {
                 image: "files/images/characters/mantas/cameras/q1.png",
@@ -344,6 +344,11 @@ let extras = {
         text: "Unlimited Power",
         class: "unltpw",
         enable: false
+    },
+    {
+        text: "No Power Box",
+        class: "nopwbx",
+        enable: false
     }]
 }
 
@@ -358,6 +363,7 @@ let soundEffects = {
         gameOver: new Audio("files/sounds/sfx/gameover.mp3"),
         sixAM: new Audio("files/sounds/sfx/6am.mp3"),
         shortcircuit: new Audio("files/sounds/sfx/shortcircuit.mp3"),
+        boxCharge: new Audio("files/sounds/sfx/boxCharge.mp3"),
     },
     characterSounds: {
         footsteps: new Audio("files/sounds/sfx/footsteps.mp3"),
@@ -389,7 +395,7 @@ let extraCount = 0;
 let easterEgg = 2067;
 let boxWind = 90;
 
-let allAudio = []
+let activeSounds = new Set();
 
 let settingsView = false
 let cameraView = false
@@ -417,6 +423,7 @@ let timerInterval
 let moveInterval
 let powerInterval
 let boxInterval
+let chargeInterval
 let jumpScareTimeout
 let camTimeOut
 let camEffect
@@ -437,16 +444,21 @@ const doSoundPlay = (category, sound, type, isLoop) => {
     }else if(category == "ambienceSounds"){
         audio.volume = settingsMenu[audioObject].volumeControl.ambienceVolume.value * master
     }
-    if(type == "play"){
-        audio.play()
-    }else if(type == "loadPlay"){
-        audio.load()
-        audio.play()
-    }else if(type == "stop"){
-        audio.pause()
-        audio.currentTime = 0
-    }else if(type == "pause"){
-        audio.pause()
+    if (type === "play") {
+        audio.play().catch(() => {});
+        activeSounds.add(audio);
+    }
+    if(type == "loadPlay"){
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+    }
+    if (type === "stop") {
+        audio.pause();
+        audio.currentTime = 0;
+        activeSounds.delete(audio);
+    }
+    if (type === "pause") {
+        audio.pause();
     }
     if(isLoop){
         audio.loop = true
@@ -458,6 +470,7 @@ const clearMain = () => {
     clearInterval(timerInterval)
     clearInterval(powerInterval)
     clearInterval(boxInterval)
+    clearInterval(chargeInterval)
     clearTimeout(jumpScareTimeout)
     clearInterval(intervalId)
     for(let i = 0; i < Object.keys(soundEffects).length; i++){
@@ -494,12 +507,16 @@ const clearMain = () => {
     powerUsage = 1
     officePos = 50
     cameraFloor = 0
+    boxWind = 90
     leftDoorClose = false
     rightDoorClose = false
     cameraMO = false
     officeView = false
+    holdingDown = false
+    boxFlash = false
     currentCam = undefined
     jumpSFX = undefined
+    activeSounds = new Set()
 }
 
 //CHANGE SCENE
@@ -610,7 +627,7 @@ const doMenuImg = () => {
             document.querySelector(`.${character}`).style.right = `${chrImgRight}%`
             document.querySelector(`.${character}`).style.zIndex = `${zIndex}`
             chrImgRight += 35 / zIndex
-            chrImgBottom -= 10 / zIndex
+            chrImgBottom -= 25 / zIndex
             zIndex -= 1
         }
     }
@@ -702,6 +719,10 @@ const doOffice = () => {
         <div class="camera"></div>
         <div class="cam-hover"></div>
         <div class="cam-screen">
+            <div class="music-box">
+                <div class="circle"></div>
+                <div class="music-button">Hold to Maintain Power in building</div>
+            </div>
             <div class="screen">
                 <div class="character-contain"></div>
             </div>
@@ -738,22 +759,22 @@ const doOffice = () => {
     changeCam(Object.keys(Object.values(cameras)[cameraFloor])[0])
     doBox()
 
-    if(currentNight <= 5){
-        document.querySelector(".office").innerHTML += `<div class="call-button">MUTE CALL</div>`
-        soundEffects.characterSounds.phoneCall = new Audio(`files/sounds/phone/night0${currentNight}.mp3`)
-        doSoundPlay("characterSounds", "phoneCall", "play")
+    // if(currentNight <= 5){
+    //     document.querySelector(".office").innerHTML += `<div class="call-button">MUTE CALL</div>`
+    //     soundEffects.characterSounds.phoneCall = new Audio(`files/sounds/phone/night0${currentNight}.mp3`)
+    //     doSoundPlay("characterSounds", "phoneCall", "play")
 
-        soundEffects.characterSounds.phoneCall.addEventListener("ended", () => {
-            document.querySelector(".call-button").style.display = `none`
-            soundEffects.characterSounds.phoneCall = new Audio("")
-        });
+    //     soundEffects.characterSounds.phoneCall.addEventListener("ended", () => {
+    //         document.querySelector(".call-button").style.display = `none`
+    //         soundEffects.characterSounds.phoneCall = new Audio("")
+    //     });
 
-        document.querySelector(".call-button").addEventListener("click", () => {
-            document.querySelector(".call-button").style.display = `none`
-            doSoundPlay("characterSounds", "phoneCall", "stop")
-            soundEffects.characterSounds.phoneCall = new Audio("")
-        });
-    }
+    //     document.querySelector(".call-button").addEventListener("click", () => {
+    //         document.querySelector(".call-button").style.display = `none`
+    //         doSoundPlay("characterSounds", "phoneCall", "stop")
+    //         soundEffects.characterSounds.phoneCall = new Audio("")
+    //     });
+    // }
     if(twentyMode){
         doSoundPlay("ambienceSounds", "off20Ambience", "play", true)
     }else{
@@ -815,56 +836,71 @@ const doOffice = () => {
 }
 
 const doBox = () => {
-    boxInterval = setInterval(() => {
-        if(chargingBox && holdingDown){
-            document.querySelector('.music-button').filter = `invert()`
-            boxWind += 5;
-        }else{
-            document.querySelector('.music-button').filter = ``
-            boxWind--;
-        }
-        if(boxWind >= 90) {
-            boxWind = 90;
-        }else if(boxWind == 0){
-            doSoundPlay("gameSounds", "shortcircuit", "play")
-            power -= 400
-            boxWind = 90;
-        }else if(boxWind <= 15){
-            boxFlash = !boxFlash
-            if(boxFlash){
-                if(cameraFloor == 0){
-                    document.querySelector('.change-floor-button').style.border = `0.2vmax solid red`
-                }
-                if(currentCam !== `r22` && camSEnable){
-                    document.querySelector('.r22').style.border = `0.2vmax solid red`
-                }
-                if(!camSEnable){
-                    document.querySelector('.cam-hover').style.filter = `opacity(0.5) saturate(2) brightness(1)`
-                }
-            }else{
-                document.querySelector('.change-floor-button').style.border = `0.2vmax solid white`
-                document.querySelector('.cam-hover').style.filter = `opacity(0.5) saturate(0) brightness(5)`
-                document.querySelector('.r22').style.border = `0.2vmax solid white`
+    if(!extras.cheats[2].enable){
+        chargeInterval = setInterval(() => {
+            if(chargingBox && holdingDown){
+                boxWind += 5;
+                doSoundPlay("gameSounds", "boxCharge", "play")
             }
+        }, 250);
+        boxInterval = setInterval(() => {
+            boxWind--;
+            if(boxWind >= 90) {
+                boxWind = 90;
+            }
+            if(boxWind == 0){
+                changeCam(currentCam)
+                doSoundPlay("gameSounds", "shortcircuit", "play")
+                power -= Math.floor(Math.random() * (400 - 100 + 1)) + 100
+                boxWind = 90
+            }else{
+                if(boxWind <= 15 && !boxFlash){
+                    boxFlash = !boxFlash
+                    if(boxFlash){
+                        if(cameraFloor == 0){
+                            document.querySelector('.change-floor-button').style.border = `0.2vmax solid red`
+                        }
+                        if(currentCam !== `r22` && camSEnable){
+                            document.querySelector('.r22').style.border = `0.2vmax solid red`
+                        }
+                        if(!camSEnable){
+                            document.querySelector('.cam-hover').style.filter = `opacity(0.5) saturate(2) brightness(1)`
+                        }
+                        if(currentCam == `r22` && camSEnable){
+                            document.querySelector('.music-button').style.border = `0.25vmax solid rgb(255, 0, 0)`
+                            document.querySelector('.circle').style.background = `conic-gradient(hsl(0, 100%, ${3 * boxWind}%) 0deg ${boxWind * 4}deg, rgba(255, 255, 255, 0) 0deg 360deg)`;
+                        }
+                    }
+                }else{
+                    if(boxFlash){
+                        boxFlash = !boxFlash
+                        document.querySelector('.change-floor-button').style.border = `0.2vmax solid white`
+                        document.querySelector('.cam-hover').style.filter = `opacity(0.5) saturate(0) brightness(5)`
+                        document.querySelector('.r22').style.border = `0.2vmax solid white`
+                        document.querySelector('.music-button').style.border = `0.25vmax solid rgb(0, 125, 0)`
+                    }
+                    document.querySelector('.circle').style.background = `conic-gradient(rgba(255, 255, 255, 1) 0deg ${boxWind * 4}deg, rgba(255, 255, 255, 0) 0deg 360deg)`;
+                }
+            }
+
+        }, 5000 + (500 - 5000) * (Math.min(Math.max(currentNight, 1), 5) - 1) / 4);
+        if(!officeView){
+            document.querySelector('.music-button').addEventListener("mousedown", () => {
+                holdingDown = true
+            })
+
+            document.querySelector('.music-button').addEventListener("mouseup", () => {
+                holdingDown = false
+            })
+
+            document.querySelector('.music-button').addEventListener("mouseleave", () => {
+                chargingBox = false
+            })
+
+            document.querySelector('.music-button').addEventListener("mouseenter", () => {
+                chargingBox = true
+            })
         }
-        document.querySelector('.circle').style.background = `conic-gradient(rgba(255, 255, 255, 1) 0deg ${boxWind * 4}deg, rgba(255, 255, 255, 0) 0deg 360deg)`;
-    }, 500);
-    if(!officeView){
-        document.querySelector('.music-button').addEventListener("mousedown", () => {
-            holdingDown = true
-        })
-
-        document.querySelector('.music-button').addEventListener("mouseup", () => {
-            holdingDown = false
-        })
-
-        document.querySelector('.music-button').addEventListener("mouseleave", () => {
-            chargingBox = false
-        })
-
-        document.querySelector('.music-button').addEventListener("mouseenter", () => {
-            chargingBox = true
-        })
     }
 }
 
@@ -872,6 +908,8 @@ const doPause = (type) => {
     pauseView = !pauseView
     doMoveInterval()
     if(pauseView){
+        holdingDown = false
+        chargingBox = false
         if(!powerOutage){
             if(twentyMode){
                 doSoundPlay("ambienceSounds", "off20Ambience", "pause", true)
@@ -1092,7 +1130,6 @@ const doSetScrollFunc = (event) => {
     let hCalc = height / extras.extraOp.length - 1;
     let currentEvent = Math.floor(pos / hCalc);
     let cEFwrd = Math.floor((pos + hCalc / 1.25) / hCalc);
-    console.log(currentEvent)
     if(currentEvent < cEFwrd && event.deltaY < 0){
         doSettingSelect(cEFwrd - 1)
     }else if(currentEvent < cEFwrd && event.deltaY > 0){
@@ -1126,7 +1163,6 @@ const doSettingSelect = (num, isFirst) => {
         doSettings()
         window.removeEventListener("wheel", doSetScrollFunc);
     }
-    console.log(settingCount)
 }
 
 const doVolumeSlider = () => {
@@ -1172,7 +1208,7 @@ const doVolumeSlider = () => {
 
 const doVolumeChange = (type, classVolume, value) => {
     let tempValue
-    let section = settingsMenu.find(section => section.name == `${settingText}`);
+    let section = settingsMenu.find(section => section.name == `Audio`);
     if(type == "start"){
         tempValue = value * 100
         tempValue = Number(Math.round(Math.min(100, Math.max(0, tempValue))))
@@ -1404,7 +1440,7 @@ const enableCams = () => {
             document.querySelector(".camera").style.transform = `scale(1.11)`
             doPower("+")
         }
-        doSoundPlay("gameSounds", "cameraFlip", "play")
+        doSoundPlay("gameSounds", "cameraFlip", "loadPlay")
     }
 }
 
@@ -1414,7 +1450,6 @@ const enableCamScreen = () => {
         changeCam(currentCam)
     }else{
         document.querySelector(".cam-screen").style.display = `none`
-        document.querySelector('.music-box').style.display = `none`
     }
 }
 
@@ -1671,6 +1706,7 @@ const stopRT = (condition) => {
     clearInterval(timerInterval)
     clearInterval(powerInterval)
     clearInterval(boxInterval)
+    clearInterval(chargeInterval)
     if(condition == "win"){
         do6am(tabName, gamePlay, gameData)
     }else if(condition == "lose"){
@@ -2063,18 +2099,18 @@ const changeCHT = () => {
         }
     }
 
-    document.querySelector(".tgl-cheats").addEventListener("click", (event) => {
+    document.querySelectorAll(".cheats .row").forEach((row, index) => {
+        row.addEventListener("click", (e) => {
+            const classes = [...e.currentTarget.classList];
+            const cheatClass = classes.find(c => c !== "row" && c !== "row-hover");
+            changeCHTEnable(cheatClass, index)
+        });
+    });
+
+    document.querySelector(".tgl-cheats").addEventListener("click", () => {
         for(let i = 0; i < extras.cheats.length; i++){
             changeCHTEnable(extras.cheats[i].class, i)
         }
-    });
-
-    document.querySelector(".fstngt").addEventListener("click", () => {
-        changeCHTEnable("fstngt", 0)
-    });
-
-    document.querySelector(".unltpw").addEventListener("click", () => {
-        changeCHTEnable("unltpw", 1)
     });
 }
 
@@ -2124,4 +2160,4 @@ document.addEventListener("keydown", function(event) {
     konamiFunc(konamiCode, event.key)
 })
 
-doOffice()
+doMenu()

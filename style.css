@@ -398,35 +398,35 @@ main{
 
 .music-box{
     width: 25%;
-    z-index: 15;
+    z-index: 16;
     position: absolute;
-    top: 75%;
-    left: 5%;
+    top: 70%;
+    left: 0%;
     display: none;
     padding: 1%;
-    gap: 5%;
+    transform: scale(0.75)
 }
 
 .circle{
     background: conic-gradient(rgba(255, 255, 255, 1) 0deg 360deg,rgba(255, 255, 255, 0) 0deg 360deg);
-    width: 10vmax;
-    height: 10vmax;
+    width: 35%;
     border-radius: 5vmax;
 }
 
 .music-button{
     border: 0.25vmax solid rgb(0, 125, 0);
-    margin: auto;
-    background: gray;
+    margin: 5%;
+    background: rgb(128, 128, 128);
     width: 50%;
-    height: 100%;
-    padding: 5%;
+    height: 10%;
+    padding: 1%;
     text-align: center;
 }
 
 .music-button:hover{
     cursor: pointer;
-    border: 0.25vmax solid rgb(0, 255, 0);
+    background: rgb(200, 200, 200);
+    color: rgb(50, 50, 50);
 }
 
 .a1{
@@ -445,7 +445,7 @@ main{
 }
 
 .q1{
-    left: 55%;
+    left: 60%;
     top: 70%;
 }
 
@@ -475,7 +475,7 @@ main{
 }
 
 .r21{
-    left: 31%;
+    left: 33%;
     top: 30%;
 }
 
