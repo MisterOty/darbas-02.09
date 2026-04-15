@@ -232,11 +232,11 @@ let cameras = {
 
 let konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"]
 
-const body = document.querySelector("body")
-const tabName = document.querySelector(".tab-title")
-const gamePlay = document.querySelector("main")
-const copyRight = document.querySelector("footer")
-const pauseDiv = document.querySelector(".pause-div")
+const body = document.querySelector('body')
+const tabName = document.querySelector('.tab-title')
+const gamePlay = document.querySelector('main')
+const copyRight = document.querySelector('footer')
+const pauseDiv = document.querySelector('.pause-div')
 
 let settingsMenu = [
     {
@@ -393,7 +393,7 @@ let settingCount = 0;
 let extraSelectCount = 0;
 let extraCount = 0;
 let easterEgg = 2067;
-let boxWind = 90;
+let boxWind = 360;
 
 let activeSounds = new Set();
 
@@ -507,7 +507,7 @@ const clearMain = () => {
     powerUsage = 1
     officePos = 50
     cameraFloor = 0
-    boxWind = 90
+    boxWind = 360
     leftDoorClose = false
     rightDoorClose = false
     cameraMO = false
@@ -679,6 +679,7 @@ const doOffice = () => {
         currentNight = Math.min(currentNight, 5)
     }
     gamePlay.innerHTML = `
+        <div class="robert"></div>
         <div class="timer">
             <h3 class="night">Night ${currentNight}</h3>
             <p class="time">${doTimerHour(gameTime)}:${doTimerSec(Math.floor(((gameTime * 6) % 360) / 6))} AM</p>
@@ -686,7 +687,7 @@ const doOffice = () => {
         <div class="power">
             <div class="power-text">
                 <p>Power left:</p>
-                <p class="power-number">${Math.floor(power / 7)}%</p>
+                <p class="power-number">${Math.floor(power / 6)}%</p>
             </div>
             <div class="power-usage">
                 <p>Usage:</p>
@@ -839,16 +840,19 @@ const doBox = () => {
     if(!extras.cheats[2].enable){
         chargeInterval = setInterval(() => {
             if(chargingBox && holdingDown){
-                boxWind += Math.round(10 / (Math.min(Math.max(currentNight, 1), 5) + 1) * 1.5)
+                boxWind += Math.round(10 / (Math.min(Math.max(currentNight, 1), 5) + 1) * 8)
                 doSoundPlay("gameSounds", "boxCharge", "play")
+                doBoxAlert()
             }
         }, 250);
         boxInterval = setInterval(() => {
-            boxWind--;
-            if(boxWind >= 90) {
-                boxWind = 90;
+            if(!chargingBox || !holdingDown){
+                boxWind -= Math.round(10 / (Math.min(Math.max(currentNight, 1), 5) + 1) * 5)
             }
-            if(boxWind == 0){
+            if(boxWind > 360) {
+                boxWind = 360;
+            }
+            if(boxWind <= 0){
                 changeCam(currentCam)
                 doSoundPlay("gameSounds", "shortcircuit", "play")
                 power -= Math.floor(Math.random() * (300 - 100 + 1)) + 100
@@ -873,44 +877,24 @@ const doBox = () => {
                                 gamePlay.style.filter = ``
                             }, 500)
                     }
-                    boxWind = 90
+                    boxWind = 360
                 }else{
                     clearInterval(boxInterval)
                 }
-            }else{
-                if(boxWind <= 15 && !boxFlash){
-                    boxFlash = !boxFlash
-                    if(boxFlash){
-                        if(cameraFloor == 0){
-                            document.querySelector('.change-floor-button').style.border = `0.2vmax solid red`
-                        }
-                        if(currentCam !== `r22` && camSEnable){
-                            document.querySelector('.r22').style.border = `0.2vmax solid red`
-                        }
-                        if(!camSEnable){
-                            document.querySelector('.cam-hover').style.filter = `opacity(0.5) saturate(2) brightness(1)`
-                        }
-                        if(currentCam == `r22` && camSEnable){
-                            document.querySelector('.music-button').style.border = `0.25vmax solid rgb(255, 0, 0)`
-                            document.querySelector('.circle').style.background = `conic-gradient(hsl(0, 100%, ${3 * boxWind}%) 0deg ${boxWind * 4}deg, rgba(255, 255, 255, 0) 0deg 360deg)`;
-                        }
-                    }
-                }else{
-                    if(boxFlash){
-                        boxFlash = !boxFlash
-                        document.querySelector('.change-floor-button').style.border = `0.2vmax solid white`
-                        document.querySelector('.cam-hover').style.filter = `opacity(0.5) saturate(0) brightness(5)`
-                        document.querySelector('.r22').style.border = `0.2vmax solid white`
-                        document.querySelector('.music-button').style.border = `0.25vmax solid rgb(0, 125, 0)`
-                    }
-                    document.querySelector('.circle').style.background = `conic-gradient(rgba(255, 255, 255, 1) 0deg ${boxWind * 4}deg, rgba(255, 255, 255, 0) 0deg 360deg)`;
-                }
             }
-
-        }, 5000 + (500 - 5000) * (Math.min(Math.max(currentNight, 1), 5) - 1) / 4);
+            doBoxAlert()
+        }, 1000)
         if(!officeView){
             document.querySelector('.music-button').addEventListener("mousedown", () => {
-                holdingDown = true
+                if(camTabOpen){
+                    holdingDown = true
+                }
+            })
+
+            document.querySelector('.music-button').addEventListener("mouseenter", () => {
+                if(camTabOpen){
+                    chargingBox = true
+                }
             })
 
             document.querySelector('.music-button').addEventListener("mouseup", () => {
@@ -918,13 +902,43 @@ const doBox = () => {
             })
 
             document.querySelector('.music-button').addEventListener("mouseleave", () => {
-                chargingBox = false
+                holdingDown = false
             })
 
-            document.querySelector('.music-button').addEventListener("mouseenter", () => {
-                chargingBox = true
+            document.querySelector('.music-button').addEventListener("mouseleave", () => {
+                chargingBox = false
             })
         }
+    }
+}
+
+const doBoxAlert = () => {
+    if(boxWind <= 45 && !boxFlash){
+        boxFlash = !boxFlash
+        if(boxFlash){
+            if(cameraFloor == 0){
+                document.querySelector('.change-floor-button').style.border = `0.2vmax solid red`
+            }
+            if(currentCam !== `r22` && camSEnable){
+                document.querySelector('.r22').style.border = `0.2vmax solid red`
+            }
+            if(!camSEnable){
+                document.querySelector('.cam-hover').style.filter = `opacity(0.5) saturate(2) brightness(1)`
+            }
+            if(currentCam == `r22` && camSEnable){
+                document.querySelector('.music-button').style.border = `0.25vmax solid rgb(255, 0, 0)`
+                document.querySelector('.circle').style.background = `conic-gradient(hsl(0, 100%, ${boxWind}%) 0deg ${boxWind}deg, rgba(255, 255, 255, 0) 0deg 360deg)`;
+            }
+        }
+    }else{
+        if(boxFlash){
+            boxFlash = !boxFlash
+            document.querySelector('.change-floor-button').style.border = `0.2vmax solid white`
+            document.querySelector('.cam-hover').style.filter = `opacity(0.5) saturate(0) brightness(5)`
+            document.querySelector('.r22').style.border = `0.2vmax solid white`
+            document.querySelector('.music-button').style.border = `0.25vmax solid rgb(0, 125, 0)`
+        }
+        document.querySelector('.circle').style.background = `conic-gradient(rgba(255, 255, 255, 1) 0deg ${boxWind}deg, rgba(255, 255, 255, 0) 0deg 360deg)`;
     }
 }
 

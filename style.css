@@ -967,6 +967,7 @@ footer p{
     position: absolute;
     top: 0%;
     background: url(files/images/characters/robert/scare.png);
+    background-color: hsl(0, 100%, 25%);
     background-size: 100% 100%;
 }
 
