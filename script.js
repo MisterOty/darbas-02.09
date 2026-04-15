@@ -156,7 +156,7 @@ let characters = [
             },
             innerOffice: {
                 image: "files/images/characters/mantas/main.png",
-                pos: "right"
+                pos: "left"
             }
         },
         difficulty: {
@@ -255,7 +255,7 @@ let settingsMenu = [
         volumeControl: {
             masterVolume: {
                 text: "Master Volume",
-                value: 0.1
+                value: 1
             },
             gameVolume: {
                 text: "Game Volume",
@@ -382,7 +382,7 @@ let soundEffects = {
 
 let gameSpeed = 1;
 let gameTime = 0;
-let power = 700;
+let power = 600;
 let powerUsage = 1;
 let currentNight = 0;
 let cameraFloor = 0;
@@ -503,7 +503,7 @@ const clearMain = () => {
     }
     gameSpeed = 1
     gameTime = 0
-    power = 700
+    power = 600
     powerUsage = 1
     officePos = 50
     cameraFloor = 0
@@ -839,7 +839,7 @@ const doBox = () => {
     if(!extras.cheats[2].enable){
         chargeInterval = setInterval(() => {
             if(chargingBox && holdingDown){
-                boxWind += 5;
+                boxWind += Math.round(10 / (Math.min(Math.max(currentNight, 1), 5) + 1) * 1.5)
                 doSoundPlay("gameSounds", "boxCharge", "play")
             }
         }, 250);
@@ -851,8 +851,32 @@ const doBox = () => {
             if(boxWind == 0){
                 changeCam(currentCam)
                 doSoundPlay("gameSounds", "shortcircuit", "play")
-                power -= Math.floor(Math.random() * (400 - 100 + 1)) + 100
-                boxWind = 90
+                power -= Math.floor(Math.random() * (300 - 100 + 1)) + 100
+                if(power !== 0){
+                    if(!settingsMenu[0].gameplayControl.reduceFL.value){
+                        if(power >= 2){
+                            for(let i = 0; i <= 50; i++){
+                                if(i < 50){
+                                    setTimeout(() => {
+                                        gamePlay.style.filter = `brightness(${(Math.floor(Math.random() * 10) + 1) * 0.1})`
+                                    }, 10 * i)
+                                }else{
+                                    setTimeout(() => {
+                                        gamePlay.style.filter = ``
+                                    }, 10 * i)
+                                }
+                            }
+                        }
+                    }else{
+                        gamePlay.style.filter = `brightness(${(Math.floor(Math.random() * 10) + 1) * 0.1})`
+                        setTimeout(() => {
+                                gamePlay.style.filter = ``
+                            }, 500)
+                    }
+                    boxWind = 90
+                }else{
+                    clearInterval(boxInterval)
+                }
             }else{
                 if(boxWind <= 15 && !boxFlash){
                     boxFlash = !boxFlash
@@ -1429,6 +1453,9 @@ const enableCams = () => {
             document.querySelector(".camera").style.top = `100%`
             document.querySelector(".camera").style.transform = `scale(0.9)`
             camSEnable = false
+            if((Math.floor(Math.random() * 10) + 1) == 1){
+                doGoldenRobertEG("office")
+            }
             enableCamScreen()
             doPower()
         }else{
@@ -1659,7 +1686,7 @@ const animOffice = (num, type) => {
                 doFlash("officeMove")
             }, 250)
     }
-    if(characters[num].path >= Object.keys(characters[num].pathFind).length - 2 && characters[num].path != 0){
+    if(characters[num].path >= Object.keys(characters[num].pathFind).length - 2 && characters[num].path !=  0){
         let place = Object.keys(characters[num].pathFind)[characters[num].path]
         let checkArray = !Array.isArray(Object.values(characters[num].pathFind)[characters[num].path].pos)
         if(checkArray && type == "first" && document.querySelector(`.${characters[num].name}-office`) == null){
@@ -1734,7 +1761,7 @@ const doPowerCount = () => {
     if(!powerOutage){
             powerInterval = setInterval(() => {
             if(power !== Infinity){
-                document.querySelector(".power-number").innerHTML = `${Math.floor(power / 7)}%`
+                document.querySelector(".power-number").innerHTML = `${Math.floor(power / 6)}%`
                 power--
                 if(power <= 0){
                     doPowerOutage()
@@ -2036,7 +2063,7 @@ const changeCTN = () => {
             characters[2].difficulty.night7 == eGNums[2] &&
             characters[3].difficulty.night7 == eGNums[3]
         ){
-            doGoldenRobertEG()
+            doGoldenRobertEG("custom")
         }else{
             doNightShow("custom-night")
         }
@@ -2062,13 +2089,20 @@ const changeCTNValue = (data) => {
     }
 }
 
-const doGoldenRobertEG = () => {
-    clearMain()
-    gamePlay.innerHTML = `<div class="golden-robert"></div>`
-    doSoundPlay("characterSounds", "goldenRobert", "play")
-    setTimeout(() => {
-        doMenu()
-    }, 3000);
+const doGoldenRobertEG = (type) => {
+    if(type == "custom"){
+        clearMain()
+        gamePlay.innerHTML = `<div class="golden-robert"></div>`
+        doSoundPlay("characterSounds", "goldenRobert", "play")
+        setTimeout(() => {
+            doMenu()
+        }, 3000);
+    }else{
+        document.querySelector('.robert').style.display = `block`
+        setTimeout(() => {
+            document.querySelector('.robert').style.display = `none`
+        }, 100)
+    }
 }
 
 //CHEATS
@@ -2157,7 +2191,7 @@ document.addEventListener("keydown", function(event) {
             }
         }
     }
-    konamiFunc(konamiCode, event.key)
+    if(!pauseView){
+        konamiFunc(konamiCode, event.key)
+    }
 })
-
-doMenu()

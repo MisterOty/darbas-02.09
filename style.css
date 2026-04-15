@@ -109,7 +109,7 @@ main{
     background-image: url(files/images/menu/newspaper.png);
     background-size: 100% 100%;
     position: absolute;
-    z-index: 3;
+    z-index: 10;
     top: 0;
     opacity: 0%;
     width: 100vw;
@@ -256,6 +256,18 @@ main{
     position: absolute;
     width: 25%;
     height: 50%;
+}
+
+.robert{
+    display: none;
+    position: absolute;
+    z-index: 12;
+    background: url(files/images/characters/robert/main.png);
+    background-size: 100% 100%;
+    width: 25%;
+    height: 50%;
+    left: 37%;
+    bottom: 0%;
 }
 
 .camera{
@@ -954,7 +966,7 @@ footer p{
     height: 100%;
     position: absolute;
     top: 0%;
-    background: url(files/images/characters/robert.png);
+    background: url(files/images/characters/robert/scare.png);
     background-size: 100% 100%;
 }
 
@@ -1058,7 +1070,7 @@ footer p{
 .settings-container::-webkit-scrollbar{display: none}
 .settings-container{-ms-overflow-style: none;scrollbar-width: none}
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{-webkit-appearance: none}
-/* input[type=number]{-moz-appearance: textfield} */
+input[type=number]{-moz-appearance: textfield}
 
 .text:hover, .GDT-reset:hover, .settings-button:hover, .gpSetting:hover, .button:hover, .pause p:hover, .arrow:hover, .row-hover:hover, .chr-arrow:hover,.cn-add:hover, .playButton a:hover, .cn-begin:hover, .door-button-left:hover, .door-button-right:hover, .light-div:hover, .pause-button:hover, .change-floor-button:hover, .call-button:hover, .volume-button:hover{
     cursor: pointer;
