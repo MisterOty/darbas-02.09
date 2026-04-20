@@ -3,20 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="files/images/icon.png" type="image/x-icon">
+    <link rel="shortcut icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKSHnJJj0kyUQLMBvhMLnIgLIkvrGk8JdqVw&s" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
-    <title class="tab-title">Play</title>
+    <title>Funny Movies</title>
 </head>
 <body>
-    <main>
-        <div class="warning">
-            <p>WARNING!<br><br>This game contains flashing lights, loud noises, and lots of jumpscares</p>
-            <div class="playButton"><a onclick="doMenu()">&gt;Play&lt;</a></div>
+    <header>
+        <input type="text" id="searchInput" placeholder="Seach movies">
+        <div class="sort-menu">
+            <div class="icon"></div>
+            <div class="dropdown-content">
+                <a onClick='fetchMovieList("alphabetical")'><p>Alphabetically</p></a>
+                <a onClick='fetchMovieList("date")'><p>By Date</p></a>
+                <a onClick='fetchMovieList("score")'><p>By Score</p></a>
+                <a onClick='fetchMovieList("imdb")'><p>By IMDB Score</p></a>
+                <a onClick='fetchMovieList("oskaro")'><p>By Oskaro Score</p></a>
+                <a onClick='fetchMovieList("patriko")'><p>By Patriko Score</p></a>
+                <a onClick='fetchMovieList("og")'><p>Recent</p></a>
+            </div>
         </div>
-    </main>
-    <div class="pause-div"></div>
-    <div class="settings"></div>
-    <footer></footer>
+    </header>
+    <main></main>
     <script src="script.js"></script>
 </body>
 </html>
