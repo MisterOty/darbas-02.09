@@ -380,6 +380,81 @@ let soundEffects = {
     },
 }
 
+let images = {
+    camera: [
+        "files/images/camera/changecam.gif",
+        "files/images/camera/radar0.png",
+        "files/images/camera/radar1.png",
+        "files/images/camera/static.gif",
+        "files/images/camera/images/a1.png",
+        "files/images/camera/images/a2.png",
+        "files/images/camera/images/b1.png",
+        "files/images/camera/images/q1.png",
+        "files/images/camera/images/r11.png",
+        "files/images/camera/images/r12.png",
+        "files/images/camera/images/r13.png",
+        "files/images/camera/images/r14.png",
+        "files/images/camera/images/r15.png",
+        "files/images/camera/images/r21.png",
+        "files/images/camera/images/r22.png",
+        "files/images/camera/images/r23.png",
+        "files/images/camera/images/r24.png",
+        "files/images/camera/images/t1.png"
+    ],
+    characters: [
+        "files/images/characters/aidas/main.png",
+        "files/images/characters/aidas/cameras/r13_00.png",
+        "files/images/characters/aidas/cameras/r13_01.png",
+        "files/images/characters/aidas/cameras/r13_02.png",
+        "files/images/characters/aidas/cameras/r13_03.png",
+        "files/images/characters/direktorius/main.png",
+        "files/images/characters/direktorius/cameras/a1.png",
+        "files/images/characters/direktorius/cameras/a2.png",
+        "files/images/characters/direktorius/cameras/b1.png",
+        "files/images/characters/direktorius/cameras/r14.png",
+        "files/images/characters/direktorius/cameras/r21.png",
+        "files/images/characters/mantas/main.png",
+        "files/images/characters/mantas/cameras/q1.png",
+        "files/images/characters/mantas/cameras/r22.png",
+        "files/images/characters/mantas/cameras/r23.png",
+        "files/images/characters/robert/main.png",
+        "files/images/characters/robert/scare.png",
+        "files/images/characters/titas/main.png",
+        "files/images/characters/titas/cameras/r11.png",
+        "files/images/characters/titas/cameras/r12.png",
+         "files/images/characters/titas/cameras/r24.png",
+          "files/images/characters/titas/cameras/t1.png",
+    ],
+    menu: [
+        "files/images/menu/gameover.png",
+        "files/images/menu/newspaper.png",
+        "files/images/menu/star.png",
+        "files/images/menu/ending/ending01.png",
+        "files/images/menu/ending/ending02.png",
+        "files/images/menu/ending/ending03.png",
+        "files/images/menu/ending/ending04.png"
+    ],
+    office: [
+        "files/images/office/arrow.png",
+        "files/images/office/button.png",
+        "files/images/office/calender.png",
+        "files/images/office/camera.png",
+        "files/images/office/door.png",
+        "files/images/office/lightbutton.png",
+        "files/images/office/office_back.png",
+        "files/images/office/office_front.png",
+        "files/images/office/pausebutton.png",
+        "files/images/office/calender/01.png",
+        "files/images/office/calender/02.png",
+        "files/images/office/calender/03.png",
+        "files/images/office/calender/04.png",
+        "files/images/office/calender/05.png",
+        "files/images/office/calender/06.png",
+        "files/images/office/calender/07.png"
+    ],
+    misc: ["files/images/icon.png"]
+}
+
 let gameSpeed = 1;
 let gameTime = 0;
 let power = 600;
@@ -394,6 +469,7 @@ let extraSelectCount = 0;
 let extraCount = 0;
 let easterEgg = 2067;
 let boxWind = 360;
+let progress = 0;
 
 let activeSounds = new Set();
 
@@ -528,6 +604,25 @@ const clearMain = () => {
     activeSounds = new Set()
 }
 
+const loadTextures = (type) => {
+    for(let i = 0; i < Object.keys(images).length; i++){
+        for(let e = 0; e < images[Object.keys(images)[i]].length; e++){
+            if(type == "progressBar"){
+                progress++
+            }else{
+                let img = new Image
+                img.src = images[Object.keys(images)[i]][e]
+                img.onload = function() {
+                    progress--
+                };
+            }
+        }
+    }
+}
+
+loadTextures("progressBar")
+loadTextures("loadTextures")
+
 //CHANGE SCENE
 
 const newGame = (choose) => {   
@@ -551,73 +646,75 @@ const newGame = (choose) => {
 }
 
 const doMenu = () => {
-    officeView = false
-    twentyMode = false
-    currentNight = 0
-    clearMain()
-    gamePlay.innerHTML = `
-        <div class="stars"></div>
-        <div class="MMenu">
-            <h1 class="title">Five Night's at KITM</h1>
-            <div class="MMenuCharacter"></div>
-            <div class="MMSelector">
-                <p class="NG text">New Game</p>
-            </div>
-        </div>
-        <div class="settings-button">Settings</div>`
-    copyRight.innerHTML = `
-        <p class="Name">Oskaras Venzlauskas GJSM23</p>`
-    tabName.innerHTML = `Five Night's at KITM`
+    if(progress == 0){
+            officeView = false
+            twentyMode = false
+            currentNight = 0
+            clearMain()
+            gamePlay.innerHTML = `
+                <div class="stars"></div>
+                <div class="MMenu">
+                    <h1 class="title">Five Night's at KITM</h1>
+                    <div class="MMenuCharacter"></div>
+                    <div class="MMSelector">
+                        <p class="NG text">New Game</p>
+                    </div>
+                </div>
+                <div class="settings-button">Settings</div>`
+            copyRight.innerHTML = `
+                <p class="Name">Oskaras Venzlauskas GJSM23</p>`
+            tabName.innerHTML = `Five Night's at KITM`
 
-    for(let i = 0; i < Object.values(gameData.stars).length; i++){
-        if(gameData.stars[`star${i + 1}`]){
-            document.querySelector(".stars").innerHTML += `<div></div>`
-        }
+            for(let i = 0; i < Object.values(gameData.stars).length; i++){
+                if(gameData.stars[`star${i + 1}`]){
+                    document.querySelector(".stars").innerHTML += `<div></div>`
+                }
+            }
+
+            body.style.background = `url(files/images/camera/static.gif)`
+            body.style.backgroundSize = `100% 100%`
+            gamePlay.style.background = ``
+            gamePlay.style.backdropFilter = `brightness(0.5)`
+            doMenuImg()
+            doSoundPlay("ambienceSounds", "mMTheme", "play", true)
+
+            if(gameData.night >= 1){
+                document.querySelector(".MMSelector").innerHTML += `
+                <p class="CTN text">Continue</p>`
+            }
+            if(gameData.nightSix){
+                document.querySelector(".MMSelector").innerHTML += `
+                <p class="night-six text">6th Night</p>`
+            }
+            if(gameData.extraMenu){
+                document.querySelector(".MMSelector").innerHTML += `
+                <p class="EXT text">Extra </p>`
+            }
+
+
+            document.querySelector(".MMSelector").addEventListener("click", (e) => {
+                let classes = e.target.classList
+                if(classes[0] == "NG"){
+                    newGame(0)
+                }else if(classes[0] == "CTN"){
+                    doNightShow("continue")
+                }else if(classes[0] == "night-six"){
+                    doNightShow("night-6")
+                }else if(classes[0] == "EXT"){
+                    doExtra()
+                }
+            });
+
+            document.querySelector(".settings-button").addEventListener("click", () => {
+                doSettings()
+            });
+
+            document.querySelectorAll(".text").forEach(btn => {
+                btn.addEventListener("mouseover", () => {
+                    doSoundPlay("gameSounds", "click", "loadPlay")
+                });
+            });
     }
-
-    body.style.background = `url(files/images/camera/static.gif)`
-    body.style.backgroundSize = `100% 100%`
-    gamePlay.style.background = ``
-    gamePlay.style.backdropFilter = `brightness(0.5)`
-    doMenuImg()
-    doSoundPlay("ambienceSounds", "mMTheme", "play", true)
-
-    if(gameData.night >= 1){
-        document.querySelector(".MMSelector").innerHTML += `
-        <p class="CTN text">Continue</p>`
-    }
-    if(gameData.nightSix){
-        document.querySelector(".MMSelector").innerHTML += `
-        <p class="night-six text">6th Night</p>`
-    }
-    if(gameData.extraMenu){
-        document.querySelector(".MMSelector").innerHTML += `
-        <p class="EXT text">Extra </p>`
-    }
-
-
-    document.querySelector(".MMSelector").addEventListener("click", (e) => {
-        let classes = e.target.classList
-        if(classes[0] == "NG"){
-            newGame(0)
-        }else if(classes[0] == "CTN"){
-            doNightShow("continue")
-        }else if(classes[0] == "night-six"){
-            doNightShow("night-6")
-        }else if(classes[0] == "EXT"){
-            doExtra()
-        }
-    });
-
-    document.querySelector(".settings-button").addEventListener("click", () => {
-        doSettings()
-    });
-
-    document.querySelectorAll(".text").forEach(btn => {
-        btn.addEventListener("mouseover", () => {
-            doSoundPlay("gameSounds", "click", "loadPlay")
-        });
-    });
 }
 
 const doMenuImg = () => {
@@ -1796,6 +1893,7 @@ const doRTimer = () => {
 
 const doPowerCount = () => {
     if(!powerOutage){
+            power--
             powerInterval = setInterval(() => {
             if(power !== Infinity){
                 document.querySelector(".power-number").innerHTML = `${Math.floor(power / 6)}%`
