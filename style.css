@@ -819,7 +819,7 @@ footer p{
 }
 
 .scene-show, .settings-show{
-    backdrop-filter: brightness(0.25) blur(0.25vmax);
+    backdrop-filter: brightness(0.25) blur(0.5vmax);
     align-items: center;
     position: relative;
     top: 0%;

@@ -1309,7 +1309,7 @@ const doSetScrollFunc = (event) => {
 }
 
 const doSettingSelect = (num, isFirst) => {
-    settingCount = Math.max(0, Math.min(settingCount, extras.extraOp.length - 1));
+    settingCount = Math.max(0, Math.min(settingCount, settingsMenu.length - 1));
     if(extras.extraOp.length > num){
         let child = Array.from(document.querySelector(".settings-selector").children)
         let classFind = Array.from(document.querySelector(".settings-container").children)[num].classList[1]
@@ -1322,7 +1322,7 @@ const doSettingSelect = (num, isFirst) => {
         settingCount = num
         child[num].classList.toggle("enabled")
         child[num].classList.toggle("text")
-        tabName.innerHTML = Object.values(extras.extraOp)[num].name
+        tabName.innerHTML = Object.values(settingsMenu)[num].name
         if(!isFirst && isFirst !== "scroll"){
             document.querySelector(`.${classFind}`).scrollIntoView({
                 behavior: 'smooth'
@@ -1332,6 +1332,7 @@ const doSettingSelect = (num, isFirst) => {
         }
     }else{
         doSettings()
+        tabName.innerHTML = `Five Night's at KITM`
         window.removeEventListener("wheel", doSetScrollFunc);
     }
 }
