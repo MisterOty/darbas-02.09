@@ -638,8 +638,6 @@ const doProgressBar = () => {
     }
 }
 
-loadTextures("progressBar")
-
 //CHANGE SCENE
 
 const newGame = (choose) => {   
@@ -1908,8 +1906,9 @@ const doRTimer = () => {
 
 const doPowerCount = () => {
     if(!powerOutage){
-            power--
-            powerInterval = setInterval(() => {
+        power--
+        document.querySelector(".power-number").innerHTML = `${Math.floor(power / 6)}%`
+        powerInterval = setInterval(() => {
             if(power !== Infinity){
                 document.querySelector(".power-number").innerHTML = `${Math.floor(power / 6)}%`
                 power--
@@ -1955,6 +1954,11 @@ const doPowerOutage = () => {
         rightDoorClose = false
         doDoorClose(rightDoorClose, "door-right", "door-button-right")
     }
+    for(let i = 0; i < characters.length; i++){
+        characters[i].path = 0
+        doAnimPath(i)
+    }
+    characters[0].path = 5
     powerOutage = true
     gamePlay.style.filter = `brightness(0.1)`
     document.querySelector(".power").style.display = `none`
@@ -1962,7 +1966,9 @@ const doPowerOutage = () => {
     document.querySelector(".timer").style.display = `none`
     tabName.innerHTML = `0% Power`
     doFlash("officeMove")
+    doAnimPath(0)
     clearInterval(powerInterval)
+    clearInterval(moveInterval)
     doSoundPlay("ambienceSounds", "offAmbience", "stop")
     doSoundPlay("ambienceSounds", "off20Ambience", "stop")
     doSoundPlay("gameSounds", "powerOutageSFX", "play")
@@ -2316,6 +2322,8 @@ const konamiFunc = (word, event) => {
         }
     }
 }
+
+loadTextures("progressBar")
 
 document.addEventListener("keydown", (event) => {
     if(event.key == settingsMenu[2].keyBindControl.pauseMenu.bind){
