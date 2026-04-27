@@ -470,6 +470,7 @@ let extraCount = 0;
 let easterEgg = 2067;
 let boxWind = 360;
 let progress = 0;
+let progressLoad = 0;
 
 let activeSounds = new Set();
 
@@ -613,10 +614,29 @@ const loadTextures = (type) => {
                 let img = new Image
                 img.src = images[Object.keys(images)[i]][e]
                 img.onload = function() {
-                    progress--
+                    doProgressBar()
                 };
             }
         }
+    }
+}
+
+const doProgressBar = () => {
+    progressLoad++
+    if(progressLoad == progress){
+        document.querySelector(".warning").innerHTML = `
+            <p>WARNING!<br><br>This game contains flashing lights, loud noises, and lots of jumpscares</p>
+            <div class="playButton"><a onclick="doMenu()">&gt;Play&lt;</a></div>`
+    }else{
+        document.querySelector(".warning").textContent = `Loading [`
+        for(let i = 0; i < 10; i++){
+            if(Math.floor(progressLoad / progress * 10) > i){
+                document.querySelector(".warning").textContent += `O`
+            }else{
+                document.querySelector(".warning").textContent += `-`
+            }
+        }
+        document.querySelector(".warning").textContent += `] (${Math.round((progressLoad / progress) * 100)}%)`
     }
 }
 
@@ -646,75 +666,73 @@ const newGame = (choose) => {
 }
 
 const doMenu = () => {
-    if(progress == 0){
-            officeView = false
-            twentyMode = false
-            currentNight = 0
-            clearMain()
-            gamePlay.innerHTML = `
-                <div class="stars"></div>
-                <div class="MMenu">
-                    <h1 class="title">Five Night's at KITM</h1>
-                    <div class="MMenuCharacter"></div>
-                    <div class="MMSelector">
-                        <p class="NG text">New Game</p>
-                    </div>
-                </div>
-                <div class="settings-button">Settings</div>`
-            copyRight.innerHTML = `
-                <p class="Name">Oskaras Venzlauskas GJSM23</p>`
-            tabName.innerHTML = `Five Night's at KITM`
+    officeView = false
+    twentyMode = false
+    currentNight = 0
+    clearMain()
+    gamePlay.innerHTML = `
+        <div class="stars"></div>
+        <div class="MMenu">
+            <h1 class="title">Five Night's at KITM</h1>
+            <div class="MMenuCharacter"></div>
+            <div class="MMSelector">
+                <p class="NG text">New Game</p>
+            </div>
+        </div>
+        <div class="settings-button">Settings</div>`
+    copyRight.innerHTML = `
+        <p class="Name">Oskaras Venzlauskas GJSM23</p>`
+    tabName.innerHTML = `Five Night's at KITM`
 
-            for(let i = 0; i < Object.values(gameData.stars).length; i++){
-                if(gameData.stars[`star${i + 1}`]){
-                    document.querySelector(".stars").innerHTML += `<div></div>`
-                }
-            }
-
-            body.style.background = `url(files/images/camera/static.gif)`
-            body.style.backgroundSize = `100% 100%`
-            gamePlay.style.background = ``
-            gamePlay.style.backdropFilter = `brightness(0.5)`
-            doMenuImg()
-            doSoundPlay("ambienceSounds", "mMTheme", "play", true)
-
-            if(gameData.night >= 1){
-                document.querySelector(".MMSelector").innerHTML += `
-                <p class="CTN text">Continue</p>`
-            }
-            if(gameData.nightSix){
-                document.querySelector(".MMSelector").innerHTML += `
-                <p class="night-six text">6th Night</p>`
-            }
-            if(gameData.extraMenu){
-                document.querySelector(".MMSelector").innerHTML += `
-                <p class="EXT text">Extra </p>`
-            }
-
-
-            document.querySelector(".MMSelector").addEventListener("click", (e) => {
-                let classes = e.target.classList
-                if(classes[0] == "NG"){
-                    newGame(0)
-                }else if(classes[0] == "CTN"){
-                    doNightShow("continue")
-                }else if(classes[0] == "night-six"){
-                    doNightShow("night-6")
-                }else if(classes[0] == "EXT"){
-                    doExtra()
-                }
-            });
-
-            document.querySelector(".settings-button").addEventListener("click", () => {
-                doSettings()
-            });
-
-            document.querySelectorAll(".text").forEach(btn => {
-                btn.addEventListener("mouseover", () => {
-                    doSoundPlay("gameSounds", "click", "loadPlay")
-                });
-            });
+    for(let i = 0; i < Object.values(gameData.stars).length; i++){
+        if(gameData.stars[`star${i + 1}`]){
+            document.querySelector(".stars").innerHTML += `<div></div>`
+        }
     }
+
+    body.style.background = `url(files/images/camera/static.gif)`
+    body.style.backgroundSize = `100% 100%`
+    gamePlay.style.background = ``
+    gamePlay.style.backdropFilter = `brightness(0.5)`
+    doMenuImg()
+    doSoundPlay("ambienceSounds", "mMTheme", "play", true)
+
+    if(gameData.night >= 1){
+        document.querySelector(".MMSelector").innerHTML += `
+        <p class="CTN text">Continue</p>`
+    }
+    if(gameData.nightSix){
+        document.querySelector(".MMSelector").innerHTML += `
+        <p class="night-six text">6th Night</p>`
+    }
+    if(gameData.extraMenu){
+        document.querySelector(".MMSelector").innerHTML += `
+        <p class="EXT text">Extra </p>`
+    }
+
+
+    document.querySelector(".MMSelector").addEventListener("click", (e) => {
+        let classes = e.target.classList
+        if(classes[0] == "NG"){
+            newGame(0)
+        }else if(classes[0] == "CTN"){
+            doNightShow("continue")
+        }else if(classes[0] == "night-six"){
+            doNightShow("night-6")
+        }else if(classes[0] == "EXT"){
+            doExtra()
+        }
+    });
+
+    document.querySelector(".settings-button").addEventListener("click", () => {
+        doSettings()
+    });
+
+    document.querySelectorAll(".text").forEach(btn => {
+        btn.addEventListener("mouseover", () => {
+            doSoundPlay("gameSounds", "click", "loadPlay")
+        });
+    });
 }
 
 const doMenuImg = () => {
