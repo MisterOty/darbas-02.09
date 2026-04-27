@@ -1906,8 +1906,16 @@ const doRTimer = () => {
 
 const doPowerCount = () => {
     if(!powerOutage){
-        power--
-        document.querySelector(".power-number").innerHTML = `${Math.floor(power / 6)}%`
+        if(power !== Infinity){
+            document.querySelector(".power-number").innerHTML = `${Math.floor(power / 6)}%`
+            power--
+            if(power <= 0){
+                doPowerOutage()
+                return
+            }
+        }else{
+            document.querySelector(".power-number").innerHTML = `∞%`
+        }
         powerInterval = setInterval(() => {
             if(power !== Infinity){
                 document.querySelector(".power-number").innerHTML = `${Math.floor(power / 6)}%`
