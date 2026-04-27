@@ -624,9 +624,7 @@ const loadTextures = (type) => {
 const doProgressBar = () => {
     progressLoad++
     if(progressLoad == progress){
-        document.querySelector(".warning").innerHTML = `
-            <p>WARNING!<br><br>This game contains flashing lights, loud noises, and lots of jumpscares</p>
-            <div class="playButton"><a onclick="doMenu()">&gt;Play&lt;</a></div>`
+        doMenu()
     }else{
         document.querySelector(".warning").textContent = `Loading [`
         for(let i = 0; i < 10; i++){
@@ -641,7 +639,6 @@ const doProgressBar = () => {
 }
 
 loadTextures("progressBar")
-loadTextures("loadTextures")
 
 //CHANGE SCENE
 
