@@ -255,7 +255,7 @@ let settingsMenu = [
         volumeControl: {
             masterVolume: {
                 text: "Master Volume",
-                value: 0.1
+                value: 1
             },
             gameVolume: {
                 text: "Game Volume",
