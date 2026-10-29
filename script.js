@@ -457,7 +457,7 @@ let images = {
 
 let gameSpeed = 1;
 let gameTime = 0;
-let power = 600;
+let power = 1000;
 let powerUsage = 1;
 let currentNight = 0;
 let cameraFloor = 0;
@@ -580,7 +580,7 @@ const clearMain = () => {
     }
     gameSpeed = 1
     gameTime = 0
-    power = 600
+    power = 1000
     powerUsage = 1
     officePos = 50
     cameraFloor = 0
@@ -807,7 +807,7 @@ const doOffice = () => {
         <div class="power">
             <div class="power-text">
                 <p>Power left:</p>
-                <p class="power-number">${Math.floor(power / 6)}%</p>
+                <p class="power-number">${Math.floor(power / 10)}%</p>
             </div>
             <div class="power-usage">
                 <p>Usage:</p>
@@ -980,7 +980,7 @@ const doBox = () => {
                 document.querySelector('.power-number-lost').style.bottom = `8.4%`
                 document.querySelector('.power-number-lost').style.opacity = `0%`
                 document.querySelector('.power-number-lost').textContent = `-${Math.floor(powerLoss / 6)}%`
-                document.querySelector(".power-number").innerHTML = `${Math.floor(power / 6)}%`
+                document.querySelector(".power-number").innerHTML = `${Math.floor(power / 10)}%`
                 changeCam(currentCam)
                 setTimeout(() => {
                     document.querySelector('.power-number-lost').style.filter = `opacity(0)`
@@ -1908,7 +1908,7 @@ const doRTimer = () => {
 const doPowerCount = () => {
     if(!powerOutage){
         if(power !== Infinity){
-            document.querySelector(".power-number").innerHTML = `${Math.floor(power / 6)}%`
+            document.querySelector(".power-number").innerHTML = `${Math.floor(power / 10)}%`
             power--
             if(power <= 0){
                 doPowerOutage()
@@ -1919,7 +1919,7 @@ const doPowerCount = () => {
         }
         powerInterval = setInterval(() => {
             if(power !== Infinity){
-                document.querySelector(".power-number").innerHTML = `${Math.floor(power / 6)}%`
+                document.querySelector(".power-number").innerHTML = `${Math.floor(power / 10)}%`
                 power--
                 if(power <= 0){
                     doPowerOutage()

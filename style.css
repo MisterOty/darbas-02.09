@@ -218,7 +218,7 @@ main{
 }
 
 .timeText{
-    font-family: Main-Menu;
+    font-family: LCD-Solid;
     transition: transform 0.125s;
 }
 
